@@ -40,6 +40,30 @@ public class ChessPosition {
     public ChessPosition getNeighbor(ChessMove.Direction direction) {
         switch (direction)
         {
+            case ChessMove.Direction.NORTH -> {
+                if(row == 8) {
+                    return null;
+                }
+                return new ChessPosition(row + 1, col);
+            }
+            case ChessMove.Direction.SOUTH -> {
+                if(row == 1) {
+                    return null;
+                }
+                return new ChessPosition(row - 1, col);
+            }
+            case ChessMove.Direction.EAST -> {
+                if(col == 1) {
+                    return null;
+                }
+                return new ChessPosition(row, col - 1);
+            }
+            case ChessMove.Direction.WEST -> {
+                if(col == 8) {
+                    return null;
+                }
+                return new ChessPosition(row, col + 1);
+            }
             case ChessMove.Direction.NORTHWEST -> {
                 if(row == 8 || col == 1) {
                     return null;

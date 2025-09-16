@@ -53,45 +53,61 @@ public class ChessPiece {
      *
      * @return Collection of valid moves
      */
-    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
+    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition)
+    {
+        switch (getPieceType())
+        {
+            case PieceType.BISHOP -> {
+                return getStandardMoves(board, myPosition,
+                        new ChessMove.Direction[] {
+                                ChessMove.Direction.NORTHWEST,
+                                ChessMove.Direction.NORTHEAST,
+                                ChessMove.Direction.SOUTHWEST,
+                                ChessMove.Direction.SOUTHEAST
+                });
+            }
+            case PieceType.ROOK -> {
+                return getStandardMoves(board, myPosition,
+                        new ChessMove.Direction[] {
+                                ChessMove.Direction.NORTH,
+                                ChessMove.Direction.SOUTH,
+                                ChessMove.Direction.EAST,
+                                ChessMove.Direction.WEST
+                        });
+            }
+            default -> throw new UnsupportedOperationException();
+        }
+    }
+
+    private ArrayList<ChessMove> getStandardMoves(ChessBoard board, ChessPosition currentPosition, ChessMove.Direction[] directions)
+    {
         ArrayList<ChessMove> moves = new ArrayList<>();
 
-        switch (getPieceType()){
-            case PieceType.BISHOP -> {
-                ChessMove.Direction [] directions = {
-                        ChessMove.Direction.NORTHWEST,
-                        ChessMove.Direction.NORTHEAST,
-                        ChessMove.Direction.SOUTHWEST,
-                        ChessMove.Direction.SOUTHEAST
-                };
-                for(ChessMove.Direction direction : directions)
+        for(ChessMove.Direction direction : directions)
+        {
+            ChessPosition possiblePosition = currentPosition;
+            while(possiblePosition != null)
+            {
+                possiblePosition = possiblePosition.getNeighbor(direction);
+                if(possiblePosition != null)  //not at an edge
                 {
-                    ChessPosition possiblePosition = myPosition;
-                    while(possiblePosition != null)
-                    {
-                        possiblePosition = possiblePosition.getNeighbor(direction);
-                        if(possiblePosition != null)  //not at an edge
-                        {
-                            ChessPiece pieceAtPosition = board.getPiece(possiblePosition);
+                    ChessPiece pieceAtPosition = board.getPiece(possiblePosition);
 
-                            if(pieceAtPosition == null) //no piece in this spot
-                            {
-                                moves.add(new ChessMove(myPosition, possiblePosition, null));
-                            }
-                            else if(pieceAtPosition.getTeamColor() != getTeamColor())  //piece in spot is enemy
-                            {
-                                moves.add(new ChessMove(myPosition, possiblePosition, null));
-                                possiblePosition = null;
-                            }
-                            else //piece in spot is ally
-                            {
-                                possiblePosition = null;
-                            }
-                        }
+                    if(pieceAtPosition == null) //no piece in this spot
+                    {
+                        moves.add(new ChessMove(currentPosition, possiblePosition, null));
+                    }
+                    else if(pieceAtPosition.getTeamColor() != getTeamColor())  //piece in spot is enemy
+                    {
+                        moves.add(new ChessMove(currentPosition, possiblePosition, null));
+                        possiblePosition = null;
+                    }
+                    else //piece in spot is ally
+                    {
+                        possiblePosition = null;
                     }
                 }
             }
-            default -> throw new UnsupportedOperationException();
         }
 
         return moves;
