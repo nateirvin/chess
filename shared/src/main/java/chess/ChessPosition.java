@@ -37,6 +37,28 @@ public class ChessPosition {
         return col;
     }
 
+    public ChessPosition getNeighbor(ChessMove.Direction... directions)
+    {
+        if(directions.length == 0)
+        {
+            throw new IllegalArgumentException();
+        }
+
+        ChessPosition position = this;
+        for(ChessMove.Direction movement : directions)
+        {
+            var newPosition = position.getNeighbor(movement);
+            if(newPosition == null)
+            {
+                return null;
+            }
+            else {
+                position = newPosition;
+            }
+        }
+        return position;
+    }
+
     public ChessPosition getNeighbor(ChessMove.Direction direction) {
         switch (direction)
         {

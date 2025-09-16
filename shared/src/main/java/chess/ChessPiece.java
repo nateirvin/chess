@@ -128,6 +128,33 @@ public class ChessPiece {
 
                 return moves;
             }
+            case PieceType.KNIGHT -> {
+                ArrayList<ChessMove> moves = new ArrayList<>();
+
+                ArrayList<ChessPosition> possibilities = new ArrayList<>();
+                possibilities.add(myPosition.getNeighbor(ChessMove.Direction.NORTH, ChessMove.Direction.NORTH, ChessMove.Direction.EAST));
+                possibilities.add(myPosition.getNeighbor(ChessMove.Direction.NORTH, ChessMove.Direction.NORTH, ChessMove.Direction.WEST));
+                possibilities.add(myPosition.getNeighbor(ChessMove.Direction.SOUTH, ChessMove.Direction.SOUTH, ChessMove.Direction.EAST));
+                possibilities.add(myPosition.getNeighbor(ChessMove.Direction.SOUTH, ChessMove.Direction.SOUTH, ChessMove.Direction.WEST));
+                possibilities.add(myPosition.getNeighbor(ChessMove.Direction.WEST, ChessMove.Direction.WEST, ChessMove.Direction.NORTH));
+                possibilities.add(myPosition.getNeighbor(ChessMove.Direction.WEST, ChessMove.Direction.WEST, ChessMove.Direction.SOUTH));
+                possibilities.add(myPosition.getNeighbor(ChessMove.Direction.EAST, ChessMove.Direction.EAST, ChessMove.Direction.NORTH));
+                possibilities.add(myPosition.getNeighbor(ChessMove.Direction.EAST, ChessMove.Direction.EAST, ChessMove.Direction.SOUTH));
+
+                for (ChessPosition potential : possibilities)
+                {
+                    if(potential != null)
+                    {
+                        var piece = board.getPiece(potential);
+                        if(piece == null || isEnemy(piece))
+                        {
+                            moves.add(new ChessMove(myPosition, potential, null));
+                        }
+                    }
+                }
+
+                return moves;
+            }
             default -> throw new UnsupportedOperationException();
         }
     }
