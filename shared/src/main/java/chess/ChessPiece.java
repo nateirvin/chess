@@ -2,7 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.Objects;
 
 /**
  * Represents a single chess piece
@@ -75,6 +75,19 @@ public class ChessPiece {
                                 ChessMove.Direction.WEST
                         });
             }
+            case PieceType.QUEEN -> {
+                return getStandardMoves(board, myPosition,
+                        new ChessMove.Direction[] {
+                                ChessMove.Direction.NORTH,
+                                ChessMove.Direction.SOUTH,
+                                ChessMove.Direction.EAST,
+                                ChessMove.Direction.WEST,
+                                ChessMove.Direction.NORTHWEST,
+                                ChessMove.Direction.NORTHEAST,
+                                ChessMove.Direction.SOUTHWEST,
+                                ChessMove.Direction.SOUTHEAST
+                        });
+            }
             default -> throw new UnsupportedOperationException();
         }
     }
@@ -111,6 +124,20 @@ public class ChessPiece {
         }
 
         return moves;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessPiece that = (ChessPiece) o;
+        return pieceColor == that.pieceColor && pieceType == that.pieceType;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(pieceColor, pieceType);
     }
 
     @Override
