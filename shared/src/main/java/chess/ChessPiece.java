@@ -46,6 +46,19 @@ public class ChessPiece {
         return pieceType;
     }
 
+    private int getStartRow() {
+        if(getPieceType() == PieceType.PAWN)
+        {
+            if(getTeamColor() == ChessGame.TeamColor.WHITE) {
+                return 2;
+            } else {
+                return 7;
+            }
+        }
+
+        throw new RuntimeException("not implemented");
+    }
+
     /**
      * Calculates all the positions a chess piece can move to
      * Does not take into account moves that are illegal due to leaving the king in
@@ -88,17 +101,82 @@ public class ChessPiece {
                                 ChessMove.Direction.SOUTHEAST
                         });
             }
+            case PieceType.KING -> {
+                return getStandardMoves(board, myPosition,
+                        new ChessMove.Direction[] {
+                                ChessMove.Direction.NORTH,
+                                ChessMove.Direction.SOUTH,
+                                ChessMove.Direction.EAST,
+                                ChessMove.Direction.WEST,
+                                ChessMove.Direction.NORTHWEST,
+                                ChessMove.Direction.NORTHEAST,
+                                ChessMove.Direction.SOUTHWEST,
+                                ChessMove.Direction.SOUTHEAST
+                        },
+                        1,
+                        true);
+            }
+            case PieceType.PAWN -> {
+                ArrayList<ChessMove> moves = new ArrayList<>();
+
+                if(getTeamColor() == ChessGame.TeamColor.WHITE) {
+                    addPawnMoves(moves, board, myPosition, ChessMove.Direction.NORTH, ChessMove.Direction.NORTHWEST, ChessMove.Direction.NORTHEAST);
+                }
+                if(getTeamColor() == ChessGame.TeamColor.BLACK) {
+                    addPawnMoves(moves, board, myPosition, ChessMove.Direction.SOUTH, ChessMove.Direction.SOUTHWEST, ChessMove.Direction.SOUTHEAST);
+                }
+
+                return moves;
+            }
             default -> throw new UnsupportedOperationException();
         }
     }
 
-    private ArrayList<ChessMove> getStandardMoves(ChessBoard board, ChessPosition currentPosition, ChessMove.Direction[] directions)
+    private void addPawnMoves(ArrayList<ChessMove> moves,
+                              ChessBoard board,
+                              ChessPosition myPosition,
+                              ChessMove.Direction progressDirection,
+                              ChessMove.Direction takeDirection1,
+                              ChessMove.Direction takeDirection2)
+    {
+        int stepsAllowed = myPosition.getRow() == getStartRow() ? 2 : 1;
+        moves.addAll(getStandardMoves(board, myPosition, new ChessMove.Direction[]{progressDirection}, stepsAllowed, false));
+        addPawnCaptureMove(moves, board, myPosition, takeDirection1);
+        addPawnCaptureMove(moves, board, myPosition, takeDirection2);
+    }
+
+    private void addPawnCaptureMove(ArrayList<ChessMove> moves,
+                                    ChessBoard board,
+                                    ChessPosition myPosition,
+                                    ChessMove.Direction direction)
+    {
+        ChessPosition neighbor = myPosition.getNeighbor(direction);
+        ChessPiece piece = board.getPiece(neighbor);
+        if(piece != null && isEnemy(piece)) {
+            moves.add(new ChessMove(myPosition, neighbor, null));
+        }
+    }
+
+    private ArrayList<ChessMove> getStandardMoves(ChessBoard board,
+                                                  ChessPosition currentPosition,
+                                                  ChessMove.Direction[] directions)
+    {
+        return getStandardMoves(board, currentPosition, directions, null, true);
+    }
+
+    private ArrayList<ChessMove> getStandardMoves(ChessBoard board,
+                                                  ChessPosition currentPosition,
+                                                  ChessMove.Direction[] directions,
+                                                  Integer maximumSteps,
+                                                  boolean allowCapture)
     {
         ArrayList<ChessMove> moves = new ArrayList<>();
 
         for(ChessMove.Direction direction : directions)
         {
+            int stepsTaken = 0;
             ChessPosition possiblePosition = currentPosition;
+
             while(possiblePosition != null)
             {
                 possiblePosition = possiblePosition.getNeighbor(direction);
@@ -109,10 +187,19 @@ public class ChessPiece {
                     if(pieceAtPosition == null) //no piece in this spot
                     {
                         moves.add(new ChessMove(currentPosition, possiblePosition, null));
+                        stepsTaken++;
+                        if(maximumSteps != null && stepsTaken == maximumSteps)
+                        {
+                            possiblePosition = null;
+                        }
                     }
-                    else if(pieceAtPosition.getTeamColor() != getTeamColor())  //piece in spot is enemy
+                    else if(isEnemy(pieceAtPosition))  //piece in spot is enemy
                     {
-                        moves.add(new ChessMove(currentPosition, possiblePosition, null));
+                        if(allowCapture)
+                        {
+                            moves.add(new ChessMove(currentPosition, possiblePosition, null));
+                            stepsTaken++;
+                        }
                         possiblePosition = null;
                     }
                     else //piece in spot is ally
@@ -124,6 +211,10 @@ public class ChessPiece {
         }
 
         return moves;
+    }
+
+    private boolean isEnemy(ChessPiece otherPiece) {
+        return otherPiece.getTeamColor() != getTeamColor();
     }
 
     @Override
