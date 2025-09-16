@@ -1,6 +1,8 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Represents a single chess piece
@@ -10,7 +12,12 @@ import java.util.Collection;
  */
 public class ChessPiece {
 
-    public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
+    private final ChessGame.TeamColor pieceColor;
+    private final PieceType pieceType;
+
+    public ChessPiece(ChessGame.TeamColor pieceColor, PieceType type) {
+        this.pieceColor = pieceColor;
+        this.pieceType = type;
     }
 
     /**
@@ -29,14 +36,14 @@ public class ChessPiece {
      * @return Which team this chess piece belongs to
      */
     public ChessGame.TeamColor getTeamColor() {
-        throw new RuntimeException("Not implemented");
+        return pieceColor;
     }
 
     /**
      * @return which type of chess piece this piece is
      */
     public PieceType getPieceType() {
-        throw new RuntimeException("Not implemented");
+        return pieceType;
     }
 
     /**
@@ -47,6 +54,51 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        throw new RuntimeException("Not implemented");
+        ArrayList<ChessMove> moves = new ArrayList<>();
+
+        switch (getPieceType()){
+            case PieceType.BISHOP -> {
+                ChessMove.Direction [] directions = {
+                        ChessMove.Direction.NORTHWEST,
+                        ChessMove.Direction.NORTHEAST,
+                        ChessMove.Direction.SOUTHWEST,
+                        ChessMove.Direction.SOUTHEAST
+                };
+                for(ChessMove.Direction direction : directions)
+                {
+                    ChessPosition possiblePosition = myPosition;
+                    while(possiblePosition != null)
+                    {
+                        possiblePosition = possiblePosition.getNeighbor(direction);
+                        if(possiblePosition != null)  //not at an edge
+                        {
+                            ChessPiece pieceAtPosition = board.getPiece(possiblePosition);
+
+                            if(pieceAtPosition == null) //no piece in this spot
+                            {
+                                moves.add(new ChessMove(myPosition, possiblePosition, null));
+                            }
+                            else if(pieceAtPosition.getTeamColor() != getTeamColor())  //piece in spot is enemy
+                            {
+                                moves.add(new ChessMove(myPosition, possiblePosition, null));
+                                possiblePosition = null;
+                            }
+                            else //piece in spot is ally
+                            {
+                                possiblePosition = null;
+                            }
+                        }
+                    }
+                }
+            }
+            default -> throw new UnsupportedOperationException();
+        }
+
+        return moves;
+    }
+
+    @Override
+    public String toString() {
+        return getTeamColor() + " " + getPieceType();
     }
 }
