@@ -117,16 +117,15 @@ public class ChessPiece {
                         true);
             }
             case PieceType.PAWN -> {
-                ArrayList<ChessMove> moves = new ArrayList<>();
-
-                if(getTeamColor() == ChessGame.TeamColor.WHITE) {
-                    addPawnMoves(moves, board, myPosition, ChessMove.Direction.NORTH, ChessMove.Direction.NORTHWEST, ChessMove.Direction.NORTHEAST);
+                if(getTeamColor() == ChessGame.TeamColor.WHITE)
+                {
+                    return pawnMoves(board, myPosition, ChessMove.Direction.NORTH, ChessMove.Direction.NORTHWEST, ChessMove.Direction.NORTHEAST, 2);
                 }
-                if(getTeamColor() == ChessGame.TeamColor.BLACK) {
-                    addPawnMoves(moves, board, myPosition, ChessMove.Direction.SOUTH, ChessMove.Direction.SOUTHWEST, ChessMove.Direction.SOUTHEAST);
+                else if(getTeamColor() == ChessGame.TeamColor.BLACK)
+                {
+                    return pawnMoves(board, myPosition, ChessMove.Direction.SOUTH, ChessMove.Direction.SOUTHWEST, ChessMove.Direction.SOUTHEAST, 7);
                 }
-
-                return moves;
+                throw new UnsupportedOperationException();
             }
             case PieceType.KNIGHT -> {
                 ArrayList<ChessMove> moves = new ArrayList<>();
@@ -159,29 +158,61 @@ public class ChessPiece {
         }
     }
 
-    private void addPawnMoves(ArrayList<ChessMove> moves,
-                              ChessBoard board,
-                              ChessPosition myPosition,
-                              ChessMove.Direction progressDirection,
-                              ChessMove.Direction takeDirection1,
-                              ChessMove.Direction takeDirection2)
+    private ArrayList<ChessMove> pawnMoves(ChessBoard board, ChessPosition myPosition, ChessMove.Direction mainDirection, ChessMove.Direction takeDirection1, ChessMove.Direction takeDirection2, int initialRow)
     {
-        int stepsAllowed = myPosition.getRow() == getStartRow() ? 2 : 1;
-        moves.addAll(getStandardMoves(board, myPosition, new ChessMove.Direction[]{progressDirection}, stepsAllowed, false));
-        addPawnCaptureMove(moves, board, myPosition, takeDirection1);
-        addPawnCaptureMove(moves, board, myPosition, takeDirection2);
+        ArrayList<ChessMove> moves = new ArrayList<>();
+
+        moves.addAll(
+            pawnMoves(board, myPosition, mainDirection, false));
+
+        if(myPosition.getRow() == initialRow)
+        {
+            if(board.getPiece(myPosition.getNeighbor(mainDirection)) == null)
+            {
+                ChessPosition potentialMove = myPosition.getNeighbor(mainDirection, mainDirection);
+                if(board.getPiece(potentialMove) == null)
+                {
+                    moves.add(new ChessMove(myPosition, potentialMove, null));
+                }
+            }
+        }
+
+        moves.addAll(
+            pawnMoves(board, myPosition, takeDirection1, true));
+
+        moves.addAll(
+            pawnMoves(board, myPosition, takeDirection2, true));
+
+        return moves;
     }
 
-    private void addPawnCaptureMove(ArrayList<ChessMove> moves,
-                                    ChessBoard board,
-                                    ChessPosition myPosition,
-                                    ChessMove.Direction direction)
+    private ArrayList<ChessMove> pawnMoves(ChessBoard board, ChessPosition myPosition, ChessMove.Direction direction, boolean isCapture)
     {
-        ChessPosition neighbor = myPosition.getNeighbor(direction);
-        ChessPiece piece = board.getPiece(neighbor);
-        if(piece != null && isEnemy(piece)) {
-            moves.add(new ChessMove(myPosition, neighbor, null));
+        ArrayList<ChessMove> moves = new ArrayList<>();
+
+        ChessPosition potentialMove = myPosition.getNeighbor(direction);
+        if(potentialMove != null)
+        {
+            ChessPiece blocker = board.getPiece(potentialMove);
+            if(isCapture && blocker != null && this.isEnemy(blocker)
+               ||
+               !isCapture && blocker == null)
+            {
+                if(potentialMove.getRow() == 1 || potentialMove.getRow() == 8)
+                {
+                    moves.add(new ChessMove(myPosition, potentialMove, PieceType.QUEEN));
+                    moves.add(new ChessMove(myPosition, potentialMove, PieceType.ROOK));
+                    moves.add(new ChessMove(myPosition, potentialMove, PieceType.KNIGHT));
+                    moves.add(new ChessMove(myPosition, potentialMove, PieceType.BISHOP));
+                }
+                else
+                {
+                    moves.add(new ChessMove(myPosition, potentialMove, null));
+                }
+            }
         }
+
+        return moves;
     }
 
     private ArrayList<ChessMove> getStandardMoves(ChessBoard board,
