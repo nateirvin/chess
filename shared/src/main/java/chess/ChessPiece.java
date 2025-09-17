@@ -46,19 +46,6 @@ public class ChessPiece {
         return pieceType;
     }
 
-    private int getStartRow() {
-        if(getPieceType() == PieceType.PAWN)
-        {
-            if(getTeamColor() == ChessGame.TeamColor.WHITE) {
-                return 2;
-            } else {
-                return 7;
-            }
-        }
-
-        throw new RuntimeException("not implemented");
-    }
-
     /**
      * Calculates all the positions a chess piece can move to
      * Does not take into account moves that are illegal due to leaving the king in
@@ -113,8 +100,7 @@ public class ChessPiece {
                                 ChessMove.Direction.SOUTHWEST,
                                 ChessMove.Direction.SOUTHEAST
                         },
-                        1,
-                        true);
+                        1);
             }
             case PieceType.PAWN -> {
                 if(getTeamColor() == ChessGame.TeamColor.WHITE)
@@ -219,14 +205,13 @@ public class ChessPiece {
                                                   ChessPosition currentPosition,
                                                   ChessMove.Direction[] directions)
     {
-        return getStandardMoves(board, currentPosition, directions, null, true);
+        return getStandardMoves(board, currentPosition, directions, null);
     }
 
     private ArrayList<ChessMove> getStandardMoves(ChessBoard board,
                                                   ChessPosition currentPosition,
                                                   ChessMove.Direction[] directions,
-                                                  Integer maximumSteps,
-                                                  boolean allowCapture)
+                                                  Integer maximumSteps)
     {
         ArrayList<ChessMove> moves = new ArrayList<>();
 
@@ -253,11 +238,8 @@ public class ChessPiece {
                     }
                     else if(isEnemy(pieceAtPosition))  //piece in spot is enemy
                     {
-                        if(allowCapture)
-                        {
-                            moves.add(new ChessMove(currentPosition, possiblePosition, null));
-                            stepsTaken++;
-                        }
+                        moves.add(new ChessMove(currentPosition, possiblePosition, null));
+                        stepsTaken++;
                         possiblePosition = null;
                     }
                     else //piece in spot is ally
