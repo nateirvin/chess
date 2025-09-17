@@ -44,5 +44,101 @@ public class ChessBoard {
      */
     public void resetBoard() {
         pieces.clear();
+
+        addPiece(new ChessPosition(1,1), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK));
+        addPiece(new ChessPosition(1,2), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT));
+        addPiece(new ChessPosition(1,3), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP));
+        addPiece(new ChessPosition(1,4), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.QUEEN));
+        addPiece(new ChessPosition(1,5), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING));
+        addPiece(new ChessPosition(1,6), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP));
+        addPiece(new ChessPosition(1,7), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT));
+        addPiece(new ChessPosition(1,8), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK));
+        setupPawns(ChessGame.TeamColor.WHITE, 2);
+
+        addPiece(new ChessPosition(8,1), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK));
+        addPiece(new ChessPosition(8,2), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT));
+        addPiece(new ChessPosition(8,3), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP));
+        addPiece(new ChessPosition(8,4), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.QUEEN));
+        addPiece(new ChessPosition(8,5), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING));
+        addPiece(new ChessPosition(8,6), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP));
+        addPiece(new ChessPosition(8,7), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT));
+        addPiece(new ChessPosition(8,8), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK));
+        setupPawns(ChessGame.TeamColor.BLACK, 7);
+    }
+
+    private void setupPawns(ChessGame.TeamColor pieceColor, int initialRow) {
+        for(int c = 1; c <= 8; c++) {
+            addPiece(new ChessPosition(initialRow, c), new ChessPiece(pieceColor, ChessPiece.PieceType.PAWN));
+        }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder x = new StringBuilder();
+        for(int r = 1; r <= 8; r++)
+        {
+            for(int c = 1; c <= 8; c++)
+            {
+                ChessPiece piece = getPiece(new ChessPosition(r, c));
+                if(piece != null)
+                {
+                    x.append(piece.shortCode());
+                }
+                else {
+                    x.append(" ");
+                }
+            }
+            x.append("\n");
+        }
+        return x.toString();
+    }
+
+    @Override
+    public int hashCode() {
+        int code = 0;
+        for(int r = 1; r <= 8; r++)
+        {
+            for(int c = 1; c <= 8; c++)
+            {
+                ChessPiece piece = getPiece(new ChessPosition(r, c));
+                if(piece != null)
+                {
+                    code += piece.hashCode();
+                }
+            }
+        }
+        return code;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj == null || obj.getClass() != getClass())
+        {
+            return false;
+        }
+        ChessBoard other = (ChessBoard) obj;
+        if(other.pieces.size() != pieces.size()) {
+            return false;
+        }
+        for(int r = 1; r <= 8; r++)
+        {
+            for(int c = 1; c <= 8; c++)
+            {
+                ChessPiece piece = getPiece(new ChessPosition(r, c));
+                ChessPiece otherPiece = other.getPiece(new ChessPosition(r, c));
+                if(piece != null)
+                {
+                    if(!piece.equals(otherPiece))
+                    {
+                        return false;
+                    }
+                }
+                else if(otherPiece != null)
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }

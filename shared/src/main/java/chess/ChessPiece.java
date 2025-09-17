@@ -20,6 +20,24 @@ public class ChessPiece {
         this.pieceType = type;
     }
 
+    public String shortCode() {
+        String code;
+        if(getPieceType() == PieceType.KING)
+        {
+           code = "G";
+        }
+        else
+        {
+            code = getPieceType().toString().toUpperCase().substring(0,1);
+        }
+
+        if(getTeamColor() == ChessGame.TeamColor.BLACK) {
+            code = code.toLowerCase();
+        }
+
+        return code;
+    }
+
     /**
      * The various different chess piece options
      */
