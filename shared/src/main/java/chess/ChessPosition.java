@@ -1,5 +1,7 @@
 package chess;
 
+import java.util.Objects;
+
 /**
  * Represents a single square position on a chess board
  * <p>
@@ -8,7 +10,20 @@ package chess;
  */
 public class ChessPosition {
 
+    private final int row;
+    private final int col;
+
+    public static final int TopRow = 8;
+    public static final int BottomRow = 1;
+    public static final int FirstColumn = 1;
+    public static final int LastColumn = 8;
+
     public ChessPosition(int row, int col) {
+        if(row < BottomRow || row > TopRow) throw new IllegalArgumentException("invalid row");
+        if(col < FirstColumn || col > LastColumn) throw new IllegalArgumentException("invalid column");
+
+        this.row = row;
+        this.col = col;
     }
 
     /**
@@ -16,7 +31,7 @@ public class ChessPosition {
      * 1 codes for the bottom row
      */
     public int getRow() {
-        throw new RuntimeException("Not implemented");
+        return row;
     }
 
     /**
@@ -24,6 +39,104 @@ public class ChessPosition {
      * 1 codes for the left row
      */
     public int getColumn() {
-        throw new RuntimeException("Not implemented");
+        return col;
+    }
+
+    public ChessPosition getNeighbor(ChessMove.Direction... directions)
+    {
+        if(directions.length == 0)
+        {
+            throw new IllegalArgumentException();
+        }
+
+        ChessPosition position = this;
+        for(ChessMove.Direction movement : directions)
+        {
+            var newPosition = position.getNeighbor(movement);
+            if(newPosition == null)
+            {
+                return null;
+            }
+            else
+            {
+                position = newPosition;
+            }
+        }
+        return position;
+    }
+
+    public ChessPosition getNeighbor(ChessMove.Direction direction)
+    {
+        switch (direction)
+        {
+            case ChessMove.Direction.NORTH -> {
+                if(row == TopRow) {
+                    return null;
+                }
+                return new ChessPosition(row + 1, col);
+            }
+            case ChessMove.Direction.SOUTH -> {
+                if(row == BottomRow) {
+                    return null;
+                }
+                return new ChessPosition(row - 1, col);
+            }
+            case ChessMove.Direction.EAST -> {
+                if(col == FirstColumn) {
+                    return null;
+                }
+                return new ChessPosition(row, col - 1);
+            }
+            case ChessMove.Direction.WEST -> {
+                if(col == LastColumn) {
+                    return null;
+                }
+                return new ChessPosition(row, col + 1);
+            }
+            case ChessMove.Direction.NORTHWEST -> {
+                if(row == TopRow || col == FirstColumn) {
+                    return null;
+                }
+                return new ChessPosition(row + 1, col - 1);
+            }
+            case ChessMove.Direction.NORTHEAST -> {
+                if(row == TopRow || col == LastColumn){
+                    return null;
+                }
+                return new ChessPosition(row + 1, col + 1);
+            }
+            case ChessMove.Direction.SOUTHWEST -> {
+                if(row == BottomRow || col == 1){
+                    return null;
+                }
+                return new ChessPosition(row - 1, col - 1);
+            }
+            case ChessMove.Direction.SOUTHEAST -> {
+                if(row == BottomRow || col == LastColumn){
+                    return null;
+                }
+                return new ChessPosition(row - 1, col + 1);
+            }
+            default -> throw new RuntimeException("not implemented");
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessPosition that = (ChessPosition) o;
+        return row == that.row && col == that.col;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(row, col);
+    }
+
+    @Override
+    public String toString() {
+        return "(" + row + "," + col + ")";
     }
 }
