@@ -66,39 +66,42 @@ public class ChessBoard {
         setupPawns(ChessGame.TeamColor.BLACK, 7);
     }
 
-    private void setupPawns(ChessGame.TeamColor pieceColor, int initialRow) {
-        for(int c = 1; c <= 8; c++) {
-            addPiece(new ChessPosition(initialRow, c), new ChessPiece(pieceColor, ChessPiece.PieceType.PAWN));
+    private void setupPawns(ChessGame.TeamColor pieceColor, int row) {
+        for(int col = ChessPosition.FirstColumn; col <= ChessPosition.LastColumn; col++) {
+            addPiece(new ChessPosition(row, col), new ChessPiece(pieceColor, ChessPiece.PieceType.PAWN));
         }
     }
 
     @Override
-    public String toString() {
-        StringBuilder x = new StringBuilder();
-        for(int r = 1; r <= 8; r++)
+    public String toString()
+    {
+        StringBuilder description = new StringBuilder();
+        for(int r = ChessPosition.BottomRow; r <= ChessPosition.TopRow; r++)
         {
-            for(int c = 1; c <= 8; c++)
+            for(int c = ChessPosition.FirstColumn; c <= ChessPosition.LastColumn; c++)
             {
                 ChessPiece piece = getPiece(new ChessPosition(r, c));
                 if(piece != null)
                 {
-                    x.append(piece.shortCode());
+                    description.append(piece.shortCode());
                 }
-                else {
-                    x.append(" ");
+                else
+                {
+                    description.append(" ");
                 }
             }
-            x.append("\n");
+            description.append("\n");
         }
-        return x.toString();
+        return description.toString();
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode()
+    {
         int code = 0;
-        for(int r = 1; r <= 8; r++)
+        for(int r = ChessPosition.BottomRow; r <= ChessPosition.TopRow; r++)
         {
-            for(int c = 1; c <= 8; c++)
+            for(int c = ChessPosition.FirstColumn; c <= ChessPosition.LastColumn; c++)
             {
                 ChessPiece piece = getPiece(new ChessPosition(r, c));
                 if(piece != null)
@@ -111,18 +114,20 @@ public class ChessBoard {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(Object obj)
+    {
         if(obj == null || obj.getClass() != getClass())
         {
             return false;
         }
         ChessBoard other = (ChessBoard) obj;
-        if(other.pieces.size() != pieces.size()) {
+        if(other.pieces.size() != pieces.size())
+        {
             return false;
         }
-        for(int r = 1; r <= 8; r++)
+        for(int r = ChessPosition.BottomRow; r <= ChessPosition.TopRow; r++)
         {
-            for(int c = 1; c <= 8; c++)
+            for(int c = ChessPosition.FirstColumn; c <= ChessPosition.LastColumn; c++)
             {
                 ChessPiece piece = getPiece(new ChessPosition(r, c));
                 ChessPiece otherPiece = other.getPiece(new ChessPosition(r, c));

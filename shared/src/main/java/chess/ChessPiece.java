@@ -20,7 +20,8 @@ public class ChessPiece {
         this.pieceType = type;
     }
 
-    public String shortCode() {
+    public String shortCode()
+    {
         String code;
         if(getPieceType() == PieceType.KING)
         {
@@ -202,7 +203,7 @@ public class ChessPiece {
                ||
                !isCapture && blocker == null)
             {
-                if(potentialMove.getRow() == 1 || potentialMove.getRow() == 8)
+                if(potentialMove.getRow() == ChessPosition.BottomRow || potentialMove.getRow() == ChessPosition.TopRow)
                 {
                     moves.add(new ChessMove(myPosition, potentialMove, PieceType.QUEEN));
                     moves.add(new ChessMove(myPosition, potentialMove, PieceType.ROOK));

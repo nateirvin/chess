@@ -14,8 +14,10 @@ public class ChessMove {
     private final ChessPosition endPosition;
     private final ChessPiece.PieceType promotionPiece;
 
-    public ChessMove(ChessPosition startPosition, ChessPosition endPosition,
-                     ChessPiece.PieceType promotionPiece) {
+    public ChessMove(ChessPosition startPosition,
+                     ChessPosition endPosition,
+                     ChessPiece.PieceType promotionPiece)
+    {
         this.startPosition = startPosition;
         this.endPosition = endPosition;
         this.promotionPiece = promotionPiece;
@@ -52,7 +54,9 @@ public class ChessMove {
 
     @Override
     public int hashCode() {
-        return Objects.hash(startPosition.hashCode(), endPosition.hashCode(), promotionPiece == null ? 0 : promotionPiece.hashCode());
+        return Objects.hash(startPosition.hashCode(),
+                            endPosition.hashCode(),
+                            promotionPiece == null ? 0 : promotionPiece.hashCode());
     }
 
     @Override
@@ -66,7 +70,8 @@ public class ChessMove {
                 promotionPiece == chessMove.promotionPiece;
     }
 
-    public enum Direction {
+    public enum Direction
+    {
         WEST,
         EAST,
         NORTH,
