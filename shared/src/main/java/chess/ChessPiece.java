@@ -121,17 +121,6 @@ public class ChessPiece {
                         },
                         1);
             }
-            case PieceType.PAWN -> {
-                if(getTeamColor() == ChessGame.TeamColor.WHITE)
-                {
-                    return pawnMoves(board, myPosition, ChessMove.Direction.NORTH, ChessMove.Direction.NORTHWEST, ChessMove.Direction.NORTHEAST, 2);
-                }
-                else if(getTeamColor() == ChessGame.TeamColor.BLACK)
-                {
-                    return pawnMoves(board, myPosition, ChessMove.Direction.SOUTH, ChessMove.Direction.SOUTHWEST, ChessMove.Direction.SOUTHEAST, 7);
-                }
-                throw new UnsupportedOperationException();
-            }
             case PieceType.KNIGHT -> {
                 ArrayList<ChessMove> moves = new ArrayList<>();
 
@@ -149,8 +138,8 @@ public class ChessPiece {
                 {
                     if(potential != null)
                     {
-                        var piece = board.getPiece(potential);
-                        if(piece == null || isEnemy(piece))
+                        ChessPiece otherPiece = board.getPiece(potential);
+                        if(otherPiece == null || areEnemies(this, otherPiece))
                         {
                             moves.add(new ChessMove(myPosition, potential, null));
                         }
@@ -159,66 +148,14 @@ public class ChessPiece {
 
                 return moves;
             }
+            case PieceType.PAWN -> {
+                return new Pawn(this, board, myPosition).moves();
+            }
             default -> throw new UnsupportedOperationException();
         }
     }
 
-    private ArrayList<ChessMove> pawnMoves(ChessBoard board, ChessPosition myPosition, ChessMove.Direction mainDirection, ChessMove.Direction takeDirection1, ChessMove.Direction takeDirection2, int initialRow)
-    {
-        ArrayList<ChessMove> moves = new ArrayList<>();
 
-        moves.addAll(
-            pawnMoves(board, myPosition, mainDirection, false));
-
-        if(myPosition.getRow() == initialRow)
-        {
-            if(board.getPiece(myPosition.getNeighbor(mainDirection)) == null)
-            {
-                ChessPosition potentialMove = myPosition.getNeighbor(mainDirection, mainDirection);
-                if(board.getPiece(potentialMove) == null)
-                {
-                    moves.add(new ChessMove(myPosition, potentialMove, null));
-                }
-            }
-        }
-
-        moves.addAll(
-            pawnMoves(board, myPosition, takeDirection1, true));
-
-        moves.addAll(
-            pawnMoves(board, myPosition, takeDirection2, true));
-
-        return moves;
-    }
-
-    private ArrayList<ChessMove> pawnMoves(ChessBoard board, ChessPosition myPosition, ChessMove.Direction direction, boolean isCapture)
-    {
-        ArrayList<ChessMove> moves = new ArrayList<>();
-
-        ChessPosition potentialMove = myPosition.getNeighbor(direction);
-        if(potentialMove != null)
-        {
-            ChessPiece blocker = board.getPiece(potentialMove);
-            if(isCapture && blocker != null && this.isEnemy(blocker)
-               ||
-               !isCapture && blocker == null)
-            {
-                if(potentialMove.getRow() == ChessPosition.BottomRow || potentialMove.getRow() == ChessPosition.TopRow)
-                {
-                    moves.add(new ChessMove(myPosition, potentialMove, PieceType.QUEEN));
-                    moves.add(new ChessMove(myPosition, potentialMove, PieceType.ROOK));
-                    moves.add(new ChessMove(myPosition, potentialMove, PieceType.KNIGHT));
-                    moves.add(new ChessMove(myPosition, potentialMove, PieceType.BISHOP));
-                }
-                else
-                {
-                    moves.add(new ChessMove(myPosition, potentialMove, null));
-                }
-            }
-        }
-
-        return moves;
-    }
 
     private ArrayList<ChessMove> getStandardMoves(ChessBoard board,
                                                   ChessPosition currentPosition,
@@ -255,7 +192,7 @@ public class ChessPiece {
                             possiblePosition = null;
                         }
                     }
-                    else if(isEnemy(pieceAtPosition))  //piece in spot is enemy
+                    else if(areEnemies(this, pieceAtPosition))  //piece in spot is enemy
                     {
                         moves.add(new ChessMove(currentPosition, possiblePosition, null));
                         stepsTaken++;
@@ -272,8 +209,12 @@ public class ChessPiece {
         return moves;
     }
 
-    private boolean isEnemy(ChessPiece otherPiece) {
-        return otherPiece.getTeamColor() != getTeamColor();
+    static boolean areEnemies(ChessPiece piece1, ChessPiece piece2)
+    {
+        if(piece1 == null) throw new IllegalArgumentException();
+        if(piece2 == null) throw new IllegalArgumentException();
+
+        return piece1.getTeamColor() != piece2.getTeamColor();
     }
 
     @Override
