@@ -2,31 +2,31 @@ package chess;
 
 import java.util.ArrayList;
 
-class Pawn
+class Pawn extends ChessPiece
 {
     private final ChessBoard board;
     private final ChessPosition startPosition;
-    private final ChessPiece self;
     private final int initialRow;
 
-    public Pawn(ChessPiece self, ChessBoard board, ChessPosition startPosition)
+    public Pawn(ChessBoard board, ChessPosition startPosition)
     {
+        super(board.getPiece(startPosition).getTeamColor(), board.getPiece(startPosition).getPieceType());
+
         this.board = board;
         this.startPosition = startPosition;
-        this.self = self;
         this.initialRow =
-                self.getTeamColor() == ChessGame.TeamColor.WHITE
+                getTeamColor() == ChessGame.TeamColor.WHITE
                         ? ChessPosition.BottomRow + 1
                         : ChessPosition.TopRow - 1;
     }
 
     public ArrayList<ChessMove> moves()
     {
-        if(self.getTeamColor() == ChessGame.TeamColor.WHITE)
+        if(getTeamColor() == ChessGame.TeamColor.WHITE)
         {
             return movesInDirections(ChessMove.Direction.NORTH, ChessMove.Direction.NORTHWEST, ChessMove.Direction.NORTHEAST);
         }
-        else if(self.getTeamColor() == ChessGame.TeamColor.BLACK)
+        else if(getTeamColor() == ChessGame.TeamColor.BLACK)
         {
             return movesInDirections(ChessMove.Direction.SOUTH, ChessMove.Direction.SOUTHWEST, ChessMove.Direction.SOUTHEAST);
         }
@@ -72,7 +72,7 @@ class Pawn
         if(potentialMove != null)
         {
             ChessPiece blocker = board.getPiece(potentialMove);
-            if(isCapture && blocker != null && ChessPiece.areEnemies(self, blocker)
+            if(isCapture && blocker != null && isEnemy(blocker)
                     ||
                     !isCapture && blocker == null)
             {
