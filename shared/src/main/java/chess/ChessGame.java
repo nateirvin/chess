@@ -1,6 +1,9 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Objects;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -10,15 +13,27 @@ import java.util.Collection;
  */
 public class ChessGame {
 
-    public ChessGame() {
+    private TeamColor currentTeam;
+    private ChessBoard board;
+    private final HashMap<TeamColor, ArrayList<ChessPiece>> captures;
 
+    public ChessGame()
+    {
+        currentTeam = TeamColor.WHITE;
+
+        board = new ChessBoard();
+        board.resetBoard();
+
+        captures = new HashMap<>();
+        captures.put(TeamColor.WHITE, new ArrayList<>());
+        captures.put(TeamColor.BLACK, new ArrayList<>());
     }
 
     /**
      * @return Which team's turn it is
      */
     public TeamColor getTeamTurn() {
-        throw new RuntimeException("Not implemented");
+        return currentTeam;
     }
 
     /**
@@ -27,7 +42,7 @@ public class ChessGame {
      * @param team the team whose turn it is
      */
     public void setTeamTurn(TeamColor team) {
-        throw new RuntimeException("Not implemented");
+        currentTeam = team;
     }
 
     /**
@@ -56,7 +71,30 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
+        if(move == null) {
+            throw new IllegalArgumentException();
+        }
+
+        ChessPiece piece = board.getPiece(move.getStartPosition());
+        if(piece == null) {
+            throw new InvalidMoveException("There is no piece at the start position.");
+        }
+
+        //TODO: account for Check
+
+        ChessPiece otherPiece = board.getPiece(move.getEndPosition());
+        if(otherPiece != null)
+        {
+            if(!otherPiece.isEnemy(piece)) {
+                throw new InvalidMoveException("You cannot attack an ally.");
+            }
+
+            ChessPiece removedPiece = board.removePiece(move.getEndPosition());
+            assert otherPiece == removedPiece;
+            captures.get(currentTeam).add(removedPiece);
+        }
+
+        board.updatePiecePosition(move);
     }
 
     /**
@@ -96,7 +134,12 @@ public class ChessGame {
      * @param board the new board to use
      */
     public void setBoard(ChessBoard board) {
-        throw new RuntimeException("Not implemented");
+        if(board == null) {
+            throw new IllegalArgumentException();
+        }
+
+        //TODO: should this reset the team?
+        this.board = board;
     }
 
     /**
@@ -105,6 +148,22 @@ public class ChessGame {
      * @return the chessboard
      */
     public ChessBoard getBoard() {
-        throw new RuntimeException("Not implemented");
+        return board;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessGame chessGame = (ChessGame) o;
+        return currentTeam == chessGame.currentTeam &&
+                Objects.equals(board, chessGame.board) &&
+                Objects.equals(captures, chessGame.captures);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(currentTeam, board, captures);
     }
 }

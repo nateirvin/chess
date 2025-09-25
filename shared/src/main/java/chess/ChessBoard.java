@@ -38,6 +38,20 @@ public class ChessBoard {
         return pieces.get(position);
     }
 
+    ChessPiece removePiece(ChessPosition position) {
+        assert position != null;
+        return pieces.remove(position);
+    }
+
+    void updatePiecePosition(ChessMove move) {
+        assert move != null;
+
+        ChessPiece piece = pieces.remove(move.getStartPosition());
+        assert piece != null;
+
+        pieces.put(move.getEndPosition(), piece);
+    }
+
     /**
      * Sets the board to the default starting board
      * (How the game of chess normally starts)
@@ -76,7 +90,7 @@ public class ChessBoard {
     public String toString()
     {
         StringBuilder description = new StringBuilder();
-        for(int r = ChessPosition.BottomRow; r <= ChessPosition.TopRow; r++)
+        for(int r = ChessPosition.TopRow; r <= ChessPosition.BottomRow; r--)
         {
             for(int c = ChessPosition.FirstColumn; c <= ChessPosition.LastColumn; c++)
             {
@@ -103,10 +117,11 @@ public class ChessBoard {
         {
             for(int c = ChessPosition.FirstColumn; c <= ChessPosition.LastColumn; c++)
             {
-                ChessPiece piece = getPiece(new ChessPosition(r, c));
+                ChessPosition position = new ChessPosition(r, c);
+                ChessPiece piece = getPiece(position);
                 if(piece != null)
                 {
-                    code += piece.hashCode();
+                    code += position.hashCode() * piece.hashCode();
                 }
             }
         }

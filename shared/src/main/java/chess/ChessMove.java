@@ -18,6 +18,10 @@ public class ChessMove {
                      ChessPosition endPosition,
                      ChessPiece.PieceType promotionPiece)
     {
+        if(startPosition.equals(endPosition)) {
+            throw new IllegalArgumentException("That's not actually a move.");
+        }
+
         this.startPosition = startPosition;
         this.endPosition = endPosition;
         this.promotionPiece = promotionPiece;
