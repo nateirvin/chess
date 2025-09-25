@@ -61,7 +61,18 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        throw new RuntimeException("Not implemented");
+        if(startPosition == null) {
+            throw new IllegalArgumentException();
+        }
+
+        ChessPiece piece = board.getPiece(startPosition);
+
+        if(piece == null) {
+            return null;
+        }
+
+        //TODO: filter invalid moves, including Check
+        return piece.pieceMoves(board, startPosition);
     }
 
     /**
@@ -78,13 +89,16 @@ public class ChessGame {
         ChessPiece piece = board.getPiece(move.getStartPosition());
         if(piece == null) {
             throw new InvalidMoveException("There is no piece at the start position.");
+        } else if(piece.getTeamColor() != currentTeam) {
+            throw new InvalidMoveException("It is not your turn.");
         }
 
-        //TODO: account for Check
+        //TODO: check is move if valid
 
         ChessPiece otherPiece = board.getPiece(move.getEndPosition());
         if(otherPiece != null)
         {
+            //TODO: redundant?
             if(!otherPiece.isEnemy(piece)) {
                 throw new InvalidMoveException("You cannot attack an ally.");
             }
