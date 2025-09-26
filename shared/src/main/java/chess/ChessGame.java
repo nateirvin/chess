@@ -1,8 +1,6 @@
 package chess;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Objects;
 
 /**
@@ -15,7 +13,6 @@ public class ChessGame {
 
     private TeamColor currentTeam;
     private ChessBoard board;
-    private final HashMap<TeamColor, ArrayList<ChessPiece>> captures;
 
     public ChessGame()
     {
@@ -23,10 +20,6 @@ public class ChessGame {
 
         board = new ChessBoard();
         board.resetBoard();
-
-        captures = new HashMap<>();
-        captures.put(TeamColor.WHITE, new ArrayList<>());
-        captures.put(TeamColor.BLACK, new ArrayList<>());
     }
 
     /**
@@ -80,7 +73,14 @@ public class ChessGame {
                         return false;
                     }
 
-                    //TODO: filter invalid promotions
+                    if(piece.getPieceType() == ChessPiece.PieceType.PAWN && move.isDiagonal())
+                    {
+                        ChessPiece pieceToTake = board.getPiece(move.getEndPosition());
+                        if(pieceToTake == null)
+                        {
+                            return false;
+                        }
+                    }
 
                     return true;
                  })
@@ -101,26 +101,26 @@ public class ChessGame {
         ChessPiece piece = board.getPiece(move.getStartPosition());
         if(piece == null) {
             throw new InvalidMoveException("There is no piece at the start position.");
-        } else if(piece.getTeamColor() != currentTeam) {
-            throw new InvalidMoveException("It is not your turn.");
         }
 
-        //TODO: check is move if valid
+        Collection<ChessMove> validMoves = validMoves(move.getStartPosition());
+        if(!validMoves.contains(move))
+        {
+            throw new InvalidMoveException();
+        }
 
         ChessPiece otherPiece = board.getPiece(move.getEndPosition());
         if(otherPiece != null)
         {
-            //TODO: redundant?
             if(!otherPiece.isEnemy(piece)) {
                 throw new InvalidMoveException("You cannot attack an ally.");
             }
 
-            ChessPiece removedPiece = board.removePiece(move.getEndPosition());
-            assert otherPiece == removedPiece;
-            captures.get(currentTeam).add(removedPiece);
+            board.removePiece(move.getEndPosition());
         }
 
         board.updatePiecePosition(move);
+        setTeamTurn(currentTeam == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE);
     }
 
     /**
@@ -168,7 +168,7 @@ public class ChessGame {
                 }
             }
 
-            Collection<ChessSquare> allySquares = board.getTeamPieces(king.getTeamColor());
+            Collection<ChessSquare> allySquares = board.teamPieces(king.getTeamColor());
             for(ChessSquare allySquare : allySquares)
             {
                 Collection<ChessMove> allyMoves = allySquare.getPiece().pieceMoves(board, allySquare.getPosition());
@@ -243,7 +243,7 @@ public class ChessGame {
     {
         TeamColor opponentColor = piece.getTeamColor() == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE;
 
-        Collection<ChessSquare> opponentSquares = board.getTeamPieces(opponentColor);
+        Collection<ChessSquare> opponentSquares = board.teamPieces(opponentColor);
         for(ChessSquare opponentSquare : opponentSquares)
         {
             Collection<ChessPosition> opponentMoves = opponentSquare.getPiece().threatens(board, opponentSquare.getPosition());
@@ -289,12 +289,11 @@ public class ChessGame {
         }
         ChessGame chessGame = (ChessGame) o;
         return currentTeam == chessGame.currentTeam &&
-                Objects.equals(board, chessGame.board) &&
-                Objects.equals(captures, chessGame.captures);
+                Objects.equals(board, chessGame.board);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(currentTeam, board, captures);
+        return Objects.hash(currentTeam, board);
     }
 }

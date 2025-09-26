@@ -54,20 +54,7 @@ public class ChessBoard {
         pieces.put(move.getEndPosition(), piece);
     }
 
-    public ChessPosition positionOf(ChessGame.TeamColor teamColor, ChessPiece.PieceType pieceType)
-    {
-        for(ChessPosition position : pieces.keySet())
-        {
-            ChessPiece piece = pieces.get(position);
-            if(piece.getPieceType() == pieceType && piece.getTeamColor() == teamColor)
-            {
-                return position;
-            }
-        }
-        return null;
-    }
-
-    public Collection<ChessSquare> getTeamPieces(ChessGame.TeamColor teamColor)
+    public Collection<ChessSquare> teamPieces(ChessGame.TeamColor teamColor)
     {
         ArrayList<ChessSquare> squares = new ArrayList<>();
 
@@ -135,7 +122,7 @@ public class ChessBoard {
     public String toString()
     {
         StringBuilder description = new StringBuilder();
-        for(int r = ChessPosition.TopRow; r <= ChessPosition.BottomRow; r--)
+        for(int r = ChessPosition.TopRow; r >= ChessPosition.BottomRow; r--)
         {
             for(int c = ChessPosition.FirstColumn; c <= ChessPosition.LastColumn; c++)
             {

@@ -74,6 +74,11 @@ public class ChessMove {
                 promotionPiece == chessMove.promotionPiece;
     }
 
+    public boolean isDiagonal() {
+        return startPosition.getColumn() != endPosition.getColumn() &&
+               startPosition.getRow() != endPosition.getRow();
+    }
+
     public enum Direction
     {
         WEST,
