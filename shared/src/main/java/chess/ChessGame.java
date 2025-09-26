@@ -71,8 +71,20 @@ public class ChessGame {
             return null;
         }
 
-        //TODO: filter invalid moves, including Check
-        return piece.pieceMoves(board, startPosition);
+        return
+            piece.pieceMoves(board, startPosition).stream()
+                 .filter(move -> {
+                    if(piece.getPieceType() == ChessPiece.PieceType.KING &&
+                       thisPieceInThisPositionIsThreatened(piece, move.getEndPosition()))
+                    {
+                        return false;
+                    }
+
+                    //TODO: filter invalid promotions
+
+                    return true;
+                 })
+                 .toList();
     }
 
     /**
