@@ -120,22 +120,7 @@ public class ChessGame {
     public boolean isInCheck(TeamColor teamColor)
     {
         ChessPosition kingPosition = board.positionOf(teamColor, ChessPiece.PieceType.KING);
-
-        TeamColor opponentColor = teamColor == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE;
-
-        for(ChessSquare opponentSquare : board.getTeamPieces(opponentColor))
-        {
-            Collection<ChessMove> opponentMoves = opponentSquare.getPiece().pieceMoves(board, opponentSquare.getPosition());
-            for(ChessMove opponentMove : opponentMoves)
-            {
-                if(opponentMove.getEndPosition().equals(kingPosition))
-                {
-                    return true;
-                }
-            }
-        }
-
-        return false;
+        return thisColorMovingToThisPositionMakesItThreatened(teamColor, kingPosition);
     }
 
     /**
@@ -167,7 +152,8 @@ public class ChessGame {
 
         for(ChessMove kingMove : kingMoves)
         {
-            if (!wouldBeThreatened(teamColor, kingMove.getEndPosition()))
+            boolean isCheck = thisColorMovingToThisPositionMakesItThreatened(teamColor, kingMove.getEndPosition());
+            if (!isCheck)
             {
                 return true;
             }
@@ -176,7 +162,7 @@ public class ChessGame {
         return false;
     }
 
-    private boolean wouldBeThreatened(TeamColor color, ChessPosition newPosition)
+    private boolean thisColorMovingToThisPositionMakesItThreatened(TeamColor color, ChessPosition newPosition)
     {
         TeamColor opponentColor = color == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE;
 
