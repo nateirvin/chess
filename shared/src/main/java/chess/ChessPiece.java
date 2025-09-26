@@ -94,7 +94,7 @@ public class ChessPiece {
                                 ChessMove.Direction.WEST
                         });
             }
-            case PieceType.QUEEN -> {
+            case PieceType.QUEEN, PieceType.KING -> {
                 return moves(board, myPosition,
                         new ChessMove.Direction[] {
                                 ChessMove.Direction.NORTH,
@@ -106,20 +106,6 @@ public class ChessPiece {
                                 ChessMove.Direction.SOUTHWEST,
                                 ChessMove.Direction.SOUTHEAST
                         });
-            }
-            case PieceType.KING -> {
-                return moves(board, myPosition,
-                        new ChessMove.Direction[] {
-                                ChessMove.Direction.NORTH,
-                                ChessMove.Direction.SOUTH,
-                                ChessMove.Direction.EAST,
-                                ChessMove.Direction.WEST,
-                                ChessMove.Direction.NORTHWEST,
-                                ChessMove.Direction.NORTHEAST,
-                                ChessMove.Direction.SOUTHWEST,
-                                ChessMove.Direction.SOUTHEAST
-                        },
-                        1);
             }
             case PieceType.KNIGHT -> {
                 return new Knight(board, myPosition).moves();
@@ -135,19 +121,10 @@ public class ChessPiece {
                                        ChessPosition currentPosition,
                                        ChessMove.Direction[] directions)
     {
-        return moves(board, currentPosition, directions, null);
-    }
-
-    private ArrayList<ChessMove> moves(ChessBoard board,
-                                       ChessPosition currentPosition,
-                                       ChessMove.Direction[] directions,
-                                       Integer maximumSteps)
-    {
         ArrayList<ChessMove> moves = new ArrayList<>();
 
         for(ChessMove.Direction direction : directions)
         {
-            int stepsTaken = 0;
             ChessPosition possiblePosition = currentPosition;
 
             while(possiblePosition != null)
@@ -160,8 +137,7 @@ public class ChessPiece {
                     if(pieceAtPosition == null) //no piece in this spot
                     {
                         moves.add(new ChessMove(currentPosition, possiblePosition, null));
-                        stepsTaken++;
-                        if(maximumSteps != null && stepsTaken == maximumSteps)
+                        if(getPieceType() == PieceType.KING)
                         {
                             possiblePosition = null;
                         }
@@ -169,7 +145,6 @@ public class ChessPiece {
                     else if(isEnemy(pieceAtPosition))  //piece in spot is enemy
                     {
                         moves.add(new ChessMove(currentPosition, possiblePosition, null));
-                        stepsTaken++;
                         possiblePosition = null;
                     }
                     else //piece in spot is ally
