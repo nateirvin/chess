@@ -51,9 +51,9 @@ class Pawn extends ChessPiece
 
         if(startPosition.getRow() == initialRow)
         {
-            if(board.getPiece(startPosition.getNeighbor(direction)) == null)
+            if(board.getPiece(startPosition.neighbor(direction)) == null)
             {
-                ChessPosition potentialMove = startPosition.getNeighbor(direction, direction);
+                ChessPosition potentialMove = startPosition.neighbor(direction, direction);
                 if(board.getPiece(potentialMove) == null)
                 {
                     move.add(new ChessMove(startPosition, potentialMove, null));
@@ -68,7 +68,7 @@ class Pawn extends ChessPiece
     {
         ArrayList<ChessMove> moves = new ArrayList<>();
 
-        ChessPosition potentialMove = startPosition.getNeighbor(direction);
+        ChessPosition potentialMove = startPosition.neighbor(direction);
         if(potentialMove != null)
         {
             ChessPiece blocker = board.getPiece(potentialMove);

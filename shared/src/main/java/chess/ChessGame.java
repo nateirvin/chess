@@ -142,15 +142,47 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        if(isInCheck(teamColor))
+        ChessSquare kingSquare = board.square(teamColor, ChessPiece.PieceType.KING);
+        ChessPiece king = kingSquare.getPiece();
+        ChessSquare threat = threatForPieceInPosition(king, kingSquare.getPosition());
+
+        if(threat != null)  //is in check
         {
-            if(kingCanMove(teamColor))
+            Collection<ChessMove> kingMoves = king.pieceMoves(board, kingSquare.getPosition());
+            for (ChessMove kingMove : kingMoves)
             {
-                return false;
+                ChessPosition kingDestination = kingMove.getEndPosition();
+
+                ChessPiece threatenedByKing = board.getPiece(kingDestination);
+                if(threatenedByKing == threat.getPiece())
+                {
+                    //king can take away
+                    return false;
+                }
+
+                boolean isCheck = thisPieceInThisPositionIsThreatened(king, kingDestination);
+                if (!isCheck)
+                {
+                    //king can move
+                    return false;
+                }
             }
 
-            //TODO: if can take
-            //TODO: if can block
+            Collection<ChessSquare> allySquares = board.getTeamPieces(king.getTeamColor());
+            for(ChessSquare allySquare : allySquares)
+            {
+                Collection<ChessMove> allyMoves = allySquare.getPiece().pieceMoves(board, allySquare.getPosition());
+                for (ChessMove allyMove : allyMoves)
+                {
+                    if(allyMove.getEndPosition().equals(threat.getPosition()))
+                    {
+                        //ally can take away
+                        return false;
+                    }
+                }
+            }
+
+            return true;
         }
 
         return false;
@@ -165,7 +197,23 @@ public class ChessGame {
      */
     public boolean isInStalemate(TeamColor teamColor)
     {
-        return !isInCheck(teamColor) && !kingCanMove(teamColor);
+        return !isInCheck(teamColor) && !kingCanMove(teamColor) && !kingIsProtected(teamColor);
+    }
+
+    private boolean kingIsProtected(TeamColor teamColor)
+    {
+        ChessSquare king = board.square(teamColor, ChessPiece.PieceType.KING);
+        Collection<ChessPosition> allNeighbors = king.getPosition().allNeighbors();
+        for(ChessPosition neighbor : allNeighbors)
+        {
+            ChessPiece neighborPiece = board.getPiece(neighbor);
+            if(neighborPiece != null && neighborPiece.getTeamColor() == teamColor)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private boolean kingCanMove(TeamColor teamColor)
@@ -187,6 +235,12 @@ public class ChessGame {
 
     private boolean thisPieceInThisPositionIsThreatened(ChessPiece piece, ChessPosition position)
     {
+        ChessSquare threatener = threatForPieceInPosition(piece, position);
+        return threatener != null;
+    }
+
+    private ChessSquare threatForPieceInPosition(ChessPiece piece, ChessPosition position)
+    {
         TeamColor opponentColor = piece.getTeamColor() == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE;
 
         Collection<ChessSquare> opponentSquares = board.getTeamPieces(opponentColor);
@@ -197,12 +251,12 @@ public class ChessGame {
             {
                 if(opponentMove.getEndPosition().equals(position))
                 {
-                    return true;
+                    return opponentSquare;
                 }
             }
         }
 
-        return false;
+        return null;
     }
 
     /**

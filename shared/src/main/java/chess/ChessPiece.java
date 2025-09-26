@@ -129,7 +129,7 @@ public class ChessPiece {
 
             while(possiblePosition != null)
             {
-                possiblePosition = possiblePosition.getNeighbor(direction);
+                possiblePosition = possiblePosition.neighbor(direction);
                 if(possiblePosition != null)  //not at an edge
                 {
                     ChessPiece pieceAtPosition = board.getPiece(possiblePosition);
