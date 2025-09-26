@@ -163,6 +163,18 @@ public class ChessPiece {
         return this.getTeamColor() != otherPiece.getTeamColor();
     }
 
+    public Collection<ChessPosition> threatens(ChessBoard board, ChessPosition currentPosition)
+    {
+        if(pieceType == PieceType.PAWN)
+        {
+            return new Pawn(board, currentPosition).threatens(board, currentPosition);
+        }
+
+        return pieceMoves(board, currentPosition).stream()
+                .map(move -> move.getEndPosition())
+                .toList();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {

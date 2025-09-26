@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 class Pawn extends ChessPiece
 {
@@ -92,5 +93,24 @@ class Pawn extends ChessPiece
         }
 
         return moves;
+    }
+
+    @Override
+    public Collection<ChessPosition> threatens(ChessBoard board, ChessPosition currentPosition)
+    {
+        ArrayList<ChessPosition> positions = new ArrayList<>();
+
+        if(getTeamColor() == ChessGame.TeamColor.WHITE)
+        {
+            positions.add(currentPosition.neighbor(ChessMove.Direction.NORTHEAST));
+            positions.add(currentPosition.neighbor(ChessMove.Direction.NORTHWEST));
+        }
+        if(getTeamColor() == ChessGame.TeamColor.BLACK)
+        {
+            positions.add(currentPosition.neighbor(ChessMove.Direction.SOUTHEAST));
+            positions.add(currentPosition.neighbor(ChessMove.Direction.SOUTHWEST));
+        }
+
+        return positions.stream().filter(p -> p != null).toList();
     }
 }

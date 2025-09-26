@@ -246,10 +246,10 @@ public class ChessGame {
         Collection<ChessSquare> opponentSquares = board.getTeamPieces(opponentColor);
         for(ChessSquare opponentSquare : opponentSquares)
         {
-            Collection<ChessMove> opponentMoves = opponentSquare.getPiece().pieceMoves(board, opponentSquare.getPosition());
-            for (ChessMove opponentMove : opponentMoves)
+            Collection<ChessPosition> opponentMoves = opponentSquare.getPiece().threatens(board, opponentSquare.getPosition());
+            for (ChessPosition opponentMove : opponentMoves)
             {
-                if(opponentMove.getEndPosition().equals(position))
+                if(opponentMove.equals(position))
                 {
                     return opponentSquare;
                 }

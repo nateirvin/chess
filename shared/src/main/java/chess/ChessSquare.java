@@ -19,4 +19,9 @@ public class ChessSquare {
     public ChessPiece getPiece() {
         return piece;
     }
+
+    @Override
+    public String toString() {
+        return piece + " at " + position;
+    }
 }
