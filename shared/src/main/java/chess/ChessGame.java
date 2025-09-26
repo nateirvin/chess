@@ -101,6 +101,8 @@ public class ChessGame {
         ChessPiece piece = board.getPiece(move.getStartPosition());
         if(piece == null) {
             throw new InvalidMoveException("There is no piece at the start position.");
+        } else if(piece.getTeamColor() != currentTeam) {
+            throw new InvalidMoveException("It is not your turn.");
         }
 
         Collection<ChessMove> validMoves = validMoves(move.getStartPosition());
@@ -269,7 +271,6 @@ public class ChessGame {
             throw new IllegalArgumentException();
         }
 
-        //TODO: should this reset the team?
         this.board = board;
     }
 
