@@ -123,12 +123,12 @@ public class ChessGame {
 
         TeamColor opponentColor = teamColor == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE;
 
-        for(ChessSquare opponent : board.getTeamPieces(opponentColor))
+        for(ChessSquare opponentSquare : board.getTeamPieces(opponentColor))
         {
-            Collection<ChessMove> moves = opponent.getPiece().pieceMoves(board, opponent.getPosition());
-            for(ChessMove move : moves)
+            Collection<ChessMove> opponentMoves = opponentSquare.getPiece().pieceMoves(board, opponentSquare.getPosition());
+            for(ChessMove opponentMove : opponentMoves)
             {
-                if(move.getEndPosition().equals(kingPosition))
+                if(opponentMove.getEndPosition().equals(kingPosition))
                 {
                     return true;
                 }
@@ -157,13 +157,39 @@ public class ChessGame {
      */
     public boolean isInStalemate(TeamColor teamColor)
     {
-        if (!isInCheck(teamColor))
+        return !isInCheck(teamColor) && !kingCanMove(teamColor);
+    }
+
+    private boolean kingCanMove(TeamColor teamColor)
+    {
+        ChessSquare king = board.square(teamColor, ChessPiece.PieceType.KING);
+        Collection<ChessMove> kingMoves = king.getPiece().pieceMoves(board, king.getPosition());
+
+        for(ChessMove kingMove : kingMoves)
         {
-            ChessSquare square = board.square(teamColor, ChessPiece.PieceType.KING);
-            Collection<ChessMove> moves = validMoves(square.getPosition());
-            if (moves.isEmpty())
+            if (!wouldBeThreatened(teamColor, kingMove.getEndPosition()))
             {
                 return true;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean wouldBeThreatened(TeamColor color, ChessPosition newPosition)
+    {
+        TeamColor opponentColor = color == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE;
+
+        Collection<ChessSquare> opponentSquares = board.getTeamPieces(opponentColor);
+        for(ChessSquare opponentSquare : opponentSquares)
+        {
+            Collection<ChessMove> opponentMoves = opponentSquare.getPiece().pieceMoves(board, opponentSquare.getPosition());
+            for (ChessMove opponentMove : opponentMoves)
+            {
+                if(opponentMove.getEndPosition().equals(newPosition))
+                {
+                    return true;
+                }
             }
         }
 
