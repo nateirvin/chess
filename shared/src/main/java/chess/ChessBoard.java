@@ -1,5 +1,7 @@
 package chess;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,6 +52,49 @@ public class ChessBoard {
         assert piece != null;
 
         pieces.put(move.getEndPosition(), piece);
+    }
+
+    public ChessPosition positionOf(ChessGame.TeamColor teamColor, ChessPiece.PieceType pieceType)
+    {
+        for(ChessPosition position : pieces.keySet())
+        {
+            ChessPiece piece = pieces.get(position);
+            if(piece.getPieceType() == pieceType && piece.getTeamColor() == teamColor)
+            {
+                return position;
+            }
+        }
+        return null;
+    }
+
+    public Collection<ChessSquare> getTeamPieces(ChessGame.TeamColor teamColor)
+    {
+        ArrayList<ChessSquare> squares = new ArrayList<>();
+
+        for(ChessPosition position : pieces.keySet())
+        {
+            ChessPiece piece = pieces.get(position);
+            if(piece.getTeamColor() == teamColor)
+            {
+                squares.add(new ChessSquare(position, piece));
+            }
+        }
+
+        return squares;
+    }
+
+    public ChessSquare square(ChessGame.TeamColor teamColor, ChessPiece.PieceType pieceType)
+    {
+        for(ChessPosition position : pieces.keySet())
+        {
+            ChessPiece piece = pieces.get(position);
+            if(piece.getTeamColor() == teamColor && piece.getPieceType() == pieceType)
+            {
+                return new ChessSquare(position, piece);
+            }
+        }
+
+        return null;
     }
 
     /**
