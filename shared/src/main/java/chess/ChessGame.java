@@ -155,31 +155,35 @@ public class ChessGame {
             {
                 ChessPosition kingDestination = kingMove.getEndPosition();
 
-                ChessPiece threatenedByKing = board.getPiece(kingDestination);
-                if(threatenedByKing == threat.getPiece())
+                boolean isCheck = thisPieceInThisPositionIsThreatened(king, kingDestination);
+                if (!isCheck)  //king can move
                 {
-                    //king can take away
                     return false;
                 }
 
-                boolean isCheck = thisPieceInThisPositionIsThreatened(king, kingDestination);
-                if (!isCheck)
+                ChessPiece threatenedByKing = board.getPiece(kingDestination);
+                if(threatenedByKing == threat.getPiece())   //king can take away the threatening piece
                 {
-                    //king can move
-                    return false;
+                    if(!thisPieceInThisPositionIsThreatened(king, kingDestination))  //another piece won't threaten the king here
+                    {
+                        return false;
+                    }
                 }
             }
 
             Collection<ChessSquare> allySquares = board.teamPieces(king.getTeamColor());
             for(ChessSquare allySquare : allySquares)
             {
-                Collection<ChessMove> allyMoves = allySquare.getPiece().pieceMoves(board, allySquare.getPosition());
-                for (ChessMove allyMove : allyMoves)
+                if(allySquare.getPiece() != king)  //we already accounted for the kings moves, don't include him in these moves
                 {
-                    if(allyMove.getEndPosition().equals(threat.getPosition()))
+                    Collection<ChessMove> allyMoves = allySquare.getPiece().pieceMoves(board, allySquare.getPosition());
+                    for (ChessMove allyMove : allyMoves)
                     {
-                        //ally can take away
-                        return false;
+                        if(allyMove.getEndPosition().equals(threat.getPosition()))
+                        {
+                            //ally can take away
+                            return false;
+                        }
                     }
                 }
             }
