@@ -148,34 +148,17 @@ public class ChessGame {
             return false;
         }
 
-        ChessSquare kingSquare = board.square(teamColor, ChessPiece.PieceType.KING);
-        ChessPiece king = kingSquare.getPiece();
-        Collection<ChessMove> kingMoves = king.pieceMoves(board, kingSquare.getPosition());
-
-        for (ChessMove kingMove : kingMoves)
+        Collection<ChessSquare> teamSquares = board.teamPieces(teamColor);
+        for(ChessSquare teamSquare : teamSquares)
         {
-            ChessBoard potentialBoard = new ChessBoard(board);
-            potentialBoard.makeMove(kingMove);
-            if(!potentialBoard.isInCheck(teamColor))
+            Collection<ChessMove> moves = teamSquare.getPiece().pieceMoves(board, teamSquare.getPosition());
+            for (ChessMove move : moves)
             {
-                return false;
-            }
-        }
-
-        Collection<ChessSquare> allySquares = board.teamPieces(king.getTeamColor());
-        for(ChessSquare allySquare : allySquares)
-        {
-            if(allySquare.getPiece().equals(king))  //we already accounted for the kings moves, don't include him in these moves
-            {
-                Collection<ChessMove> allyMoves = allySquare.getPiece().pieceMoves(board, allySquare.getPosition());
-                for (ChessMove allyMove : allyMoves)
+                ChessBoard potentialBoard = new ChessBoard(board);
+                potentialBoard.makeMove(move);
+                if (!potentialBoard.isInCheck(teamColor))
                 {
-                    ChessBoard potentialBoard = new ChessBoard(board);
-                    potentialBoard.makeMove(allyMove);
-                    if(!potentialBoard.isInCheck(teamColor))
-                    {
-                        return false;
-                    }
+                    return false;
                 }
             }
         }
