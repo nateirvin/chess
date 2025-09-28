@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -146,9 +147,9 @@ public class ChessGame {
     public boolean isInCheckmate(TeamColor teamColor) {
         ChessSquare kingSquare = board.square(teamColor, ChessPiece.PieceType.KING);
         ChessPiece king = kingSquare.getPiece();
-        ChessSquare threat = threatForPieceInPosition(king, kingSquare.getPosition());
+        ArrayList<ChessSquare> threats = threatsForPieceInPosition(king, kingSquare.getPosition());
 
-        if(threat != null)  //is in check
+        if(!threats.isEmpty())  //is in check
         {
             Collection<ChessMove> kingMoves = king.pieceMoves(board, kingSquare.getPosition());
             for (ChessMove kingMove : kingMoves)
@@ -156,33 +157,40 @@ public class ChessGame {
                 ChessPosition kingDestination = kingMove.getEndPosition();
 
                 boolean isCheck = thisPieceInThisPositionIsThreatened(king, kingDestination);
-                if (!isCheck)  //king can move
+                ChessPiece pieceInSpot = board.getPiece(kingDestination);
+
+                if (pieceInSpot == null && !isCheck)  //king can move
                 {
                     return false;
                 }
 
-                ChessPiece threatenedByKing = board.getPiece(kingDestination);
-                if(threatenedByKing == threat.getPiece())   //king can take away the threatening piece
+                for(ChessSquare threat : threats)
                 {
-                    if(!thisPieceInThisPositionIsThreatened(king, kingDestination))  //another piece won't threaten the king here
+                    if(pieceInSpot == threat.getPiece())   //king can take away the threatening piece
                     {
-                        return false;
+                        if(!thisPieceInThisPositionIsThreatened(king, kingDestination))  //another piece won't threaten the king here
+                        {
+                            return false;
+                        }
                     }
                 }
             }
 
-            Collection<ChessSquare> allySquares = board.teamPieces(king.getTeamColor());
-            for(ChessSquare allySquare : allySquares)
+            if(threats.size() == 1)
             {
-                if(allySquare.getPiece() != king)  //we already accounted for the kings moves, don't include him in these moves
+                Collection<ChessSquare> allySquares = board.teamPieces(king.getTeamColor());
+                for(ChessSquare allySquare : allySquares)
                 {
-                    Collection<ChessMove> allyMoves = allySquare.getPiece().pieceMoves(board, allySquare.getPosition());
-                    for (ChessMove allyMove : allyMoves)
+                    if(allySquare.getPiece() != king)  //we already accounted for the kings moves, don't include him in these moves
                     {
-                        if(allyMove.getEndPosition().equals(threat.getPosition()))
+                        Collection<ChessMove> allyMoves = allySquare.getPiece().pieceMoves(board, allySquare.getPosition());
+                        for (ChessMove allyMove : allyMoves)
                         {
-                            //ally can take away
-                            return false;
+                            if(allyMove.getEndPosition().equals(threats.get(0).getPosition()))
+                            {
+                                //ally can take away
+                                return false;
+                            }
                         }
                     }
                 }
@@ -241,12 +249,13 @@ public class ChessGame {
 
     private boolean thisPieceInThisPositionIsThreatened(ChessPiece piece, ChessPosition position)
     {
-        ChessSquare threatener = threatForPieceInPosition(piece, position);
-        return threatener != null;
+        return !threatsForPieceInPosition(piece, position).isEmpty();
     }
 
-    private ChessSquare threatForPieceInPosition(ChessPiece piece, ChessPosition position)
+    private ArrayList<ChessSquare> threatsForPieceInPosition(ChessPiece piece, ChessPosition position)
     {
+        ArrayList<ChessSquare> threats = new ArrayList<>();
+
         TeamColor opponentColor = piece.getTeamColor() == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE;
 
         Collection<ChessSquare> opponentSquares = board.teamPieces(opponentColor);
@@ -257,12 +266,12 @@ public class ChessGame {
             {
                 if(opponentMove.equals(position))
                 {
-                    return opponentSquare;
+                    threats.add(opponentSquare);
                 }
             }
         }
 
-        return null;
+        return threats;
     }
 
     /**

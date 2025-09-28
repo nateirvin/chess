@@ -170,6 +170,11 @@ public class ChessPiece {
             return new Pawn(board, currentPosition).threatens(board, currentPosition);
         }
 
+        if(pieceType == PieceType.KNIGHT)
+        {
+            return new Knight(board, currentPosition).threatens(board, currentPosition);
+        }
+
         return pieceMoves(board, currentPosition).stream()
                 .map(move -> move.getEndPosition())
                 .toList();

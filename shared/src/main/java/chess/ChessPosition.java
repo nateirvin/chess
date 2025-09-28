@@ -143,6 +143,10 @@ public class ChessPosition {
         }
     }
 
+    public boolean equals(int row, int col) {
+        return row == this.row && col == this.col;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {
