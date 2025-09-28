@@ -1,6 +1,5 @@
 package chess;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -118,11 +117,9 @@ public class ChessGame {
             if(!otherPiece.isEnemy(piece)) {
                 throw new InvalidMoveException("You cannot attack an ally.");
             }
-
-            board.removePiece(move.getEndPosition());
         }
 
-        board.updatePiecePosition(move);
+        board.makeMove(move);
         setTeamTurn(currentTeam == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE);
     }
 
@@ -134,8 +131,7 @@ public class ChessGame {
      */
     public boolean isInCheck(TeamColor teamColor)
     {
-        ChessSquare kingSquare = board.square(teamColor, ChessPiece.PieceType.KING);
-        return thisPieceInThisPositionIsThreatened(kingSquare.getPiece(), kingSquare.getPosition());
+        return board.isInCheck(teamColor);
     }
 
     /**
@@ -144,62 +140,46 @@ public class ChessGame {
      * @param teamColor which team to check for checkmate
      * @return True if the specified team is in checkmate
      */
-    public boolean isInCheckmate(TeamColor teamColor) {
-        ChessSquare kingSquare = board.square(teamColor, ChessPiece.PieceType.KING);
-        ChessPiece king = kingSquare.getPiece();
-        ArrayList<ChessSquare> threats = threatsForPieceInPosition(king, kingSquare.getPosition());
-
-        if(!threats.isEmpty())  //is in check
+    public boolean isInCheckmate(TeamColor teamColor)
+    {
+        if(!board.isInCheck(teamColor))
         {
-            Collection<ChessMove> kingMoves = king.pieceMoves(board, kingSquare.getPosition());
-            for (ChessMove kingMove : kingMoves)
-            {
-                ChessPosition kingDestination = kingMove.getEndPosition();
-
-                boolean isCheck = thisPieceInThisPositionIsThreatened(king, kingDestination);
-                ChessPiece pieceInSpot = board.getPiece(kingDestination);
-
-                if (pieceInSpot == null && !isCheck)  //king can move
-                {
-                    return false;
-                }
-
-                for(ChessSquare threat : threats)
-                {
-                    if(pieceInSpot == threat.getPiece())   //king can take away the threatening piece
-                    {
-                        if(!thisPieceInThisPositionIsThreatened(king, kingDestination))  //another piece won't threaten the king here
-                        {
-                            return false;
-                        }
-                    }
-                }
-            }
-
-            if(threats.size() == 1)
-            {
-                Collection<ChessSquare> allySquares = board.teamPieces(king.getTeamColor());
-                for(ChessSquare allySquare : allySquares)
-                {
-                    if(allySquare.getPiece() != king)  //we already accounted for the kings moves, don't include him in these moves
-                    {
-                        Collection<ChessMove> allyMoves = allySquare.getPiece().pieceMoves(board, allySquare.getPosition());
-                        for (ChessMove allyMove : allyMoves)
-                        {
-                            if(allyMove.getEndPosition().equals(threats.get(0).getPosition()))
-                            {
-                                //ally can take away
-                                return false;
-                            }
-                        }
-                    }
-                }
-            }
-
-            return true;
+            return false;
         }
 
-        return false;
+        ChessSquare kingSquare = board.square(teamColor, ChessPiece.PieceType.KING);
+        ChessPiece king = kingSquare.getPiece();
+        Collection<ChessMove> kingMoves = king.pieceMoves(board, kingSquare.getPosition());
+
+        for (ChessMove kingMove : kingMoves)
+        {
+            ChessBoard potentialBoard = new ChessBoard(board);
+            potentialBoard.makeMove(kingMove);
+            if(!potentialBoard.isInCheck(teamColor))
+            {
+                return false;
+            }
+        }
+
+        Collection<ChessSquare> allySquares = board.teamPieces(king.getTeamColor());
+        for(ChessSquare allySquare : allySquares)
+        {
+            if(allySquare.getPiece().equals(king))  //we already accounted for the kings moves, don't include him in these moves
+            {
+                Collection<ChessMove> allyMoves = allySquare.getPiece().pieceMoves(board, allySquare.getPosition());
+                for (ChessMove allyMove : allyMoves)
+                {
+                    ChessBoard potentialBoard = new ChessBoard(board);
+                    potentialBoard.makeMove(allyMove);
+                    if(!potentialBoard.isInCheck(teamColor))
+                    {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -249,29 +229,7 @@ public class ChessGame {
 
     private boolean thisPieceInThisPositionIsThreatened(ChessPiece piece, ChessPosition position)
     {
-        return !threatsForPieceInPosition(piece, position).isEmpty();
-    }
-
-    private ArrayList<ChessSquare> threatsForPieceInPosition(ChessPiece piece, ChessPosition position)
-    {
-        ArrayList<ChessSquare> threats = new ArrayList<>();
-
-        TeamColor opponentColor = piece.getTeamColor() == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE;
-
-        Collection<ChessSquare> opponentSquares = board.teamPieces(opponentColor);
-        for(ChessSquare opponentSquare : opponentSquares)
-        {
-            Collection<ChessPosition> opponentMoves = opponentSquare.getPiece().threatens(board, opponentSquare.getPosition());
-            for (ChessPosition opponentMove : opponentMoves)
-            {
-                if(opponentMove.equals(position))
-                {
-                    threats.add(opponentSquare);
-                }
-            }
-        }
-
-        return threats;
+        return !board.threatsForPieceInPosition(piece, position).isEmpty();
     }
 
     /**

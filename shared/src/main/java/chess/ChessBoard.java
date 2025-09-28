@@ -19,6 +19,10 @@ public class ChessBoard {
         pieces = new HashMap<>();
     }
 
+    ChessBoard(ChessBoard source) {
+        this.pieces = new HashMap<>(source.pieces);
+    }
+
     /**
      * Adds a chess piece to the chessboard
      *
@@ -38,20 +42,6 @@ public class ChessBoard {
      */
     public ChessPiece getPiece(ChessPosition position) {
         return pieces.get(position);
-    }
-
-    ChessPiece removePiece(ChessPosition position) {
-        assert position != null;
-        return pieces.remove(position);
-    }
-
-    void updatePiecePosition(ChessMove move) {
-        assert move != null;
-
-        ChessPiece piece = pieces.remove(move.getStartPosition());
-        assert piece != null;
-
-        pieces.put(move.getEndPosition(), piece);
     }
 
     public Collection<ChessSquare> teamPieces(ChessGame.TeamColor teamColor)
@@ -82,6 +72,43 @@ public class ChessBoard {
         }
 
         return null;
+    }
+
+    public boolean isInCheck(ChessGame.TeamColor teamColor)
+    {
+        ChessSquare kingSquare = square(teamColor, ChessPiece.PieceType.KING);
+        return !threatsForPieceInPosition(kingSquare.getPiece(), kingSquare.getPosition()).isEmpty();
+    }
+
+    ArrayList<ChessSquare> threatsForPieceInPosition(ChessPiece piece, ChessPosition position)
+    {
+        ArrayList<ChessSquare> threats = new ArrayList<>();
+
+        ChessGame.TeamColor opponentColor = piece.getTeamColor() == ChessGame.TeamColor.WHITE ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE;
+
+        Collection<ChessSquare> opponentSquares = teamPieces(opponentColor);
+        for(ChessSquare opponentSquare : opponentSquares)
+        {
+            Collection<ChessPosition> opponentMoves = opponentSquare.getPiece().threatens(this, opponentSquare.getPosition());
+            for (ChessPosition opponentMove : opponentMoves)
+            {
+                if(opponentMove.equals(position))
+                {
+                    threats.add(opponentSquare);
+                }
+            }
+        }
+
+        return threats;
+    }
+
+    void makeMove(ChessMove move)
+    {
+        assert move != null;
+        var takenPiece = pieces.remove(move.getEndPosition());
+        var movedPiece = pieces.remove(move.getStartPosition());
+        assert movedPiece != null;
+        pieces.put(move.getEndPosition(), movedPiece);
     }
 
     /**
