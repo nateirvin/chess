@@ -67,12 +67,6 @@ public class ChessGame {
         return
             piece.pieceMoves(board, startPosition).stream()
                  .filter(move -> {
-                    if(piece.getPieceType() == ChessPiece.PieceType.KING &&
-                       thisPieceInThisPositionIsThreatened(piece, move.getEndPosition()))
-                    {
-                        return false;
-                    }
-
                     if(piece.getPieceType() == ChessPiece.PieceType.PAWN && move.isDiagonal())
                     {
                         ChessPiece pieceToTake = board.getPiece(move.getEndPosition());
@@ -80,6 +74,13 @@ public class ChessGame {
                         {
                             return false;
                         }
+                    }
+
+                    ChessBoard potentialBoard = new ChessBoard(board);
+                    potentialBoard.makeMove(move);
+                    if(potentialBoard.isInCheck(currentTeam))
+                    {
+                        return false;
                     }
 
                     return true;
