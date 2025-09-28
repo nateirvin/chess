@@ -78,7 +78,7 @@ public class ChessGame {
 
                     ChessBoard potentialBoard = new ChessBoard(board);
                     potentialBoard.makeMove(move);
-                    if(potentialBoard.isInCheck(currentTeam))
+                    if(potentialBoard.isInCheck(piece.getTeamColor()))
                     {
                         return false;
                     }

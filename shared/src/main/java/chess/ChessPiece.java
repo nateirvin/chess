@@ -23,9 +23,9 @@ public class ChessPiece {
     public String shortCode()
     {
         String code;
-        if(getPieceType() == PieceType.KING)
+        if(getPieceType() == PieceType.KNIGHT)
         {
-           code = "G";
+           code = "N";
         }
         else
         {
