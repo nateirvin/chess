@@ -105,10 +105,20 @@ public class ChessBoard {
     void makeMove(ChessMove move)
     {
         assert move != null;
-        var takenPiece = pieces.remove(move.getEndPosition());
-        var movedPiece = pieces.remove(move.getStartPosition());
+        pieces.remove(move.getEndPosition());
+
+        ChessPiece movedPiece = pieces.remove(move.getStartPosition());
         assert movedPiece != null;
-        pieces.put(move.getEndPosition(), movedPiece);
+
+        if(move.getPromotionPiece() != null)
+        {
+            pieces.put(move.getEndPosition(),
+                       new ChessPiece(movedPiece.getTeamColor(), move.getPromotionPiece()));
+        }
+        else
+        {
+            pieces.put(move.getEndPosition(), movedPiece);
+        }
     }
 
     /**
