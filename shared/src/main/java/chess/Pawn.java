@@ -2,6 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 
 class Pawn extends ChessPiece
 {
@@ -111,6 +112,6 @@ class Pawn extends ChessPiece
             positions.add(startPosition.neighbor(ChessMove.Direction.SOUTHWEST));
         }
 
-        return positions.stream().filter(p -> p != null).toList();
+        return positions.stream().filter(Objects::nonNull).toList();
     }
 }

@@ -2,6 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 
 class Knight extends ChessPiece
 {
@@ -46,6 +47,6 @@ class Knight extends ChessPiece
         possibilities.add(startPosition.neighbor(ChessMove.Direction.WEST, ChessMove.Direction.WEST, ChessMove.Direction.SOUTH));
         possibilities.add(startPosition.neighbor(ChessMove.Direction.EAST, ChessMove.Direction.EAST, ChessMove.Direction.NORTH));
         possibilities.add(startPosition.neighbor(ChessMove.Direction.EAST, ChessMove.Direction.EAST, ChessMove.Direction.SOUTH));
-        return possibilities.stream().filter(p -> p != null).toList();
+        return possibilities.stream().filter(Objects::nonNull).toList();
     }
 }
