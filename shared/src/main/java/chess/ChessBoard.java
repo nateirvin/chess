@@ -1,9 +1,7 @@
 package chess;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Predicate;
 
 /**
  * A chessboard that can hold and rearrange chess pieces.
@@ -46,32 +44,26 @@ public class ChessBoard {
 
     public Collection<ChessSquare> teamPieces(ChessGame.TeamColor teamColor)
     {
-        ArrayList<ChessSquare> squares = new ArrayList<>();
-
-        for(ChessPosition position : pieces.keySet())
-        {
-            ChessPiece piece = pieces.get(position);
-            if(piece.getTeamColor() == teamColor)
-            {
-                squares.add(new ChessSquare(position, piece));
-            }
-        }
-
-        return squares;
+        return findPieces(piece -> piece.getTeamColor() == teamColor);
     }
 
     public ChessSquare square(ChessGame.TeamColor teamColor, ChessPiece.PieceType pieceType)
     {
-        for(ChessPosition position : pieces.keySet())
-        {
-            ChessPiece piece = pieces.get(position);
-            if(piece.getTeamColor() == teamColor && piece.getPieceType() == pieceType)
-            {
-                return new ChessSquare(position, piece);
-            }
-        }
+        List<ChessSquare> matches =
+                findPieces(piece -> piece.getTeamColor() == teamColor && piece.getPieceType() == pieceType);
+        return !matches.isEmpty() ? matches.getFirst() : null;
+    }
 
-        return null;
+    private List<ChessSquare> findPieces(Predicate<ChessPiece> predicate)
+    {
+        return pieces
+                .entrySet().stream()
+                .filter(entry -> {
+                    ChessPiece piece = entry.getValue();
+                    return predicate.test(piece);
+                })
+                .map(entry -> new ChessSquare(entry.getKey(), entry.getValue()))
+                .toList();
     }
 
     public boolean isInCheck(ChessGame.TeamColor teamColor)
