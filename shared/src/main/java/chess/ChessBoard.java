@@ -80,6 +80,11 @@ public class ChessBoard {
         return !threatsForPieceInPosition(kingSquare.getPiece(), kingSquare.getPosition()).isEmpty();
     }
 
+    private boolean thisPieceInThisPositionIsThreatened(ChessPiece piece, ChessPosition position)
+    {
+        return !threatsForPieceInPosition(piece, position).isEmpty();
+    }
+
     ArrayList<ChessSquare> threatsForPieceInPosition(ChessPiece piece, ChessPosition position)
     {
         ArrayList<ChessSquare> threats = new ArrayList<>();
@@ -129,6 +134,46 @@ public class ChessBoard {
         }
 
         return true;
+    }
+
+    public boolean isInStalemate(ChessGame.TeamColor teamColor)
+    {
+        return !isInCheck(teamColor) && !kingCanMove(teamColor) && !kingIsProtected(teamColor);
+    }
+
+    private boolean kingIsProtected(ChessGame.TeamColor teamColor)
+    {
+        ChessSquare kingSquare = square(teamColor, ChessPiece.PieceType.KING);
+        ChessPiece kingPiece = kingSquare.getPiece();
+        Collection<ChessPosition> allNeighbors = kingSquare.getPosition().allNeighbors();
+        for(ChessPosition neighbor : allNeighbors)
+        {
+            ChessPiece neighborPiece = getPiece(neighbor);
+            if(neighborPiece != null) {
+                if (!kingPiece.isEnemy(neighborPiece)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private boolean kingCanMove(ChessGame.TeamColor teamColor)
+    {
+        ChessSquare king = square(teamColor, ChessPiece.PieceType.KING);
+        Collection<ChessMove> kingMoves = king.getPiece().pieceMoves(this, king.getPosition());
+
+        for(ChessMove kingMove : kingMoves)
+        {
+            boolean isCheck = thisPieceInThisPositionIsThreatened(king.getPiece(), kingMove.getEndPosition());
+            if (!isCheck)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     void makeMove(ChessMove move)

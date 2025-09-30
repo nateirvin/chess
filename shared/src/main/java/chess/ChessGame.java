@@ -150,45 +150,7 @@ public class ChessGame {
      */
     public boolean isInStalemate(TeamColor teamColor)
     {
-        return !isInCheck(teamColor) && !kingCanMove(teamColor) && !kingIsProtected(teamColor);
-    }
-
-    private boolean kingIsProtected(TeamColor teamColor)
-    {
-        ChessSquare king = board.square(teamColor, ChessPiece.PieceType.KING);
-        Collection<ChessPosition> allNeighbors = king.getPosition().allNeighbors();
-        for(ChessPosition neighbor : allNeighbors)
-        {
-            ChessPiece neighborPiece = board.getPiece(neighbor);
-            if(neighborPiece != null && neighborPiece.getTeamColor() == teamColor)
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private boolean kingCanMove(TeamColor teamColor)
-    {
-        ChessSquare king = board.square(teamColor, ChessPiece.PieceType.KING);
-        Collection<ChessMove> kingMoves = king.getPiece().pieceMoves(board, king.getPosition());
-
-        for(ChessMove kingMove : kingMoves)
-        {
-            boolean isCheck = thisPieceInThisPositionIsThreatened(king.getPiece(), kingMove.getEndPosition());
-            if (!isCheck)
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private boolean thisPieceInThisPositionIsThreatened(ChessPiece piece, ChessPosition position)
-    {
-        return !board.threatsForPieceInPosition(piece, position).isEmpty();
+        return board.isInStalemate(teamColor);
     }
 
     /**
