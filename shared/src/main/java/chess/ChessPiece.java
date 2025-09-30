@@ -1,6 +1,5 @@
 package chess;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -76,86 +75,16 @@ public class ChessPiece {
     {
         switch (getPieceType())
         {
-            case PieceType.BISHOP -> {
-                return moves(board, myPosition,
-                        new ChessMove.Direction[] {
-                                ChessMove.Direction.NORTHWEST,
-                                ChessMove.Direction.NORTHEAST,
-                                ChessMove.Direction.SOUTHWEST,
-                                ChessMove.Direction.SOUTHEAST
-                });
-            }
-            case PieceType.ROOK -> {
-                return moves(board, myPosition,
-                        new ChessMove.Direction[] {
-                                ChessMove.Direction.NORTH,
-                                ChessMove.Direction.SOUTH,
-                                ChessMove.Direction.EAST,
-                                ChessMove.Direction.WEST
-                        });
-            }
-            case PieceType.QUEEN, PieceType.KING -> {
-                return moves(board, myPosition,
-                        new ChessMove.Direction[] {
-                                ChessMove.Direction.NORTH,
-                                ChessMove.Direction.SOUTH,
-                                ChessMove.Direction.EAST,
-                                ChessMove.Direction.WEST,
-                                ChessMove.Direction.NORTHWEST,
-                                ChessMove.Direction.NORTHEAST,
-                                ChessMove.Direction.SOUTHWEST,
-                                ChessMove.Direction.SOUTHEAST
-                        });
-            }
             case PieceType.KNIGHT -> {
                 return new Knight(board, myPosition).moves();
             }
             case PieceType.PAWN -> {
                 return new Pawn(board, myPosition).moves();
             }
-            default -> throw new UnsupportedOperationException();
-        }
-    }
-
-    private ArrayList<ChessMove> moves(ChessBoard board,
-                                       ChessPosition currentPosition,
-                                       ChessMove.Direction[] directions)
-    {
-        ArrayList<ChessMove> moves = new ArrayList<>();
-
-        for(ChessMove.Direction direction : directions)
-        {
-            ChessPosition possiblePosition = currentPosition;
-
-            while(possiblePosition != null)
-            {
-                possiblePosition = possiblePosition.neighbor(direction);
-                if(possiblePosition != null)  //not at an edge
-                {
-                    ChessPiece pieceAtPosition = board.getPiece(possiblePosition);
-
-                    if(pieceAtPosition == null) //no piece in this spot
-                    {
-                        moves.add(new ChessMove(currentPosition, possiblePosition, null));
-                        if(getPieceType() == PieceType.KING)
-                        {
-                            possiblePosition = null;
-                        }
-                    }
-                    else if(isEnemy(pieceAtPosition))  //piece in spot is enemy
-                    {
-                        moves.add(new ChessMove(currentPosition, possiblePosition, null));
-                        possiblePosition = null;
-                    }
-                    else //piece in spot is ally
-                    {
-                        possiblePosition = null;
-                    }
-                }
+            default -> {
+                return new StandardPiece(board, myPosition).moves();
             }
         }
-
-        return moves;
     }
 
     protected boolean isEnemy(ChessPiece otherPiece)
@@ -165,19 +94,24 @@ public class ChessPiece {
 
     public Collection<ChessPosition> threatens(ChessBoard board, ChessPosition currentPosition)
     {
-        if(pieceType == PieceType.PAWN)
+        switch (getPieceType())
         {
-            return new Pawn(board, currentPosition).threatens(board, currentPosition);
+            case PieceType.KNIGHT -> {
+                return new Knight(board, currentPosition).threatens();
+            }
+            case PieceType.PAWN -> {
+                return new Pawn(board, currentPosition).threatens();
+            }
+            default -> {
+                return new StandardPiece(board, currentPosition).threatens();
+            }
         }
+    }
 
-        if(pieceType == PieceType.KNIGHT)
-        {
-            return new Knight(board, currentPosition).threatens(board, currentPosition);
-        }
-
-        return pieceMoves(board, currentPosition).stream()
-                .map(move -> move.getEndPosition())
-                .toList();
+    @SuppressWarnings("unused")
+    protected Collection<ChessPosition> threatens()
+    {
+        throw new UnsupportedOperationException();
     }
 
     @Override

@@ -35,7 +35,7 @@ class Knight extends ChessPiece
     }
 
     @Override
-    public Collection<ChessPosition> threatens(ChessBoard board, ChessPosition currentPosition)
+    public Collection<ChessPosition> threatens()
     {
         ArrayList<ChessPosition> possibilities = new ArrayList<>();
         possibilities.add(startPosition.neighbor(ChessMove.Direction.NORTH, ChessMove.Direction.NORTH, ChessMove.Direction.EAST));

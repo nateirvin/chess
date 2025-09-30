@@ -96,19 +96,19 @@ class Pawn extends ChessPiece
     }
 
     @Override
-    public Collection<ChessPosition> threatens(ChessBoard board, ChessPosition currentPosition)
+    protected Collection<ChessPosition> threatens()
     {
         ArrayList<ChessPosition> positions = new ArrayList<>();
 
         if(getTeamColor() == ChessGame.TeamColor.WHITE)
         {
-            positions.add(currentPosition.neighbor(ChessMove.Direction.NORTHEAST));
-            positions.add(currentPosition.neighbor(ChessMove.Direction.NORTHWEST));
+            positions.add(startPosition.neighbor(ChessMove.Direction.NORTHEAST));
+            positions.add(startPosition.neighbor(ChessMove.Direction.NORTHWEST));
         }
         if(getTeamColor() == ChessGame.TeamColor.BLACK)
         {
-            positions.add(currentPosition.neighbor(ChessMove.Direction.SOUTHEAST));
-            positions.add(currentPosition.neighbor(ChessMove.Direction.SOUTHWEST));
+            positions.add(startPosition.neighbor(ChessMove.Direction.SOUTHEAST));
+            positions.add(startPosition.neighbor(ChessMove.Direction.SOUTHWEST));
         }
 
         return positions.stream().filter(p -> p != null).toList();

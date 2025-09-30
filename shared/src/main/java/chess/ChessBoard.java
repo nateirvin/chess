@@ -19,7 +19,7 @@ public class ChessBoard {
         pieces = new HashMap<>();
     }
 
-    ChessBoard(ChessBoard source) {
+    public ChessBoard(ChessBoard source) {
         this.pieces = new HashMap<>(source.pieces);
     }
 
