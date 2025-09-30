@@ -138,27 +138,7 @@ public class ChessGame {
      */
     public boolean isInCheckmate(TeamColor teamColor)
     {
-        if(!board.isInCheck(teamColor))
-        {
-            return false;
-        }
-
-        Collection<ChessSquare> teamSquares = board.teamPieces(teamColor);
-        for(ChessSquare teamSquare : teamSquares)
-        {
-            Collection<ChessMove> moves = teamSquare.getPiece().pieceMoves(board, teamSquare.getPosition());
-            for (ChessMove move : moves)
-            {
-                ChessBoard potentialBoard = new ChessBoard(board);
-                potentialBoard.makeMove(move);
-                if (!potentialBoard.isInCheck(teamColor))
-                {
-                    return false;
-                }
-            }
-        }
-
-        return true;
+        return board.isInCheckmate(teamColor);
     }
 
     /**

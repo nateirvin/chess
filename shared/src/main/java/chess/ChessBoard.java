@@ -107,6 +107,30 @@ public class ChessBoard {
         return threats;
     }
 
+    public boolean isInCheckmate(ChessGame.TeamColor teamColor)
+    {
+        if(!isInCheck(teamColor))
+        {
+            return false;
+        }
+
+        for(ChessSquare teamSquare : teamPieces(teamColor))
+        {
+            Collection<ChessMove> moves = teamSquare.getPiece().pieceMoves(this, teamSquare.getPosition());
+            for (ChessMove move : moves)
+            {
+                ChessBoard potentialBoard = new ChessBoard(this);
+                potentialBoard.makeMove(move);
+                if (!potentialBoard.isInCheck(teamColor))
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
     void makeMove(ChessMove move)
     {
         assert move != null;
