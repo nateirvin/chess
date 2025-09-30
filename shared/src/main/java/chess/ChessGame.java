@@ -76,9 +76,7 @@ public class ChessGame {
                         }
                     }
 
-                    ChessBoard potentialBoard = new ChessBoard(board);
-                    potentialBoard.makeMove(move);
-                    return !potentialBoard.isInCheck(piece.getTeamColor());
+                    return board.canMakeMove(piece.getTeamColor(), move);
                  })
                  .toList();
     }
