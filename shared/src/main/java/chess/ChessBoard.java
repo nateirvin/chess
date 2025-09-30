@@ -47,11 +47,11 @@ public class ChessBoard {
         return findPieces(piece -> piece.getTeamColor() == teamColor);
     }
 
-    public ChessSquare square(ChessGame.TeamColor teamColor, ChessPiece.PieceType pieceType)
+    public ChessSquare kingFor(ChessGame.TeamColor teamColor)
     {
-        List<ChessSquare> matches =
-                findPieces(piece -> piece.getTeamColor() == teamColor && piece.getPieceType() == pieceType);
-        return !matches.isEmpty() ? matches.getFirst() : null;
+        return findPieces(piece -> piece.getTeamColor() == teamColor &&
+                                              piece.getPieceType() == ChessPiece.PieceType.KING)
+                .getFirst();
     }
 
     private List<ChessSquare> findPieces(Predicate<ChessPiece> predicate)
@@ -68,7 +68,7 @@ public class ChessBoard {
 
     public boolean isInCheck(ChessGame.TeamColor teamColor)
     {
-        ChessSquare kingSquare = square(teamColor, ChessPiece.PieceType.KING);
+        ChessSquare kingSquare = kingFor(teamColor);
         return !threatsForPieceInPosition(kingSquare.getPiece(), kingSquare.getPosition()).isEmpty();
     }
 
@@ -140,7 +140,7 @@ public class ChessBoard {
 
     private boolean kingIsProtected(ChessGame.TeamColor teamColor)
     {
-        ChessSquare kingSquare = square(teamColor, ChessPiece.PieceType.KING);
+        ChessSquare kingSquare = kingFor(teamColor);
         ChessPiece kingPiece = kingSquare.getPiece();
         Collection<ChessPosition> allNeighbors = kingSquare.getPosition().allNeighbors();
         for(ChessPosition neighbor : allNeighbors)
@@ -158,7 +158,7 @@ public class ChessBoard {
 
     private boolean kingCanMove(ChessGame.TeamColor teamColor)
     {
-        ChessSquare kingSquare = square(teamColor, ChessPiece.PieceType.KING);
+        ChessSquare kingSquare = kingFor(teamColor);
         ChessPiece king = kingSquare.getPiece();
         ChessPosition kingPosition = kingSquare.getPosition();
 
