@@ -161,13 +161,14 @@ public class ChessBoard {
 
     private boolean kingCanMove(ChessGame.TeamColor teamColor)
     {
-        ChessSquare king = square(teamColor, ChessPiece.PieceType.KING);
-        Collection<ChessMove> kingMoves = king.getPiece().pieceMoves(this, king.getPosition());
+        ChessSquare kingSquare = square(teamColor, ChessPiece.PieceType.KING);
+        ChessPiece king = kingSquare.getPiece();
+        ChessPosition kingPosition = kingSquare.getPosition();
 
-        for(ChessMove kingMove : kingMoves)
+        for(ChessMove kingMove : king.pieceMoves(this, kingPosition))
         {
-            boolean isCheck = thisPieceInThisPositionIsThreatened(king.getPiece(), kingMove.getEndPosition());
-            if (!isCheck)
+            ChessPosition potentialDestination = kingMove.getEndPosition();
+            if (!thisPieceInThisPositionIsThreatened(king, potentialDestination))
             {
                 return true;
             }
