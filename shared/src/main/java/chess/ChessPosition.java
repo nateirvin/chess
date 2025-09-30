@@ -72,9 +72,9 @@ public class ChessPosition {
         }
 
         ChessPosition position = this;
-        for(ChessMove.Direction movement : directions)
+        for(ChessMove.Direction direction : directions)
         {
-            var newPosition = position.neighbor(movement);
+            ChessPosition newPosition = position.neighbor(direction);
             if(newPosition == null)
             {
                 return null;
@@ -139,10 +139,11 @@ public class ChessPosition {
                 }
                 return new ChessPosition(row - 1, col + 1);
             }
-            default -> throw new RuntimeException("not implemented");
+            default -> throw new UnsupportedOperationException("not a valid direction");
         }
     }
 
+    @SuppressWarnings("unused")
     public boolean equals(int row, int col) {
         return row == this.row && col == this.col;
     }

@@ -84,12 +84,17 @@ public class ChessBoard {
     {
         ArrayList<ChessSquare> threats = new ArrayList<>();
 
-        ChessGame.TeamColor opponentColor = piece.getTeamColor() == ChessGame.TeamColor.WHITE ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE;
+        ChessGame.TeamColor opponentColor =
+                piece.getTeamColor() == ChessGame.TeamColor.WHITE
+                        ? ChessGame.TeamColor.BLACK
+                        : ChessGame.TeamColor.WHITE;
 
         Collection<ChessSquare> opponentSquares = teamPieces(opponentColor);
         for(ChessSquare opponentSquare : opponentSquares)
         {
-            Collection<ChessPosition> opponentMoves = opponentSquare.getPiece().threatens(this, opponentSquare.getPosition());
+            ChessPiece opponentPiece = opponentSquare.getPiece();
+            ChessPosition opponentPosition = opponentSquare.getPosition();
+            Collection<ChessPosition> opponentMoves = opponentPiece.threatens(this, opponentPosition);
             for (ChessPosition opponentMove : opponentMoves)
             {
                 if(opponentMove.equals(position))
