@@ -116,9 +116,7 @@ public class ChessBoard {
             Collection<ChessMove> moves = teamSquare.getPiece().pieceMoves(this, teamSquare.getPosition());
             for (ChessMove move : moves)
             {
-                ChessBoard potentialBoard = new ChessBoard(this);
-                potentialBoard.makeMove(move);
-                if (!potentialBoard.isInCheck(teamColor))
+                if (canMakeMove(teamColor, move))
                 {
                     return false;
                 }
@@ -126,6 +124,13 @@ public class ChessBoard {
         }
 
         return true;
+    }
+
+    public boolean canMakeMove(ChessGame.TeamColor teamColor, ChessMove move)
+    {
+        ChessBoard potentialBoard = new ChessBoard(this);
+        potentialBoard.makeMove(move);
+        return !potentialBoard.isInCheck(teamColor);
     }
 
     public boolean isInStalemate(ChessGame.TeamColor teamColor)
