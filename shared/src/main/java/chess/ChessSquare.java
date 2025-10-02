@@ -24,4 +24,25 @@ public class ChessSquare {
     public String toString() {
         return piece + " at " + position;
     }
+
+    public boolean isInStartPosition() {
+        switch (piece.getPieceType()) {
+            case PAWN -> {
+                return position.getRow() == 2 || position.getRow() == 7;
+            }
+            case KING -> {
+                return position.getColumn() == 5 && isIsTopOrBottomRow();
+            }
+            case ROOK -> {
+                return isIsTopOrBottomRow() &&
+                        (position.getColumn() ==
+                                ChessPosition.FirstColumn || position.getColumn() == ChessPosition.LastColumn);
+            }
+            default -> throw new RuntimeException("not implemented");
+        }
+    }
+
+    private boolean isIsTopOrBottomRow() {
+        return position.getRow() == ChessPosition.TopRow || position.getRow() == ChessPosition.BottomRow;
+    }
 }

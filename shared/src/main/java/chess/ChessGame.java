@@ -1,6 +1,8 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -64,21 +66,81 @@ public class ChessGame {
             return null;
         }
 
-        return
-            piece.pieceMoves(board, startPosition).stream()
-                 .filter(move -> {
-                    if(piece.getPieceType() == ChessPiece.PieceType.PAWN && move.isDiagonal())
+        TeamColor teamColor = piece.getTeamColor();
+
+        ArrayList<ChessMove> moves = new ArrayList<>();
+        for (ChessMove move : piece.pieceMoves(board, startPosition))
+        {
+            if (piece.getPieceType() == ChessPiece.PieceType.PAWN && move.isDiagonal()) {
+                ChessPiece pieceToTake = board.getPiece(move.getEndPosition());
+                if (pieceToTake == null) {
+                } else {
+                    moves.add(move);
+                }
+            }
+
+            if(board.canMakeMove(teamColor, move))
+            {
+                moves.add(move);
+            }
+        }
+
+        ChessSquare king = null;
+        List<ChessSquare> rooks = new ArrayList<>();
+        ChessSquare current = new ChessSquare(startPosition, piece);
+        if(piece.getPieceType() == ChessPiece.PieceType.KING) {
+            king = current;
+            rooks = board.teamPieces(teamColor).stream()
+                    .filter(s -> s.getPiece().getPieceType() == ChessPiece.PieceType.ROOK)
+                    .toList();
+        } else if(piece.getPieceType() == ChessPiece.PieceType.ROOK) {
+            king = board.kingFor(teamColor);
+            rooks.add(current);
+        }
+        if(king != null && rooks.size() > 0)
+        {
+            for(ChessSquare rook : rooks)
+            {
+                if(king.isInStartPosition() && rook.isInStartPosition())
+                {
+                    boolean emptyAndUnthreatened = true;
+                    Collection<ChessPosition> positions = board.positionsBetween(king.getPosition(), rook.getPosition());
+                    for (ChessPosition position : positions)
                     {
-                        ChessPiece pieceToTake = board.getPiece(move.getEndPosition());
-                        if(pieceToTake == null)
+                        if (!board.canMakeMove(teamColor, new ChessMove(king.getPosition(), position)) ||
+                                board.getPiece(position) != null)
                         {
-                            return false;
+                            emptyAndUnthreatened = false;
                         }
                     }
 
-                    return board.canMakeMove(piece.getTeamColor(), move);
-                 })
-                 .toList();
+                    if(emptyAndUnthreatened)
+                    {
+                        if(rook == current)
+                        {
+                            moves.add(new ChessMove(startPosition, king.getPosition()));
+                        }
+                        else if(king == current)
+                        {
+                            if(rook.getPosition().getColumn() < king.getPosition().getColumn())
+                            {
+                                ChessPosition newPosition =
+                                        king.getPosition().neighbor(ChessMove.Direction.WEST, ChessMove.Direction.WEST);
+                                moves.add(new ChessMove(startPosition, newPosition));
+                            }
+                            else
+                            {
+                                ChessPosition newPosition =
+                                        king.getPosition().neighbor(ChessMove.Direction.EAST, ChessMove.Direction.EAST);
+                                moves.add(new ChessMove(startPosition, newPosition));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return moves;
     }
 
     /**

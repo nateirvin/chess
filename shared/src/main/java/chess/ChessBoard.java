@@ -302,4 +302,34 @@ public class ChessBoard {
         }
         return true;
     }
+
+    public Collection<ChessPosition> positionsBetween(ChessPosition a, ChessPosition b)
+    {
+        ArrayList<ChessPosition> squares = new ArrayList<>();
+
+        if(a.getRow() == b.getRow())
+        {
+            ChessPosition x = null;
+            ChessPosition y = null;
+            if(a.getColumn() < b.getColumn()){
+                x=a;y=b;
+            } else if(a.getColumn() > b.getColumn()) {
+                x=b;y=a;
+            }
+            if(x != null && y != null)
+            {
+                for(int col = x.getColumn() + 1; col < y.getColumn(); col++)
+                {
+                    ChessPosition position = new ChessPosition(a.getRow(), col);
+                    squares.add(position);
+                }
+            }
+        }
+        else
+        {
+            throw new RuntimeException("not implemented");
+        }
+
+        return squares;
+    }
 }
