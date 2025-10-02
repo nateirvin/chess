@@ -1,7 +1,7 @@
 package chess;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Predicate;
 
 /**
  * A chessboard that can hold and rearrange chess pieces.
@@ -15,6 +15,10 @@ public class ChessBoard {
 
     public ChessBoard() {
         pieces = new HashMap<>();
+    }
+
+    public ChessBoard(ChessBoard source) {
+        this.pieces = new HashMap<>(source.pieces);
     }
 
     /**
@@ -36,6 +40,157 @@ public class ChessBoard {
      */
     public ChessPiece getPiece(ChessPosition position) {
         return pieces.get(position);
+    }
+
+    public Collection<ChessSquare> teamPieces(ChessGame.TeamColor teamColor)
+    {
+        return findPieces(piece -> piece.getTeamColor() == teamColor);
+    }
+
+    public ChessSquare kingFor(ChessGame.TeamColor teamColor)
+    {
+        return findPieces(piece -> piece.getTeamColor() == teamColor &&
+                                              piece.getPieceType() == ChessPiece.PieceType.KING)
+                .getFirst();
+    }
+
+    private List<ChessSquare> findPieces(Predicate<ChessPiece> predicate)
+    {
+        return pieces
+                .entrySet().stream()
+                .filter(entry -> {
+                    ChessPiece piece = entry.getValue();
+                    return predicate.test(piece);
+                })
+                .map(entry -> new ChessSquare(entry.getKey(), entry.getValue()))
+                .toList();
+    }
+
+    public boolean isInCheck(ChessGame.TeamColor teamColor)
+    {
+        ChessSquare kingSquare = kingFor(teamColor);
+        return !threatsForPieceInPosition(kingSquare.getPiece(), kingSquare.getPosition()).isEmpty();
+    }
+
+    private boolean thisPieceInThisPositionIsThreatened(ChessPiece piece, ChessPosition position)
+    {
+        return !threatsForPieceInPosition(piece, position).isEmpty();
+    }
+
+    ArrayList<ChessSquare> threatsForPieceInPosition(ChessPiece piece, ChessPosition position)
+    {
+        ArrayList<ChessSquare> threats = new ArrayList<>();
+
+        ChessGame.TeamColor opponentColor =
+                piece.getTeamColor() == ChessGame.TeamColor.WHITE
+                        ? ChessGame.TeamColor.BLACK
+                        : ChessGame.TeamColor.WHITE;
+
+        Collection<ChessSquare> opponentSquares = teamPieces(opponentColor);
+        for(ChessSquare opponentSquare : opponentSquares)
+        {
+            ChessPiece opponentPiece = opponentSquare.getPiece();
+            ChessPosition opponentPosition = opponentSquare.getPosition();
+            Collection<ChessPosition> opponentMoves = opponentPiece.threatens(this, opponentPosition);
+            for (ChessPosition opponentMove : opponentMoves)
+            {
+                if(opponentMove.equals(position))
+                {
+                    threats.add(opponentSquare);
+                }
+            }
+        }
+
+        return threats;
+    }
+
+    public boolean isInCheckmate(ChessGame.TeamColor teamColor)
+    {
+        if(!isInCheck(teamColor))
+        {
+            return false;
+        }
+
+        for(ChessSquare teamSquare : teamPieces(teamColor))
+        {
+            Collection<ChessMove> moves = teamSquare.getPiece().pieceMoves(this, teamSquare.getPosition());
+            for (ChessMove move : moves)
+            {
+                if (canMakeMove(teamColor, move))
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    public boolean canMakeMove(ChessGame.TeamColor teamColor, ChessMove move)
+    {
+        ChessBoard potentialBoard = new ChessBoard(this);
+        potentialBoard.makeMove(move);
+        return !potentialBoard.isInCheck(teamColor);
+    }
+
+    public boolean isInStalemate(ChessGame.TeamColor teamColor)
+    {
+        return !isInCheck(teamColor) && !kingCanMove(teamColor) && !kingIsProtected(teamColor);
+    }
+
+    private boolean kingIsProtected(ChessGame.TeamColor teamColor)
+    {
+        ChessSquare kingSquare = kingFor(teamColor);
+        ChessPiece kingPiece = kingSquare.getPiece();
+        Collection<ChessPosition> allNeighbors = kingSquare.getPosition().allNeighbors();
+        for(ChessPosition neighbor : allNeighbors)
+        {
+            ChessPiece neighborPiece = getPiece(neighbor);
+            if(neighborPiece != null) {
+                if (!kingPiece.isEnemy(neighborPiece)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private boolean kingCanMove(ChessGame.TeamColor teamColor)
+    {
+        ChessSquare kingSquare = kingFor(teamColor);
+        ChessPiece king = kingSquare.getPiece();
+        ChessPosition kingPosition = kingSquare.getPosition();
+
+        for(ChessMove kingMove : king.pieceMoves(this, kingPosition))
+        {
+            ChessPosition potentialDestination = kingMove.getEndPosition();
+            if (!thisPieceInThisPositionIsThreatened(king, potentialDestination))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    void makeMove(ChessMove move)
+    {
+        assert move != null;
+        pieces.remove(move.getEndPosition());
+
+        ChessPiece movedPiece = pieces.remove(move.getStartPosition());
+        assert movedPiece != null;
+
+        if(move.getPromotionPiece() != null)
+        {
+            pieces.put(move.getEndPosition(),
+                       new ChessPiece(movedPiece.getTeamColor(), move.getPromotionPiece()));
+        }
+        else
+        {
+            pieces.put(move.getEndPosition(), movedPiece);
+        }
     }
 
     /**
@@ -76,7 +231,7 @@ public class ChessBoard {
     public String toString()
     {
         StringBuilder description = new StringBuilder();
-        for(int r = ChessPosition.BottomRow; r <= ChessPosition.TopRow; r++)
+        for(int r = ChessPosition.TopRow; r >= ChessPosition.BottomRow; r--)
         {
             for(int c = ChessPosition.FirstColumn; c <= ChessPosition.LastColumn; c++)
             {
@@ -103,10 +258,11 @@ public class ChessBoard {
         {
             for(int c = ChessPosition.FirstColumn; c <= ChessPosition.LastColumn; c++)
             {
-                ChessPiece piece = getPiece(new ChessPosition(r, c));
+                ChessPosition position = new ChessPosition(r, c);
+                ChessPiece piece = getPiece(position);
                 if(piece != null)
                 {
-                    code += piece.hashCode();
+                    code += position.hashCode() * piece.hashCode();
                 }
             }
         }

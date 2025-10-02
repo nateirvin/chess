@@ -1,6 +1,8 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Objects;
+import java.util.Collection;
 
 /**
  * Represents a single square position on a chess board
@@ -42,7 +44,27 @@ public class ChessPosition {
         return col;
     }
 
-    public ChessPosition getNeighbor(ChessMove.Direction... directions)
+    public Collection<ChessPosition> allNeighbors() {
+        ArrayList<ChessPosition> neighbors = new ArrayList<>();
+        addToNeighbors(neighbors, ChessMove.Direction.NORTH);
+        addToNeighbors(neighbors, ChessMove.Direction.SOUTH);
+        addToNeighbors(neighbors, ChessMove.Direction.EAST);
+        addToNeighbors(neighbors, ChessMove.Direction.WEST);
+        addToNeighbors(neighbors, ChessMove.Direction.NORTHEAST);
+        addToNeighbors(neighbors, ChessMove.Direction.NORTHWEST);
+        addToNeighbors(neighbors, ChessMove.Direction.SOUTHEAST);
+        addToNeighbors(neighbors, ChessMove.Direction.SOUTHWEST);
+        return neighbors;
+    }
+
+    private void addToNeighbors(ArrayList<ChessPosition> neighbors, ChessMove.Direction direction) {
+        ChessPosition neighbor = neighbor(direction);
+        if(neighbor != null) {
+            neighbors.add(neighbor);
+        }
+    }
+
+    public ChessPosition neighbor(ChessMove.Direction... directions)
     {
         if(directions.length == 0)
         {
@@ -50,9 +72,9 @@ public class ChessPosition {
         }
 
         ChessPosition position = this;
-        for(ChessMove.Direction movement : directions)
+        for(ChessMove.Direction direction : directions)
         {
-            var newPosition = position.getNeighbor(movement);
+            ChessPosition newPosition = position.neighbor(direction);
             if(newPosition == null)
             {
                 return null;
@@ -65,7 +87,7 @@ public class ChessPosition {
         return position;
     }
 
-    public ChessPosition getNeighbor(ChessMove.Direction direction)
+    public ChessPosition neighbor(ChessMove.Direction direction)
     {
         switch (direction)
         {
@@ -117,8 +139,13 @@ public class ChessPosition {
                 }
                 return new ChessPosition(row - 1, col + 1);
             }
-            default -> throw new RuntimeException("not implemented");
+            default -> throw new UnsupportedOperationException("not a valid direction");
         }
+    }
+
+    @SuppressWarnings("unused")
+    public boolean equals(int row, int col) {
+        return row == this.row && col == this.col;
     }
 
     @Override

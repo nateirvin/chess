@@ -1,6 +1,5 @@
 package chess;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -23,9 +22,9 @@ public class ChessPiece {
     public String shortCode()
     {
         String code;
-        if(getPieceType() == PieceType.KING)
+        if(getPieceType() == PieceType.KNIGHT)
         {
-           code = "G";
+           code = "N";
         }
         else
         {
@@ -76,116 +75,43 @@ public class ChessPiece {
     {
         switch (getPieceType())
         {
-            case PieceType.BISHOP -> {
-                return moves(board, myPosition,
-                        new ChessMove.Direction[] {
-                                ChessMove.Direction.NORTHWEST,
-                                ChessMove.Direction.NORTHEAST,
-                                ChessMove.Direction.SOUTHWEST,
-                                ChessMove.Direction.SOUTHEAST
-                });
-            }
-            case PieceType.ROOK -> {
-                return moves(board, myPosition,
-                        new ChessMove.Direction[] {
-                                ChessMove.Direction.NORTH,
-                                ChessMove.Direction.SOUTH,
-                                ChessMove.Direction.EAST,
-                                ChessMove.Direction.WEST
-                        });
-            }
-            case PieceType.QUEEN -> {
-                return moves(board, myPosition,
-                        new ChessMove.Direction[] {
-                                ChessMove.Direction.NORTH,
-                                ChessMove.Direction.SOUTH,
-                                ChessMove.Direction.EAST,
-                                ChessMove.Direction.WEST,
-                                ChessMove.Direction.NORTHWEST,
-                                ChessMove.Direction.NORTHEAST,
-                                ChessMove.Direction.SOUTHWEST,
-                                ChessMove.Direction.SOUTHEAST
-                        });
-            }
-            case PieceType.KING -> {
-                return moves(board, myPosition,
-                        new ChessMove.Direction[] {
-                                ChessMove.Direction.NORTH,
-                                ChessMove.Direction.SOUTH,
-                                ChessMove.Direction.EAST,
-                                ChessMove.Direction.WEST,
-                                ChessMove.Direction.NORTHWEST,
-                                ChessMove.Direction.NORTHEAST,
-                                ChessMove.Direction.SOUTHWEST,
-                                ChessMove.Direction.SOUTHEAST
-                        },
-                        1);
-            }
             case PieceType.KNIGHT -> {
                 return new Knight(board, myPosition).moves();
             }
             case PieceType.PAWN -> {
                 return new Pawn(board, myPosition).moves();
             }
-            default -> throw new UnsupportedOperationException();
-        }
-    }
-
-    private ArrayList<ChessMove> moves(ChessBoard board,
-                                       ChessPosition currentPosition,
-                                       ChessMove.Direction[] directions)
-    {
-        return moves(board, currentPosition, directions, null);
-    }
-
-    private ArrayList<ChessMove> moves(ChessBoard board,
-                                       ChessPosition currentPosition,
-                                       ChessMove.Direction[] directions,
-                                       Integer maximumSteps)
-    {
-        ArrayList<ChessMove> moves = new ArrayList<>();
-
-        for(ChessMove.Direction direction : directions)
-        {
-            int stepsTaken = 0;
-            ChessPosition possiblePosition = currentPosition;
-
-            while(possiblePosition != null)
-            {
-                possiblePosition = possiblePosition.getNeighbor(direction);
-                if(possiblePosition != null)  //not at an edge
-                {
-                    ChessPiece pieceAtPosition = board.getPiece(possiblePosition);
-
-                    if(pieceAtPosition == null) //no piece in this spot
-                    {
-                        moves.add(new ChessMove(currentPosition, possiblePosition, null));
-                        stepsTaken++;
-                        if(maximumSteps != null && stepsTaken == maximumSteps)
-                        {
-                            possiblePosition = null;
-                        }
-                    }
-                    else if(isEnemy(pieceAtPosition))  //piece in spot is enemy
-                    {
-                        moves.add(new ChessMove(currentPosition, possiblePosition, null));
-                        stepsTaken++;
-                        possiblePosition = null;
-                    }
-                    else //piece in spot is ally
-                    {
-                        possiblePosition = null;
-                    }
-                }
+            default -> {
+                return new StandardPiece(board, myPosition).moves();
             }
         }
-
-        return moves;
     }
 
     protected boolean isEnemy(ChessPiece otherPiece)
     {
         return this.getTeamColor() != otherPiece.getTeamColor();
+    }
+
+    public Collection<ChessPosition> threatens(ChessBoard board, ChessPosition currentPosition)
+    {
+        switch (getPieceType())
+        {
+            case PieceType.KNIGHT -> {
+                return new Knight(board, currentPosition).threatens();
+            }
+            case PieceType.PAWN -> {
+                return new Pawn(board, currentPosition).threatens();
+            }
+            default -> {
+                return new StandardPiece(board, currentPosition).threatens();
+            }
+        }
+    }
+
+    @SuppressWarnings("unused")
+    protected Collection<ChessPosition> threatens()
+    {
+        throw new UnsupportedOperationException();
     }
 
     @Override

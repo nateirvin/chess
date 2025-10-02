@@ -1,6 +1,8 @@
 package chess;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Objects;
 
 class Knight extends ChessPiece
 {
@@ -18,17 +20,7 @@ class Knight extends ChessPiece
     {
         ArrayList<ChessMove> moves = new ArrayList<>();
 
-        ArrayList<ChessPosition> possibilities = new ArrayList<>();
-        possibilities.add(startPosition.getNeighbor(ChessMove.Direction.NORTH, ChessMove.Direction.NORTH, ChessMove.Direction.EAST));
-        possibilities.add(startPosition.getNeighbor(ChessMove.Direction.NORTH, ChessMove.Direction.NORTH, ChessMove.Direction.WEST));
-        possibilities.add(startPosition.getNeighbor(ChessMove.Direction.SOUTH, ChessMove.Direction.SOUTH, ChessMove.Direction.EAST));
-        possibilities.add(startPosition.getNeighbor(ChessMove.Direction.SOUTH, ChessMove.Direction.SOUTH, ChessMove.Direction.WEST));
-        possibilities.add(startPosition.getNeighbor(ChessMove.Direction.WEST, ChessMove.Direction.WEST, ChessMove.Direction.NORTH));
-        possibilities.add(startPosition.getNeighbor(ChessMove.Direction.WEST, ChessMove.Direction.WEST, ChessMove.Direction.SOUTH));
-        possibilities.add(startPosition.getNeighbor(ChessMove.Direction.EAST, ChessMove.Direction.EAST, ChessMove.Direction.NORTH));
-        possibilities.add(startPosition.getNeighbor(ChessMove.Direction.EAST, ChessMove.Direction.EAST, ChessMove.Direction.SOUTH));
-
-        for (ChessPosition potential : possibilities)
+        for (ChessPosition potential : threatens(board, startPosition))
         {
             if(potential != null)
             {
@@ -41,5 +33,20 @@ class Knight extends ChessPiece
         }
 
         return moves;
+    }
+
+    @Override
+    public Collection<ChessPosition> threatens()
+    {
+        ArrayList<ChessPosition> possibilities = new ArrayList<>();
+        possibilities.add(startPosition.neighbor(ChessMove.Direction.NORTH, ChessMove.Direction.NORTH, ChessMove.Direction.EAST));
+        possibilities.add(startPosition.neighbor(ChessMove.Direction.NORTH, ChessMove.Direction.NORTH, ChessMove.Direction.WEST));
+        possibilities.add(startPosition.neighbor(ChessMove.Direction.SOUTH, ChessMove.Direction.SOUTH, ChessMove.Direction.EAST));
+        possibilities.add(startPosition.neighbor(ChessMove.Direction.SOUTH, ChessMove.Direction.SOUTH, ChessMove.Direction.WEST));
+        possibilities.add(startPosition.neighbor(ChessMove.Direction.WEST, ChessMove.Direction.WEST, ChessMove.Direction.NORTH));
+        possibilities.add(startPosition.neighbor(ChessMove.Direction.WEST, ChessMove.Direction.WEST, ChessMove.Direction.SOUTH));
+        possibilities.add(startPosition.neighbor(ChessMove.Direction.EAST, ChessMove.Direction.EAST, ChessMove.Direction.NORTH));
+        possibilities.add(startPosition.neighbor(ChessMove.Direction.EAST, ChessMove.Direction.EAST, ChessMove.Direction.SOUTH));
+        return possibilities.stream().filter(Objects::nonNull).toList();
     }
 }

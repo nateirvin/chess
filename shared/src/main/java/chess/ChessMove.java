@@ -18,6 +18,10 @@ public class ChessMove {
                      ChessPosition endPosition,
                      ChessPiece.PieceType promotionPiece)
     {
+        if(startPosition.equals(endPosition)) {
+            throw new IllegalArgumentException("That's not actually a move.");
+        }
+
         this.startPosition = startPosition;
         this.endPosition = endPosition;
         this.promotionPiece = promotionPiece;
@@ -68,6 +72,11 @@ public class ChessMove {
         return Objects.equals(startPosition, chessMove.startPosition) &&
                 Objects.equals(endPosition, chessMove.endPosition) &&
                 promotionPiece == chessMove.promotionPiece;
+    }
+
+    public boolean isDiagonal() {
+        return startPosition.getColumn() != endPosition.getColumn() &&
+               startPosition.getRow() != endPosition.getRow();
     }
 
     public enum Direction

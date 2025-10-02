@@ -1,6 +1,8 @@
 package chess;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Objects;
 
 class Pawn extends ChessPiece
 {
@@ -51,9 +53,9 @@ class Pawn extends ChessPiece
 
         if(startPosition.getRow() == initialRow)
         {
-            if(board.getPiece(startPosition.getNeighbor(direction)) == null)
+            if(board.getPiece(startPosition.neighbor(direction)) == null)
             {
-                ChessPosition potentialMove = startPosition.getNeighbor(direction, direction);
+                ChessPosition potentialMove = startPosition.neighbor(direction, direction);
                 if(board.getPiece(potentialMove) == null)
                 {
                     move.add(new ChessMove(startPosition, potentialMove, null));
@@ -68,7 +70,7 @@ class Pawn extends ChessPiece
     {
         ArrayList<ChessMove> moves = new ArrayList<>();
 
-        ChessPosition potentialMove = startPosition.getNeighbor(direction);
+        ChessPosition potentialMove = startPosition.neighbor(direction);
         if(potentialMove != null)
         {
             ChessPiece blocker = board.getPiece(potentialMove);
@@ -92,5 +94,24 @@ class Pawn extends ChessPiece
         }
 
         return moves;
+    }
+
+    @Override
+    protected Collection<ChessPosition> threatens()
+    {
+        ArrayList<ChessPosition> positions = new ArrayList<>();
+
+        if(getTeamColor() == ChessGame.TeamColor.WHITE)
+        {
+            positions.add(startPosition.neighbor(ChessMove.Direction.NORTHEAST));
+            positions.add(startPosition.neighbor(ChessMove.Direction.NORTHWEST));
+        }
+        if(getTeamColor() == ChessGame.TeamColor.BLACK)
+        {
+            positions.add(startPosition.neighbor(ChessMove.Direction.SOUTHEAST));
+            positions.add(startPosition.neighbor(ChessMove.Direction.SOUTHWEST));
+        }
+
+        return positions.stream().filter(Objects::nonNull).toList();
     }
 }
