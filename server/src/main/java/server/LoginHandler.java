@@ -2,8 +2,8 @@ package server;
 
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
-import models.LoginRequest;
-import models.LoginResult;
+import model.LoginRequest;
+import model.LoginResult;
 import org.jetbrains.annotations.NotNull;
 
 public class LoginHandler extends JsonHandler implements Handler {

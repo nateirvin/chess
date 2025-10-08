@@ -2,7 +2,7 @@ package server;
 
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
-import models.GameData;
+import model.GameData;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;

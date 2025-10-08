@@ -2,8 +2,8 @@ package server;
 
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
-import models.CreateGameRequest;
-import models.GameData;
+import model.CreateGameRequest;
+import model.GameData;
 import org.jetbrains.annotations.NotNull;
 
 public class CreateGameHandler extends JsonHandler implements Handler {

@@ -2,8 +2,8 @@ package server;
 
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
-import models.LoginResult;
-import models.RegisterRequest;
+import model.LoginResult;
+import model.RegisterRequest;
 import org.jetbrains.annotations.NotNull;
 
 public class RegisterUserHandler extends JsonHandler implements Handler {
