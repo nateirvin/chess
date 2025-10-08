@@ -1,6 +1,7 @@
 package server;
 
 import io.javalin.*;
+import service.AlreadyTakenException;
 
 public class Server {
 
@@ -9,9 +10,15 @@ public class Server {
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
+        var exceptionHandler = new ExceptionHandler();
+
         // Register your endpoints and exception handlers here.
         javalin.delete("/db", new ResetServerHandler());
-        javalin.post("/user", new RegisterUserHandler());
+
+        javalin.post("/user", new RegisterUserHandler())
+                    .exception(IllegalArgumentException.class, exceptionHandler)
+                    .exception(AlreadyTakenException.class, exceptionHandler);
+
         javalin.post("/session", new LoginHandler());
         javalin.delete("/session", new LogoutHandler());
         javalin.post("/game", new CreateGameHandler());
