@@ -41,8 +41,7 @@ Service -> DataAccess: getUser(username, password)
 DataAccess -> db: Get UserData by name and secret
 break Username or password is not correct
 DataAccess --> Service: null
-Service -> Handler: UnauthorizedException
-Handler --> Server: { "message": "Error: unauthorized" }
+Service --> Server: UnauthorizedException
 Server --> Client: 401\n{ "message": "Error: unauthorized" }
 end
 Service -> DataAccess: createAuth(username)
@@ -60,8 +59,7 @@ Service -> DataAccess: deleteAuthData(authToken)
 DataAccess -> db: Remove AuthData
 break AuthToken not found
 DataAccess --> Service: no records affected
-Service --> Handler: UnsupportedOperationException
-Handler --> Server: { "message": "Error: unauthorized" }
+Service --> Server: UnsupportedOperationException
 Server --> Client: 401\n{ "message": "Error: unauthorized" }
 end
 Service --> Handler: success
@@ -77,8 +75,7 @@ Service -> DataAccess: findAuthData(token)
 DataAccess -> db: Get AuthData
 break Unauthorized
 DataAccess --> Service: invalid or nonexistent session
-Service --> Handler: NotFoundException
-Handler --> Server: { "message": "Error: unauthorized" }
+Service --> Server: NotFoundException
 Server --> Client: 401\n{ "message": "Error: unauthorized" }
 end
 Handler -> Service: getAllGames()
@@ -100,15 +97,14 @@ Service -> DataAccess: findGame(gameName)
 DataAccess -> db: Get GameData by name
 break Game already exists
 DataAccess --> Service: GameData
-Service --> Handler: AlreadyTakenException
-Handler --> Server: { "message": "Error: Game Already Exists" }
+Service --> Server: AlreadyTakenException
 Server --> Client: 400\n{ "message": "Error: bad request" }
 end
 Service -> DataAccess: insertGame(authToken, gameName)
 DataAccess -> db: Add GameData
 DataAccess --> Service: gameId
 Service --> Handler: gameId
-Handler --> Server: { "gameID": 1234 }
+Handler --> Server: gameId
 Server --> Client: 200\n{ "gameID": 1234 }
 end
 
@@ -122,17 +118,15 @@ Service -> DataAccess: findGame(gameId)
 DataAccess -> db: Get GameData by ID
 break Game Not Found
 DataAccess --> Service: null
-Service --> Handler: NotFoundException
-Handler --> Server: { "code":400, "message": "Error: game not found" }
+Service --> Server: NotFoundException
 Server --> Client: 400\n{ "message": "Error: bad request" }
 end
 DataAccess --> Service: GameData
 break Another user is already this color
-Service --> Handler: AlreadyTakenException
-Handler --> Server: { "message": "Error: already taken" }
+Service --> Server: AlreadyTakenException
 Server --> Client: 403\n{ "message": "Error: already taken" }
 end
-Service -> DataAccess: addUserToGame(gameId, authData.userid, playerColor)
+Service -> DataAccess: addUserToGame(\n gameData.gameId,\n authData.userid,\n playerColor)
 DataAccess -> db: update games\nset <blackuserid|whiteuserid> = ?\nwhere gameid = ?
 Service --> Handler: success
 Handler --> Server: success
@@ -153,10 +147,7 @@ Service --> Handler: success
 Handler --> Server: success
 Server --> Client: 200
 break Unexpected error
-db --> DataAccess: DataAccessException
-DataAccess --> Service: DataAccessException
-Service --> Handler: DataAccessException
-Handler --> Server: DataAccessException
+DataAccess --> Server: DataAccessException
 Server --> Client: 500\n{ "message": "Error: (description of error)" }
 end
 end
