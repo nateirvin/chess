@@ -5,6 +5,8 @@ import io.javalin.http.Handler;
 import model.LoginResult;
 import model.RegisterRequest;
 import org.jetbrains.annotations.NotNull;
+import service.AlreadyTakenException;
+import service.PermissionDeniedException;
 
 public class RegisterUserHandler extends JsonHandler implements Handler
 {
@@ -15,8 +17,14 @@ public class RegisterUserHandler extends JsonHandler implements Handler
         validate("username", request.username());
         validate("password", request.password());
 
-        LoginResult result = userService.register(request);
-
-        successResult(context, result);
+        try
+        {
+            LoginResult result = userService.register(request);
+            successResult(context, result);
+        }
+        catch(AlreadyTakenException alreadyTakenException)
+        {
+            throw new PermissionDeniedException(alreadyTakenException.getMessage());
+        }
     }
 }

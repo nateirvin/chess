@@ -6,12 +6,17 @@ import model.CreateGameRequest;
 import model.GameData;
 import org.jetbrains.annotations.NotNull;
 
-public class CreateGameHandler extends JsonHandler implements Handler {
+public class CreateGameHandler extends JsonHandler implements Handler
+{
     @Override
-    public void handle(@NotNull Context context) throws Exception {
-        CreateGameRequest request = getBodyObject(context, CreateGameRequest.class);
+    public void handle(@NotNull Context context) throws Exception
+    {
+        validateLogin(context);
 
-        GameData gameData = new GameData(1, null, null, null);
+        CreateGameRequest request = getBodyObject(context, CreateGameRequest.class);
+        validate("gameName", request.gameName());
+
+        GameData gameData = this.gameService.createGame(request);
 
         successResult(context, gameData);
     }

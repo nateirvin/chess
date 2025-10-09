@@ -2,6 +2,7 @@ package server;
 
 import io.javalin.*;
 import service.AlreadyTakenException;
+import service.PermissionDeniedException;
 
 import javax.security.auth.login.LoginException;
 
@@ -13,18 +14,14 @@ public class Server {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
         var exceptionHandler = new ExceptionHandler();
+        javalin.exception(AlreadyTakenException.class, exceptionHandler)
+               .exception(IllegalArgumentException.class, exceptionHandler)
+               .exception(LoginException.class, exceptionHandler)
+               .exception(PermissionDeniedException.class, exceptionHandler);
 
-        // Register your endpoints and exception handlers here.
         javalin.delete("/db", new ResetServerHandler());
-
-        javalin.post("/user", new RegisterUserHandler())
-                    .exception(IllegalArgumentException.class, exceptionHandler)
-                    .exception(AlreadyTakenException.class, exceptionHandler);
-
-        javalin.post("/session", new LoginHandler())
-                    .exception(IllegalArgumentException.class, exceptionHandler)
-                    .exception(LoginException.class, exceptionHandler);
-
+        javalin.post("/user", new RegisterUserHandler());
+        javalin.post("/session", new LoginHandler());
         javalin.delete("/session", new LogoutHandler());
         javalin.post("/game", new CreateGameHandler());
         javalin.put("/game", new JoinGameHandler());

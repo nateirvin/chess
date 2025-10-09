@@ -9,8 +9,7 @@ public class LogoutHandler extends JsonHandler implements Handler
     @Override
     public void handle(@NotNull Context context) throws Exception
     {
-        String authToken = context.header("authorization");
-        this.sessionService.validateSession(authToken);
+        String authToken = validateLogin(context);
         this.sessionService.closeSession(authToken);
     }
 }
