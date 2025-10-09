@@ -1,4 +1,4 @@
 package model;
 
-public record AuthData(String token) {
+public record AuthData(String token, String username) {
 }

@@ -6,7 +6,7 @@ import model.UserData;
 import java.util.HashMap;
 
 public class UsersMemoryProvider implements UsersDataAccess {
-    private static HashMap<String, UserData> users = new HashMap<>();
+    private static final HashMap<String, UserData> users = new HashMap<>();
 
     @Override
     public UpsertUserResult findOrCreateUser(UserData userData)
@@ -21,5 +21,18 @@ public class UsersMemoryProvider implements UsersDataAccess {
             users.put(userData.username(), userData);
             return new UpsertUserResult(userData, true);
         }
+    }
+
+    @Override
+    public UserData getUser(String username, String password)
+    {
+        if(users.containsKey(username)){
+            UserData userData = users.get(username);
+            if(userData.password().equals(password)) {
+                return userData;
+            }
+        }
+
+        return null;
     }
 }

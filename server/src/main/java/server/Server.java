@@ -3,6 +3,8 @@ package server;
 import io.javalin.*;
 import service.AlreadyTakenException;
 
+import javax.security.auth.login.LoginException;
+
 public class Server {
 
     private final Javalin javalin;
@@ -19,7 +21,10 @@ public class Server {
                     .exception(IllegalArgumentException.class, exceptionHandler)
                     .exception(AlreadyTakenException.class, exceptionHandler);
 
-        javalin.post("/session", new LoginHandler());
+        javalin.post("/session", new LoginHandler())
+                    .exception(IllegalArgumentException.class, exceptionHandler)
+                    .exception(LoginException.class, exceptionHandler);
+
         javalin.delete("/session", new LogoutHandler());
         javalin.post("/game", new CreateGameHandler());
         javalin.put("/game", new JoinGameHandler());

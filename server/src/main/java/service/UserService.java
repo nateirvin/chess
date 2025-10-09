@@ -3,6 +3,8 @@ package service;
 import dataaccess.UsersDataAccess;
 import model.*;
 
+import javax.security.auth.login.LoginException;
+
 public class UserService
 {
     private final SessionService sessionService;
@@ -25,5 +27,16 @@ public class UserService
         AuthData authData = sessionService.createSession(userData.username());
 
         return new LoginResult(registration.username(), authData.token());
+    }
+
+    public AuthData login(LoginRequest challenge) throws LoginException
+    {
+        UserData user = dataAccess.getUser(challenge.username(), challenge.password());
+
+        if(user == null) {
+            throw new LoginException("unauthorized");
+        }
+
+        return sessionService.createSession(user.username());
     }
 }

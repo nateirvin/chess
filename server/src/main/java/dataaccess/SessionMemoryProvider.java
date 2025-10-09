@@ -7,12 +7,12 @@ import java.util.UUID;
 
 public class SessionMemoryProvider implements SessionDataAccess
 {
-    private static HashMap<UUID, String> sessions = new HashMap<>();
+    private static final HashMap<UUID, String> sessions = new HashMap<>();
 
     @Override
     public AuthData insertSession(UUID id, String username)
     {
         sessions.put(id, username);
-        return new AuthData(id.toString());
+        return new AuthData(id.toString(), username);
     }
 }

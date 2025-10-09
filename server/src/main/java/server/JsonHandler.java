@@ -1,18 +1,26 @@
 package server;
 
 import com.google.gson.Gson;
+import dataaccess.SessionMemoryProvider;
+import dataaccess.UsersMemoryProvider;
 import io.javalin.http.Context;
 import org.jetbrains.annotations.NotNull;
+import service.SessionService;
+import service.UserService;
 
 import java.util.Map;
 
 abstract class JsonHandler
 {
     protected final Gson serialize;
+    protected final SessionService sessionService;
+    protected final UserService userService;
 
     public JsonHandler()
     {
         this.serialize = new Gson();
+        this.sessionService = new SessionService(new SessionMemoryProvider());
+        this.userService = new UserService(sessionService, new UsersMemoryProvider());
     }
 
     protected <T> T getBodyObject(Context context, Class<T> clazz)
@@ -37,6 +45,11 @@ abstract class JsonHandler
     protected void badRequest(@NotNull Context context, @NotNull String message)
     {
         errorMessageResult(context, 400, message);
+    }
+
+    protected void unauthorized(@NotNull Context context, @NotNull String message)
+    {
+        errorMessageResult(context, 401, message);
     }
 
     protected void forbidden(@NotNull Context context, @NotNull String message)
