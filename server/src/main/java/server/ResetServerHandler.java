@@ -7,7 +7,9 @@ import org.jetbrains.annotations.NotNull;
 public class ResetServerHandler extends JsonHandler implements Handler
 {
     @Override
-    public void handle(@NotNull Context context) throws Exception {
-
+    public void handle(@NotNull Context context) throws Exception
+    {
+        this.sessionService.reset();
+        this.userService.reset();
     }
 }

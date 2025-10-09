@@ -5,7 +5,8 @@ import model.UserData;
 
 import java.util.HashMap;
 
-public class UsersMemoryProvider implements UsersDataAccess {
+public class UsersMemoryProvider implements UsersDataAccess
+{
     private static final HashMap<String, UserData> users = new HashMap<>();
 
     @Override
@@ -34,5 +35,10 @@ public class UsersMemoryProvider implements UsersDataAccess {
         }
 
         return null;
+    }
+
+    @Override
+    public void deleteAllUsers() {
+        users.clear();
     }
 }

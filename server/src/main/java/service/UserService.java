@@ -39,4 +39,8 @@ public class UserService
 
         return sessionService.createSession(user.username());
     }
+
+    public void reset() {
+        dataAccess.deleteAllUsers();
+    }
 }

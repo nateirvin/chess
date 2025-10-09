@@ -3,6 +3,7 @@ package service;
 import dataaccess.SessionDataAccess;
 import model.AuthData;
 
+import javax.security.auth.login.LoginException;
 import java.util.UUID;
 
 public class SessionService
@@ -16,6 +17,30 @@ public class SessionService
 
     public AuthData createSession(String username)
     {
-        return dataAccess.insertSession(UUID.randomUUID(), username);
+        return dataAccess.insertSession(UUID.randomUUID().toString(), username);
+    }
+
+    public void validateSession(String authToken) throws LoginException
+    {
+        if(authToken == null || authToken.isEmpty())
+        {
+            throw new IllegalArgumentException();
+        }
+
+        AuthData authData = dataAccess.getSession(authToken);
+
+        if(authData == null)
+        {
+            throw new LoginException("unauthorized");
+        }
+    }
+
+    public void closeSession(String authToken)
+    {
+        dataAccess.deleteSession(authToken);
+    }
+
+    public void reset() {
+        dataAccess.deleteAllSessions();
     }
 }

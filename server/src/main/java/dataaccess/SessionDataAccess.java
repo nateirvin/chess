@@ -2,9 +2,10 @@ package dataaccess;
 
 import model.AuthData;
 
-import java.util.UUID;
-
 public interface SessionDataAccess
 {
-    AuthData insertSession(UUID id, String username);
+    AuthData insertSession(String authToken, String username);
+    AuthData getSession(String authToken);
+    void deleteSession(String authToken);
+    void deleteAllSessions();
 }
