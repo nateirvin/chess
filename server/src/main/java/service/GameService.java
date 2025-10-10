@@ -5,6 +5,8 @@ import model.CreateGameRequest;
 import model.GameData;
 import model.UpsertGameResult;
 
+import java.util.ArrayList;
+
 public class GameService
 {
     private final GameDataAccess dataAccess;
@@ -16,11 +18,19 @@ public class GameService
 
     public GameData createGame(CreateGameRequest gameData)
     {
-        UpsertGameResult upsertResult = dataAccess.findOrCreate(gameData.gameName());
+        UpsertGameResult upsertResult = dataAccess.findOrCreateGame(gameData.gameName());
         if(!upsertResult.isNew())
         {
             throw new AlreadyTakenException("game", gameData.gameName());
         }
         return upsertResult;
+    }
+
+    public ArrayList<GameData> getGames() {
+        return dataAccess.getAllGames();
+    }
+
+    public void reset() {
+        dataAccess.deleteAllGames();
     }
 }

@@ -3,6 +3,7 @@ package dataaccess;
 import model.GameData;
 import model.UpsertGameResult;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class GameMemoryProvider implements GameDataAccess
@@ -11,7 +12,7 @@ public class GameMemoryProvider implements GameDataAccess
     private final static HashMap<String, GameData> games = new HashMap<>();
 
     @Override
-    public UpsertGameResult findOrCreate(String name)
+    public UpsertGameResult findOrCreateGame(String name)
     {
         if(games.containsKey(name))
         {
@@ -23,5 +24,17 @@ public class GameMemoryProvider implements GameDataAccess
             games.put(name, gameData);
             return new UpsertGameResult(gameData, true);
         }
+    }
+
+    @Override
+    public ArrayList<GameData> getAllGames()
+    {
+        return new ArrayList<>(games.values());
+    }
+
+    @Override
+    public void deleteAllGames()
+    {
+        games.clear();
     }
 }

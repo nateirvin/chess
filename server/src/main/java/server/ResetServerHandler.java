@@ -9,6 +9,7 @@ public class ResetServerHandler extends JsonHandler implements Handler
     @Override
     public void handle(@NotNull Context context) throws Exception
     {
+        this.gameService.reset();
         this.sessionService.reset();
         this.userService.reset();
     }
