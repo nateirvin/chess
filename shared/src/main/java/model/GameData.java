@@ -4,8 +4,8 @@ public class GameData
 {
     private final int gameID;
     private final String gameName;
-    private final String whiteUsername;
-    private final String blackUsername;
+    private String whiteUsername;
+    private String blackUsername;
 
     public GameData(int gameID, String gameName)
     {
@@ -32,7 +32,15 @@ public class GameData
         return whiteUsername;
     }
 
+    public void whiteUsername(String username) {
+        this.whiteUsername = username;
+    }
+
     public String blackUsername() {
         return blackUsername;
+    }
+
+    public void blackUsername(String username) {
+        this.blackUsername = username;
     }
 }

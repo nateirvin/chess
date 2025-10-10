@@ -5,6 +5,7 @@ import dataaccess.GameMemoryProvider;
 import dataaccess.SessionMemoryProvider;
 import dataaccess.UsersMemoryProvider;
 import io.javalin.http.Context;
+import model.AuthData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import service.GameService;
@@ -30,11 +31,10 @@ abstract class JsonHandler
     }
 
     @Nullable
-    protected String validateLogin(@NotNull Context context) throws LoginException
+    protected AuthData validateLogin(@NotNull Context context) throws LoginException
     {
         String authToken = context.header("authorization");
-        this.sessionService.validateSession(authToken);
-        return authToken;
+        return this.sessionService.validateSession(authToken);
     }
 
     protected <T> T getBodyObject(Context context, Class<T> clazz)

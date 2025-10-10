@@ -2,6 +2,7 @@ package dataaccess;
 
 import model.GameData;
 import model.UpsertGameResult;
+import service.AlreadyTakenException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,6 +31,34 @@ public class GameMemoryProvider implements GameDataAccess
     public ArrayList<GameData> getAllGames()
     {
         return new ArrayList<>(games.values());
+    }
+
+    @Override
+    public boolean setWhiteTeam(int gamedID, String username) {
+        for (GameData game : games.values()) {
+            if(game.gameID() == gamedID) {
+                if(game.whiteUsername() != null && !game.whiteUsername().equals(username)) {
+                    throw new AlreadyTakenException("username", username);
+                }
+                game.whiteUsername(username);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean setBlackTeam(int gamedID, String username) {
+        for (GameData game : games.values()) {
+            if(game.gameID() == gamedID) {
+                if(game.blackUsername() != null && !game.blackUsername().equals(username)) {
+                    throw new AlreadyTakenException("username", username);
+                }
+                game.blackUsername(username);
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

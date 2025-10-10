@@ -20,7 +20,7 @@ public class SessionService
         return dataAccess.insertSession(UUID.randomUUID().toString(), username);
     }
 
-    public void validateSession(String authToken) throws LoginException
+    public AuthData validateSession(String authToken) throws LoginException
     {
         if(authToken == null || authToken.isEmpty())
         {
@@ -33,6 +33,8 @@ public class SessionService
         {
             throw new LoginException("unauthorized");
         }
+
+        return authData;
     }
 
     public void closeSession(String authToken)
