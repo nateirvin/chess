@@ -17,14 +17,12 @@ import java.util.Map;
 
 abstract class JsonHandler
 {
-    protected final Gson serialize;
     protected final SessionService sessionService;
     protected final UserService userService;
     protected final GameService gameService;
 
     public JsonHandler()
     {
-        this.serialize = new Gson();
         this.sessionService = new SessionService(new SessionMemoryProvider());
         this.userService = new UserService(sessionService, new UsersMemoryProvider());
         this.gameService = new GameService(new GameMemoryProvider());
@@ -37,9 +35,9 @@ abstract class JsonHandler
         return this.sessionService.validateSession(authToken);
     }
 
-    protected <T> T getBodyObject(Context context, Class<T> clazz)
+    protected static <T> T getBodyObject(Context context, Class<T> clazz)
     {
-        T bodyObject = serialize.fromJson(context.body(), clazz);
+        T bodyObject = new Gson().fromJson(context.body(), clazz);
 
         if (bodyObject == null) {
             throw new IllegalArgumentException("missing required body");
@@ -56,7 +54,7 @@ abstract class JsonHandler
         }
     }
 
-    protected void badRequest(@NotNull Context context, @NotNull String message)
+    protected static void badRequest(@NotNull Context context, @NotNull String message)
     {
         errorMessageResult(context, 400, message);
     }
@@ -66,7 +64,7 @@ abstract class JsonHandler
      * @param context HTTP context
      * @param message error message
      */
-    protected void unauthorized(@NotNull Context context, @NotNull String message)
+    protected static void unauthorized(@NotNull Context context, @NotNull String message)
     {
         errorMessageResult(context, 401, message);
     }
@@ -76,30 +74,25 @@ abstract class JsonHandler
      * @param context HTTP context
      * @param message error message
      */
-    protected void forbidden(@NotNull Context context, @NotNull String message)
+    protected static void forbidden(@NotNull Context context, @NotNull String message)
     {
         errorMessageResult(context, 403, message);
     }
 
-    protected void internalError(@NotNull Context context, @NotNull String message)
-    {
-        errorMessageResult(context, 500, message);
-    }
-
-    protected <T> void successResult(@NotNull Context context, T obj)
+    protected static <T> void successResult(@NotNull Context context, T obj)
     {
         statusObjectResult(context, 200, obj);
     }
 
-    private void errorMessageResult(@NotNull Context context, int status, @NotNull String message)
+    private static void errorMessageResult(@NotNull Context context, int status, @NotNull String message)
     {
         statusObjectResult(context, status, Map.of("message", "Error: " + message));
     }
 
-    private <T> void statusObjectResult(@NotNull Context context, int status, T obj)
+    private static <T> void statusObjectResult(@NotNull Context context, int status, T obj)
     {
         context.status(status);
         context.contentType("application/json");
-        context.result(serialize.toJson(obj));
+        context.result(new Gson().toJson(obj));
     }
 }
