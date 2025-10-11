@@ -13,8 +13,7 @@ public class Server {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
         var exceptionHandler = new ExceptionHandler();
-        javalin.exception(AlreadyTakenException.class, exceptionHandler)
-               .exception(IllegalArgumentException.class, exceptionHandler)
+        javalin.exception(IllegalArgumentException.class, exceptionHandler)
                .exception(LoginException.class, exceptionHandler);
 
         javalin.delete("/db", new ResetServerHandler());

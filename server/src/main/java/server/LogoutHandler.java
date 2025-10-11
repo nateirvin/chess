@@ -11,6 +11,10 @@ public class LogoutHandler extends JsonHandler implements Handler
     public void handle(@NotNull Context context) throws Exception
     {
         AuthData session = validateLogin(context);
+
+        assert session != null;
+        assert session.token() != null;
+
         this.sessionService.closeSession(session.token());
     }
 }

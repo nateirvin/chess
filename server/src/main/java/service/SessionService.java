@@ -6,6 +6,7 @@ import model.AuthData;
 import javax.security.auth.login.LoginException;
 import java.util.UUID;
 
+@SuppressWarnings("ClassCanBeRecord")
 public class SessionService
 {
     private final SessionDataAccess dataAccess;

@@ -5,6 +5,7 @@ import model.*;
 
 import javax.security.auth.login.LoginException;
 
+@SuppressWarnings("ClassCanBeRecord")
 public class UserService
 {
     private final SessionService sessionService;

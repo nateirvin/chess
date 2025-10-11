@@ -2,7 +2,6 @@ package server;
 
 import io.javalin.http.Context;
 import org.jetbrains.annotations.NotNull;
-import service.AlreadyTakenException;
 
 import javax.security.auth.login.LoginException;
 
@@ -13,8 +12,7 @@ public class ExceptionHandler
     @Override
     public void handle(@NotNull Exception exception, @NotNull Context context)
     {
-        if(exception.getClass() == IllegalArgumentException.class ||
-           exception.getClass() == AlreadyTakenException.class)
+        if(exception.getClass() == IllegalArgumentException.class)
         {
             badRequest(context, exception.getMessage());
         }

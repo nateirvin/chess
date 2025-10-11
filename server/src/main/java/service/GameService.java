@@ -8,6 +8,7 @@ import model.UpsertGameResult;
 
 import java.util.ArrayList;
 
+@SuppressWarnings("ClassCanBeRecord")
 public class GameService
 {
     private final GameDataAccess dataAccess;

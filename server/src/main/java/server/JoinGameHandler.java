@@ -14,15 +14,17 @@ public class JoinGameHandler extends JsonHandler implements Handler
     public void handle(@NotNull Context context) throws Exception
     {
         AuthData session = validateLogin(context);
+        assert session != null;
+        assert session.username() != null;
 
         JoinGameRequest request = getBodyObject(context, JoinGameRequest.class);
         validate("gameID", String.valueOf(request.gameID()));
         validate("color", request.playerColor());
         ChessGame.TeamColor color;
-        if(request.playerColor().toUpperCase().equals("BLACK")) {
+        if(request.playerColor().equalsIgnoreCase("BLACK")) {
             color = ChessGame.TeamColor.BLACK;
         }
-        else if(request.playerColor().toUpperCase().equals("WHITE")) {
+        else if(request.playerColor().equalsIgnoreCase("WHITE")) {
             color = ChessGame.TeamColor.WHITE;
         } else {
             throw new IllegalArgumentException("invalid color");

@@ -63,8 +63,8 @@ abstract class JsonHandler
 
     /**
      * Returns HTTP 401
-     * @param context
-     * @param message
+     * @param context HTTP context
+     * @param message error message
      */
     protected void unauthorized(@NotNull Context context, @NotNull String message)
     {
@@ -73,8 +73,8 @@ abstract class JsonHandler
 
     /**
      * Returns HTTP 403
-     * @param context
-     * @param message
+     * @param context HTTP context
+     * @param message error message
      */
     protected void forbidden(@NotNull Context context, @NotNull String message)
     {
