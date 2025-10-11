@@ -1,11 +1,14 @@
 package model;
 
+import chess.ChessGame;
+
 public class GameData
 {
     private final int gameID;
     private final String gameName;
     private String whiteUsername;
     private String blackUsername;
+    private ChessGame game;
 
     public GameData(int gameID, String gameName)
     {
@@ -43,4 +46,7 @@ public class GameData
     public void blackUsername(String username) {
         this.blackUsername = username;
     }
+
+    public ChessGame getGame() { return game; }
+    public void setGame(ChessGame game) { this.game = game; }
 }

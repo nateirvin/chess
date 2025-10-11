@@ -27,7 +27,7 @@ public class UserService
 
         AuthData authData = sessionService.createSession(userData.username());
 
-        return new LoginResult(registration.username(), authData.token());
+        return new LoginResult(registration.username(), authData.authToken());
     }
 
     public AuthData login(LoginRequest challenge) throws LoginException

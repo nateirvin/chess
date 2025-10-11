@@ -13,8 +13,8 @@ public class LogoutHandler extends JsonHandler implements Handler
         AuthData session = validateLogin(context);
 
         assert session != null;
-        assert session.token() != null;
+        assert session.authToken() != null;
 
-        this.sessionService.closeSession(session.token());
+        this.sessionService.closeSession(session.authToken());
     }
 }
