@@ -6,6 +6,7 @@ import io.javalin.http.Handler;
 import model.AuthData;
 import model.JoinGameRequest;
 import org.jetbrains.annotations.NotNull;
+import service.AlreadyTakenException;
 
 public class JoinGameHandler extends JsonHandler implements Handler
 {
@@ -27,9 +28,16 @@ public class JoinGameHandler extends JsonHandler implements Handler
             throw new IllegalArgumentException("invalid color");
         }
 
-        boolean joined = this.gameService.joinGame(request.gameID(), color, session.username());
-        if(!joined) {
-            throw new IllegalArgumentException("Invalid gameID");
+        try
+        {
+            boolean joined = this.gameService.joinGame(request.gameID(), color, session.username());
+            if(!joined) {
+                throw new IllegalArgumentException("Invalid gameID");
+            }
+        }
+        catch(AlreadyTakenException theftAttemptException)
+        {
+            forbidden(context, theftAttemptException.getMessage());
         }
     }
 }
