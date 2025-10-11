@@ -19,7 +19,7 @@ public class SessionMemoryProvider implements SessionDataAccess
     @Override
     public AuthData getSession(String authToken)
     {
-        return sessions.containsKey(authToken) ? sessions.get(authToken) : null;
+        return sessions.getOrDefault(authToken, null);
     }
 
     @Override
