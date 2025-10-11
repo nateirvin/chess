@@ -2,7 +2,6 @@ package server;
 
 import io.javalin.*;
 import service.AlreadyTakenException;
-import service.PermissionDeniedException;
 
 import javax.security.auth.login.LoginException;
 
@@ -16,8 +15,7 @@ public class Server {
         var exceptionHandler = new ExceptionHandler();
         javalin.exception(AlreadyTakenException.class, exceptionHandler)
                .exception(IllegalArgumentException.class, exceptionHandler)
-               .exception(LoginException.class, exceptionHandler)
-               .exception(PermissionDeniedException.class, exceptionHandler);
+               .exception(LoginException.class, exceptionHandler);
 
         javalin.delete("/db", new ResetServerHandler());
         javalin.post("/user", new RegisterUserHandler());

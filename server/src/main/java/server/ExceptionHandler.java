@@ -3,7 +3,6 @@ package server;
 import io.javalin.http.Context;
 import org.jetbrains.annotations.NotNull;
 import service.AlreadyTakenException;
-import service.PermissionDeniedException;
 
 import javax.security.auth.login.LoginException;
 
@@ -22,10 +21,6 @@ public class ExceptionHandler
         else if(exception.getClass() == LoginException.class)
         {
             unauthorized(context, exception.getMessage());
-        }
-        else if(exception.getClass() == PermissionDeniedException.class)
-        {
-            forbidden(context, exception.getMessage());
         }
         else
         {

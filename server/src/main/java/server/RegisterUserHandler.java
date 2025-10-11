@@ -6,7 +6,6 @@ import model.LoginResult;
 import model.RegisterRequest;
 import org.jetbrains.annotations.NotNull;
 import service.AlreadyTakenException;
-import service.PermissionDeniedException;
 
 public class RegisterUserHandler extends JsonHandler implements Handler
 {
@@ -24,7 +23,7 @@ public class RegisterUserHandler extends JsonHandler implements Handler
         }
         catch(AlreadyTakenException alreadyTakenException)
         {
-            throw new PermissionDeniedException(alreadyTakenException.getMessage());
+            forbidden(context, alreadyTakenException.getMessage());
         }
     }
 }
