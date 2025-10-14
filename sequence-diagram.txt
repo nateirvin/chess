@@ -38,15 +38,18 @@ Server --> Client: 400\n{ "message": "Error: bad request" }
 end
 Handler -> Service: loginUser(authData)
 Service -> DataAccess: getUser(username, password)
-DataAccess -> db: Get UserData by name and secret
+DataAccess -> db: Get UserData by name and secret\n(see comment)
+# The password should be sent to the database via one-way encryption, and should be stored in the database using the same one-way encryption, so the password comparision is done in the database, thus we do the lookup based on Username and Password, and if either one doesn't match we know we have a login failure, and do not need to treat username or password verification as separate steps.
 break Username or password is not correct
 DataAccess --> Service: null
 Service --> Server: UnauthorizedException
 Server --> Client: 401\n{ "message": "Error: unauthorized" }
 end
-Service -> DataAccess: createAuth(username)
+DataAccess --> Service: UserData
+Service -> DataAccess: createAuth(username, authToken)
 DataAccess -> db: Add AuthData
-Service --> Handler: LoginResult
+DataAccess --> Service: AuthData
+Service --> Handler: AuthData
 Handler --> Server: { "username", "authToken" }
 Server --> Client: 200\n{ "username", "authToken" }
 end
@@ -55,13 +58,17 @@ group#green #lightgreen Logout
 Client -> Server: [DELETE] /session\nauthToken
 Server -> Handler: authToken
 Handler -> Service: logoutUser(authToken)
-Service -> DataAccess: deleteAuthData(authToken)
-DataAccess -> db: Remove AuthData
+Service -> DataAccess: findAuthData(token)
+DataAccess -> db: Get AuthData
 break AuthToken not found
-DataAccess --> Service: no records affected
+DataAccess --> Service: null
 Service --> Server: UnsupportedOperationException
 Server --> Client: 401\n{ "message": "Error: unauthorized" }
 end
+DataAccess --> Service: AuthData
+Service -> DataAccess: deleteAuthData(authToken)
+DataAccess -> db: Remove AuthData
+DataAccess --> Service: success
 Service --> Handler: success
 Handler --> Server: success
 Server -> Client: 200
@@ -70,7 +77,7 @@ end
 group#red #pink List Games
 Client -> Server: [GET] /game\nauthToken
 Server -> Handler: authToken
-Handler -> Service: getAuthData(authToken)
+Handler -> Service: getAllGames()
 Service -> DataAccess: findAuthData(token)
 DataAccess -> db: Get AuthData
 break Unauthorized
@@ -78,9 +85,9 @@ DataAccess --> Service: invalid or nonexistent session
 Service --> Server: NotFoundException
 Server --> Client: 401\n{ "message": "Error: unauthorized" }
 end
-Handler -> Service: getAllGames()
 Service -> DataAccess: getAllGames()
 DataAccess -> db: Get all GameData objects
+DataAccess --> Service: ArrayList<GameData>
 Service -> Handler: ArrayList<GameData>
 Handler -> Server: { games: [{id, name, whiteUserName, blackUserName}] }
 Server -> Client: 200\n{ games: [{id, name, whiteUserName, blackUserName}] }
@@ -88,19 +95,25 @@ end
 
 group#d790e0 #E3CCE6 Create Game 
 Client -> Server: [POST] /game\nauthToken\n{gameName}
-Server -> Handler: authToken, gameName
-Handler -> Service: getAuthData(authToken)
+Server -> Handler: authToken
+Handler -> Service: createGame(authToken, gameName)
 Service -> DataAccess: findAuthData(token)
 DataAccess -> db: Get AuthData
-Handler -> Service: createGame(gameName)
+break Unauthorized
+DataAccess --> Service: invalid or nonexistent session
+Service --> Server: NotFoundException
+Server --> Client: 401\n{ "message": "Error: unauthorized" }
+end
+DataAccess --> Service: AuthData
 Service -> DataAccess: findGame(gameName)
 DataAccess -> db: Get GameData by name
-break Game already exists
+break Game already exists (see comment)
+# If the game name is not unique, how is the user supposed to tell two different games apart? The ID is sufficient for the database, but not the user.
 DataAccess --> Service: GameData
 Service --> Server: AlreadyTakenException
 Server --> Client: 400\n{ "message": "Error: bad request" }
 end
-Service -> DataAccess: insertGame(authToken, gameName)
+Service -> DataAccess: insertGame(GameData)
 DataAccess -> db: Add GameData
 DataAccess --> Service: gameId
 Service --> Handler: gameId
@@ -126,8 +139,9 @@ break Another user is already this color
 Service --> Server: AlreadyTakenException
 Server --> Client: 403\n{ "message": "Error: already taken" }
 end
-Service -> DataAccess: addUserToGame(\n gameData.gameId,\n authData.userid,\n playerColor)
+Service -> DataAccess: setTeam(gameID, color, username)
 DataAccess -> db: update games\nset <blackuserid|whiteuserid> = ?\nwhere gameid = ?
+DataAccess --> Service: success
 Service --> Handler: success
 Handler --> Server: success
 Server --> Client: 200
