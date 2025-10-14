@@ -3,6 +3,7 @@ package dataaccess;
 import model.UpsertUserResult;
 import model.UserData;
 
+import java.util.Collection;
 import java.util.HashMap;
 
 public class UsersMemoryProvider implements UsersDataAccess
@@ -40,5 +41,9 @@ public class UsersMemoryProvider implements UsersDataAccess
     @Override
     public void deleteAllUsers() {
         users.clear();
+    }
+
+    public Collection<UserData> getAllUsers() {
+        return users.values();
     }
 }
