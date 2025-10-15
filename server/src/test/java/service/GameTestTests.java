@@ -1,55 +1,145 @@
 package service;
 
-import org.junit.jupiter.api.Test;
+import chess.ChessGame;
+import dataaccess.GameMemoryProvider;
+import model.CreateGameRequest;
+import model.GameData;
+import model.UpsertGameResult;
+import org.junit.jupiter.api.*;
+
+import java.util.ArrayList;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class GameTestTests
 {
+    private GameMemoryProvider dataAccess;
+    private GameService classUnderTest;
+
+    @BeforeEach
+    public void setup()
+    {
+        dataAccess = new GameMemoryProvider();
+        classUnderTest = new GameService(dataAccess);
+    }
+
     @Test
     public void createGameCreatesGame()
     {
-        assertTrue(false);
+        assert classUnderTest.getGames().stream().filter(g->g.gameName()=="fake_game").count() == 0;
+
+        GameData actual = classUnderTest.createGame(new CreateGameRequest("fake_game"));
+
+        assertNotNull(actual);
+        assertEquals("fake_game", actual.gameName());
+        assertTrue(actual.gameID() != 0);
     }
 
     @Test
     public void createGameThrowsIfGameAlreadyExists()
     {
-        assertTrue(false);
+        dataAccess.findOrCreateGame("zork");
+
+        try{
+            GameData actual = classUnderTest.createGame(new CreateGameRequest("zork"));
+            fail("should have thrown an exception");
+        } catch(AlreadyTakenException actualException) {
+            assertEquals("The game 'zork' is already in use.", actualException.getMessage());
+        }
     }
 
     @Test
     public void getGamesReturnsNothingIfNoGamesFound()
     {
-        assertTrue(false);
+        dataAccess.deleteAllGames();
+        assert dataAccess.getAllGames().isEmpty();
+
+        ArrayList<GameData> actual = classUnderTest.getGames();
+
+        assertNotNull(actual);
+        assertTrue(actual.isEmpty());
     }
 
     @Test
     public void getGamesReturnsGamesIfSomeFound()
     {
-        assertTrue(false);
+        dataAccess.findOrCreateGame("game1");
+        dataAccess.findOrCreateGame("game2");
+        assert !dataAccess.getAllGames().isEmpty();
+
+        ArrayList<GameData> actual = classUnderTest.getGames();
+
+        assertNotNull(actual);
+        assertFalse(actual.isEmpty());
+        assertEquals(1, actual.stream().filter(g -> g.gameName() == "game2").count());
+        assertEquals(1, actual.stream().filter(g -> g.gameName() == "game1").count());
     }
 
     @Test
     public void joinGameSetsWhitePlayer()
     {
-        assertTrue(false);
+        UpsertGameResult game = dataAccess.findOrCreateGame("zeppo");
+        assert game.whiteUsername() == null;
+        assert game.blackUsername() == null;
+        int gamedID = game.gameID();
+
+        boolean actual = classUnderTest.joinGame(gamedID, ChessGame.TeamColor.WHITE, "hithere");
+
+        assertTrue(actual);
+        assertEquals(1,
+                dataAccess.getAllGames().stream()
+                          .filter(g->g.gameID()== gamedID)
+                          .filter(g->g.whiteUsername()=="hithere")
+                          .count());
+        assertEquals(0,
+                dataAccess.getAllGames().stream()
+                        .filter(g->g.gameID()== gamedID)
+                        .filter(g->g.blackUsername() != null && !g.blackUsername().isEmpty())
+                        .count());
     }
 
     @Test
     public void joinGameSetsBlackPlayer()
     {
-        assertTrue(false);
+        UpsertGameResult game = dataAccess.findOrCreateGame("turkey");
+        assert game.whiteUsername() == null;
+        assert game.blackUsername() == null;
+        int gamedID = game.gameID();
+
+        boolean actual = classUnderTest.joinGame(gamedID, ChessGame.TeamColor.BLACK, "siam");
+
+        assertTrue(actual);
+        assertEquals(1,
+                dataAccess.getAllGames().stream()
+                        .filter(g->g.gameID()== gamedID)
+                        .filter(g->g.blackUsername()=="siam")
+                        .count());
+        assertEquals(0,
+                dataAccess.getAllGames().stream()
+                        .filter(g->g.gameID()== gamedID)
+                        .filter(g->g.whiteUsername() != null && !g.whiteUsername().isEmpty())
+                        .count());
     }
 
     @Test
     public void resetClearsAllGamesIfSomePresent()
     {
-        assertTrue(false);
+        dataAccess.findOrCreateGame("game01");
+        dataAccess.findOrCreateGame("game02");
+        assert !dataAccess.getAllGames().isEmpty();
+
+        classUnderTest.reset();
+
+        assertTrue(dataAccess.getAllGames().isEmpty());
     }
 
     @Test
     public void resetDoesNothingIfNoSavedGames()
     {
-        assertTrue(false);
+        assert dataAccess.getAllGames().isEmpty();
+
+        classUnderTest.reset();
+
+        assertTrue(dataAccess.getAllGames().isEmpty());
     }
 }
