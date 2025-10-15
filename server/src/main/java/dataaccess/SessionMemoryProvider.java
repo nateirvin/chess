@@ -2,6 +2,7 @@ package dataaccess;
 
 import model.AuthData;
 
+import java.util.Collection;
 import java.util.HashMap;
 
 public class SessionMemoryProvider implements SessionDataAccess
@@ -31,5 +32,9 @@ public class SessionMemoryProvider implements SessionDataAccess
     @Override
     public void deleteAllSessions() {
         sessions.clear();
+    }
+
+    public Collection<AuthData> getAllSessions() {
+        return sessions.values();
     }
 }
