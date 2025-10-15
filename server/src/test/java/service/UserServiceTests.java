@@ -74,7 +74,7 @@ public class UserServiceTests
 
         try
         {
-            AuthData actual = classUnderTest.login(new LoginRequest("JohnBoy5", password));
+            classUnderTest.login(new LoginRequest("JohnBoy5", password));
             fail("should have thrown an exception");
         }
         catch (LoginException actualException)

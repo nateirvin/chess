@@ -74,22 +74,22 @@ public class SessionServiceTests
 
         classUnderTest.closeSession("def");
 
-        assertTrue(dataAccess.getSession("def") == null);
-        assertTrue(dataAccess.getSession("bbb") != null);
+        assertNull(dataAccess.getSession("def"));
+        assertNotNull(dataAccess.getSession("bbb"));
     }
 
     @Test
     public void closeSessionDoesNothingIfSessionDoesNotExist()
     {
         dataAccess.insertSession("def", "ryan");
-        var initialCount = dataAccess.getAllSessions().size();
+        int initialCount = dataAccess.getAllSessions().size();
         assert initialCount == 1;
         assert dataAccess.getSession("abc") == null;
 
         classUnderTest.closeSession("abc");
 
         assertEquals(1, dataAccess.getAllSessions().size());
-        assertFalse(dataAccess.getSession("def") == null);
+        assertNotNull(dataAccess.getSession("def"));
     }
 
     @Test

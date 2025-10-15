@@ -26,7 +26,7 @@ public class GameTestTests
     @Test
     public void createGameCreatesGame()
     {
-        assert classUnderTest.getGames().stream().filter(g->g.gameName()=="fake_game").count() == 0;
+        assert dataAccess.getAllGames().stream().noneMatch(g -> g.gameName().equals("fake_game"));
 
         GameData actual = classUnderTest.createGame(new CreateGameRequest("fake_game"));
 
@@ -41,7 +41,7 @@ public class GameTestTests
         dataAccess.findOrCreateGame("zork");
 
         try{
-            GameData actual = classUnderTest.createGame(new CreateGameRequest("zork"));
+            classUnderTest.createGame(new CreateGameRequest("zork"));
             fail("should have thrown an exception");
         } catch(AlreadyTakenException actualException) {
             assertEquals("The game 'zork' is already in use.", actualException.getMessage());
@@ -71,8 +71,8 @@ public class GameTestTests
 
         assertNotNull(actual);
         assertFalse(actual.isEmpty());
-        assertEquals(1, actual.stream().filter(g -> g.gameName() == "game2").count());
-        assertEquals(1, actual.stream().filter(g -> g.gameName() == "game1").count());
+        assertEquals(1, actual.stream().filter(g -> g.gameName().equals("game2")).count());
+        assertEquals(1, actual.stream().filter(g -> g.gameName().equals("game1")).count());
     }
 
     @Test
@@ -89,7 +89,7 @@ public class GameTestTests
         assertEquals(1,
                 dataAccess.getAllGames().stream()
                           .filter(g->g.gameID()== gamedID)
-                          .filter(g->g.whiteUsername()=="hithere")
+                          .filter(g-> g.whiteUsername().equals("hithere"))
                           .count());
         assertEquals(0,
                 dataAccess.getAllGames().stream()
@@ -112,7 +112,7 @@ public class GameTestTests
         assertEquals(1,
                 dataAccess.getAllGames().stream()
                         .filter(g->g.gameID()== gamedID)
-                        .filter(g->g.blackUsername()=="siam")
+                        .filter(g-> g.blackUsername().equals("siam"))
                         .count());
         assertEquals(0,
                 dataAccess.getAllGames().stream()
