@@ -43,7 +43,8 @@ public class SessionService
         dataAccess.deleteSession(authToken);
     }
 
-    public void reset() {
+    public void reset()
+    {
         dataAccess.deleteAllSessions();
     }
 }

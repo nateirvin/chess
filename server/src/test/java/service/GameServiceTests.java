@@ -11,7 +11,7 @@ import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class GameTestTests
+public class GameServiceTests
 {
     private GameMemoryProvider dataAccess;
     private GameService classUnderTest;

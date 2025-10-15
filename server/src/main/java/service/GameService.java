@@ -44,7 +44,8 @@ public class GameService
         }
     }
 
-    public void reset() {
+    public void reset()
+    {
         dataAccess.deleteAllGames();
     }
 }
