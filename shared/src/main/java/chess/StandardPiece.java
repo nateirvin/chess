@@ -69,36 +69,41 @@ public class StandardPiece extends ChessPiece
 
         for(ChessMove.Direction direction : directions)
         {
-            ChessPosition possiblePosition = startPosition;
+            addMovesInDirection(moves, direction);
+        }
 
-            while(possiblePosition != null)
+        return moves;
+    }
+
+    private void addMovesInDirection(ArrayList<ChessMove> moves, ChessMove.Direction direction)
+    {
+        ChessPosition possiblePosition = startPosition;
+
+        while(possiblePosition != null)
+        {
+            possiblePosition = possiblePosition.neighbor(direction);
+            if(possiblePosition != null)  //not at an edge
             {
-                possiblePosition = possiblePosition.neighbor(direction);
-                if(possiblePosition != null)  //not at an edge
-                {
-                    ChessPiece pieceAtPosition = board.getPiece(possiblePosition);
+                ChessPiece pieceAtPosition = board.getPiece(possiblePosition);
 
-                    if(pieceAtPosition == null) //no piece in this spot
-                    {
-                        moves.add(new ChessMove(startPosition, possiblePosition, null));
-                        if(getPieceType() == PieceType.KING)
-                        {
-                            possiblePosition = null;
-                        }
-                    }
-                    else if(isEnemy(pieceAtPosition))  //piece in spot is enemy
-                    {
-                        moves.add(new ChessMove(startPosition, possiblePosition, null));
-                        possiblePosition = null;
-                    }
-                    else //piece in spot is ally
+                if(pieceAtPosition == null) //no piece in this spot
+                {
+                    moves.add(new ChessMove(startPosition, possiblePosition, null));
+                    if(getPieceType() == PieceType.KING)
                     {
                         possiblePosition = null;
                     }
                 }
+                else if(isEnemy(pieceAtPosition))  //piece in spot is enemy
+                {
+                    moves.add(new ChessMove(startPosition, possiblePosition, null));
+                    possiblePosition = null;
+                }
+                else //piece in spot is ally
+                {
+                    possiblePosition = null;
+                }
             }
         }
-
-        return moves;
     }
 }
