@@ -7,27 +7,27 @@ import java.util.ArrayList;
 public class ChessPositionExtendedTests
 {
     @Test
-    public void equals_AffirmativeTest()
+    public void equalsAffirmativeTest()
     {
         ChessPosition x = new ChessPosition(5,2);
         ChessPosition y = new ChessPosition(5,2);
 
-        Assertions.assertTrue(x.equals(y));
-        Assertions.assertTrue(y.equals(x));
+        Assertions.assertEquals(x, y);
+        Assertions.assertEquals(y, x);
     }
 
     @Test
-    public void equals_NegativeTest()
+    public void equalsNegativeTest()
     {
         ChessPosition x = new ChessPosition(4,2);
         ChessPosition y = new ChessPosition(5,2);
 
-        Assertions.assertFalse(x.equals(y));
-        Assertions.assertFalse(y.equals(x));
+        Assertions.assertNotEquals(x, y);
+        Assertions.assertNotEquals(y, x);
     }
 
     @Test
-    public void getHasCode_MatchesTest()
+    public void getHasCodeMatchesTest()
     {
         ChessPosition x = new ChessPosition(5,2);
         ChessPosition y = new ChessPosition(5,2);
@@ -36,7 +36,7 @@ public class ChessPositionExtendedTests
     }
 
     @Test
-    public void getHasCode_NotMatchesTest()
+    public void getHasCodeNotMatchesTest()
     {
         ChessPosition x = new ChessPosition(5,2);
         ChessPosition y = new ChessPosition(5,3);
@@ -45,7 +45,7 @@ public class ChessPositionExtendedTests
     }
 
     @Test
-    public void ListMatchingTest()
+    public void listMatchingTest()
     {
         ArrayList<ChessPosition> a = new ArrayList<>();
         a.add(new ChessPosition(1,1));

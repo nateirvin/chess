@@ -5,8 +5,12 @@ public class ChessSquare {
     private final ChessPiece piece;
 
     public ChessSquare(ChessPosition position, ChessPiece piece) {
-        if(position == null) throw new IllegalArgumentException();
-        if(piece == null) throw new IllegalArgumentException();
+        if(position == null) {
+            throw new IllegalArgumentException();
+        }
+        if(piece == null) {
+            throw new IllegalArgumentException();
+        }
 
         this.position = position;
         this.piece = piece;
