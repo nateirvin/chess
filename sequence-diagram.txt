@@ -1,0 +1,167 @@
+title Chess Web API
+
+actor Client
+participant Server
+participant Handler
+participant Service
+participant DataAccess
+database db
+
+entryspacing 0.9
+group#43829c #lightblue Registration
+Client -> Server: [POST] /user\n{"username":" ", "password":" ", "email":" "}
+Server -> Handler: {"username":" ", "password":" ", "email":" "}
+Handler -> Service: register(RegisterRequest)
+Service -> DataAccess: getUser(username)
+DataAccess -> db:Find UserData by username
+break User with username already exists
+DataAccess --> Service: UserData
+Service --> Server: AlreadyTakenException
+Server --> Client: 403\n{"message": "Error: username already taken"}
+end
+DataAccess --> Service: null
+Service -> DataAccess:createUser(userData)
+DataAccess -> db:Add UserData
+Service -> DataAccess:createAuth(authData)
+DataAccess -> db:Add AuthData
+Service --> Handler: RegisterResult
+Handler --> Server: {"username" : " ", "authToken" : " "}
+Server --> Client: 200\n{"username" : " ", "authToken" : " "}
+end
+
+group#orange #FCEDCA Login
+Client -> Server: [POST] /session\n{username, password}
+Server -> Handler: {username, password}
+break Username or password is missing
+Handler --> Server: IllegalArgumentException
+Server --> Client: 400\n{ "message": "Error: bad request" }
+end
+Handler -> Service: loginUser(authData)
+Service -> DataAccess: getUser(username, password)
+DataAccess -> db: Get UserData by name and secret\n(see comment)
+# The password should be sent to the database via one-way encryption, and should be stored in the database using the same one-way encryption, so the password comparision is done in the database, thus we do the lookup based on Username and Password, and if either one doesn't match we know we have a login failure, and do not need to treat username or password verification as separate steps.
+break Username or password is not correct
+DataAccess --> Service: null
+Service --> Server: UnauthorizedException
+Server --> Client: 401\n{ "message": "Error: unauthorized" }
+end
+DataAccess --> Service: UserData
+Service -> DataAccess: createAuth(username, authToken)
+DataAccess -> db: Add AuthData
+DataAccess --> Service: AuthData
+Service --> Handler: AuthData
+Handler --> Server: { "username", "authToken" }
+Server --> Client: 200\n{ "username", "authToken" }
+end
+
+group#green #lightgreen Logout
+Client -> Server: [DELETE] /session\nauthToken
+Server -> Handler: authToken
+Handler -> Service: logoutUser(authToken)
+Service -> DataAccess: findAuthData(token)
+DataAccess -> db: Get AuthData
+break AuthToken not found
+DataAccess --> Service: null
+Service --> Server: UnsupportedOperationException
+Server --> Client: 401\n{ "message": "Error: unauthorized" }
+end
+DataAccess --> Service: AuthData
+Service -> DataAccess: deleteAuthData(authToken)
+DataAccess -> db: Remove AuthData
+DataAccess --> Service: success
+Service --> Handler: success
+Handler --> Server: success
+Server -> Client: 200
+end
+
+group#red #pink List Games
+Client -> Server: [GET] /game\nauthToken
+Server -> Handler: authToken
+Handler -> Service: getAllGames()
+Service -> DataAccess: findAuthData(token)
+DataAccess -> db: Get AuthData
+break Unauthorized
+DataAccess --> Service: invalid or nonexistent session
+Service --> Server: NotFoundException
+Server --> Client: 401\n{ "message": "Error: unauthorized" }
+end
+Service -> DataAccess: getAllGames()
+DataAccess -> db: Get all GameData objects
+DataAccess --> Service: ArrayList<GameData>
+Service -> Handler: ArrayList<GameData>
+Handler -> Server: { games: [{id, name, whiteUserName, blackUserName}] }
+Server -> Client: 200\n{ games: [{id, name, whiteUserName, blackUserName}] }
+end
+
+group#d790e0 #E3CCE6 Create Game 
+Client -> Server: [POST] /game\nauthToken\n{gameName}
+Server -> Handler: authToken
+Handler -> Service: createGame(authToken, gameName)
+Service -> DataAccess: findAuthData(token)
+DataAccess -> db: Get AuthData
+break Unauthorized
+DataAccess --> Service: invalid or nonexistent session
+Service --> Server: NotFoundException
+Server --> Client: 401\n{ "message": "Error: unauthorized" }
+end
+DataAccess --> Service: AuthData
+Service -> DataAccess: findGame(gameName)
+DataAccess -> db: Get GameData by name
+break Game already exists (see comment)
+# If the game name is not unique, how is the user supposed to tell two different games apart? The ID is sufficient for the database, but not the user.
+DataAccess --> Service: GameData
+Service --> Server: AlreadyTakenException
+Server --> Client: 400\n{ "message": "Error: bad request" }
+end
+Service -> DataAccess: insertGame(GameData)
+DataAccess -> db: Add GameData
+DataAccess --> Service: gameId
+Service --> Handler: gameId
+Handler --> Server: gameId
+Server --> Client: 200\n{ "gameID": 1234 }
+end
+
+group#yellow #lightyellow Join Game #black
+Client -> Server: [PUT] /game\nauthToken\n{playerColor, gameID}
+Server -> Handler: authToken\ngameId\nplayerColor
+Handler -> Service: JoinGameRequest
+Service -> DataAccess: findAuthData(token)
+DataAccess -> db: Get AuthData
+Service -> DataAccess: findGame(gameId)
+DataAccess -> db: Get GameData by ID
+break Game Not Found
+DataAccess --> Service: null
+Service --> Server: NotFoundException
+Server --> Client: 400\n{ "message": "Error: bad request" }
+end
+DataAccess --> Service: GameData
+break Another user is already this color
+Service --> Server: AlreadyTakenException
+Server --> Client: 403\n{ "message": "Error: already taken" }
+end
+Service -> DataAccess: setTeam(gameID, color, username)
+DataAccess -> db: update games\nset <blackuserid|whiteuserid> = ?\nwhere gameid = ?
+DataAccess --> Service: success
+Service --> Handler: success
+Handler --> Server: success
+Server --> Client: 200
+end
+
+group#gray #lightgray Clear application 
+Client -> Server: [DELETE] /db
+Server -> Handler: DeleteRequest
+Handler -> Service: DeleteAll
+Service -> DataAccess: deleteAllGames()
+DataAccess -> db: delete * from games
+Service -> DataAccess: deleteAllAuths()
+DataAccess -> db: delete * from auths
+Service -> DataAccess: deleteAllUsers()
+DataAccess -> db: delete * from users
+Service --> Handler: success
+Handler --> Server: success
+Server --> Client: 200
+break Unexpected error
+DataAccess --> Server: DataAccessException
+Server --> Client: 500\n{ "message": "Error: (description of error)" }
+end
+end
