@@ -222,7 +222,7 @@ public class ChessBoard {
     }
 
     private void setupPawns(ChessGame.TeamColor pieceColor, int row) {
-        for(int col = ChessPosition.FirstColumn; col <= ChessPosition.LastColumn; col++) {
+        for(int col = ChessPosition.FIRST_COLUMN; col <= ChessPosition.LAST_COLUMN; col++) {
             addPiece(new ChessPosition(row, col), new ChessPiece(pieceColor, ChessPiece.PieceType.PAWN));
         }
     }
@@ -231,9 +231,9 @@ public class ChessBoard {
     public String toString()
     {
         StringBuilder description = new StringBuilder();
-        for(int r = ChessPosition.TopRow; r >= ChessPosition.BottomRow; r--)
+        for(int r = ChessPosition.TOP_ROW; r >= ChessPosition.BOTTOM_ROW; r--)
         {
-            for(int c = ChessPosition.FirstColumn; c <= ChessPosition.LastColumn; c++)
+            for(int c = ChessPosition.FIRST_COLUMN; c <= ChessPosition.LAST_COLUMN; c++)
             {
                 ChessPiece piece = getPiece(new ChessPosition(r, c));
                 if(piece != null)
@@ -254,9 +254,9 @@ public class ChessBoard {
     public int hashCode()
     {
         int code = 0;
-        for(int r = ChessPosition.BottomRow; r <= ChessPosition.TopRow; r++)
+        for(int r = ChessPosition.BOTTOM_ROW; r <= ChessPosition.TOP_ROW; r++)
         {
-            for(int c = ChessPosition.FirstColumn; c <= ChessPosition.LastColumn; c++)
+            for(int c = ChessPosition.FIRST_COLUMN; c <= ChessPosition.LAST_COLUMN; c++)
             {
                 ChessPosition position = new ChessPosition(r, c);
                 ChessPiece piece = getPiece(position);
@@ -281,9 +281,9 @@ public class ChessBoard {
         {
             return false;
         }
-        for(int r = ChessPosition.BottomRow; r <= ChessPosition.TopRow; r++)
+        for(int r = ChessPosition.BOTTOM_ROW; r <= ChessPosition.TOP_ROW; r++)
         {
-            for(int c = ChessPosition.FirstColumn; c <= ChessPosition.LastColumn; c++)
+            for(int c = ChessPosition.FIRST_COLUMN; c <= ChessPosition.LAST_COLUMN; c++)
             {
                 ChessPiece piece = getPiece(new ChessPosition(r, c));
                 ChessPiece otherPiece = other.getPiece(new ChessPosition(r, c));

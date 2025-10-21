@@ -15,14 +15,18 @@ public class ChessPosition {
     private final int row;
     private final int col;
 
-    public static final int TopRow = 8;
-    public static final int BottomRow = 1;
-    public static final int FirstColumn = 1;
-    public static final int LastColumn = 8;
+    public static final int TOP_ROW = 8;
+    public static final int BOTTOM_ROW = 1;
+    public static final int FIRST_COLUMN = 1;
+    public static final int LAST_COLUMN = 8;
 
     public ChessPosition(int row, int col) {
-        if(row < BottomRow || row > TopRow) throw new IllegalArgumentException("invalid row");
-        if(col < FirstColumn || col > LastColumn) throw new IllegalArgumentException("invalid column");
+        if(row < BOTTOM_ROW || row > TOP_ROW) {
+            throw new IllegalArgumentException("invalid row");
+        }
+        if(col < FIRST_COLUMN || col > LAST_COLUMN) {
+            throw new IllegalArgumentException("invalid column");
+        }
 
         this.row = row;
         this.col = col;
@@ -92,49 +96,49 @@ public class ChessPosition {
         switch (direction)
         {
             case ChessMove.Direction.NORTH -> {
-                if(row == TopRow) {
+                if(row == TOP_ROW) {
                     return null;
                 }
                 return new ChessPosition(row + 1, col);
             }
             case ChessMove.Direction.SOUTH -> {
-                if(row == BottomRow) {
+                if(row == BOTTOM_ROW) {
                     return null;
                 }
                 return new ChessPosition(row - 1, col);
             }
             case ChessMove.Direction.EAST -> {
-                if(col == FirstColumn) {
+                if(col == FIRST_COLUMN) {
                     return null;
                 }
                 return new ChessPosition(row, col - 1);
             }
             case ChessMove.Direction.WEST -> {
-                if(col == LastColumn) {
+                if(col == LAST_COLUMN) {
                     return null;
                 }
                 return new ChessPosition(row, col + 1);
             }
             case ChessMove.Direction.NORTHWEST -> {
-                if(row == TopRow || col == FirstColumn) {
+                if(row == TOP_ROW || col == FIRST_COLUMN) {
                     return null;
                 }
                 return new ChessPosition(row + 1, col - 1);
             }
             case ChessMove.Direction.NORTHEAST -> {
-                if(row == TopRow || col == LastColumn){
+                if(row == TOP_ROW || col == LAST_COLUMN){
                     return null;
                 }
                 return new ChessPosition(row + 1, col + 1);
             }
             case ChessMove.Direction.SOUTHWEST -> {
-                if(row == BottomRow || col == 1){
+                if(row == BOTTOM_ROW || col == 1){
                     return null;
                 }
                 return new ChessPosition(row - 1, col - 1);
             }
             case ChessMove.Direction.SOUTHEAST -> {
-                if(row == BottomRow || col == LastColumn){
+                if(row == BOTTOM_ROW || col == LAST_COLUMN){
                     return null;
                 }
                 return new ChessPosition(row - 1, col + 1);

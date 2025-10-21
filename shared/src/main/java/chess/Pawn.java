@@ -18,8 +18,8 @@ class Pawn extends ChessPiece
         this.startPosition = startPosition;
         this.initialRow =
                 getTeamColor() == ChessGame.TeamColor.WHITE
-                        ? ChessPosition.BottomRow + 1
-                        : ChessPosition.TopRow - 1;
+                        ? ChessPosition.BOTTOM_ROW + 1
+                        : ChessPosition.TOP_ROW - 1;
     }
 
     public ArrayList<ChessMove> moves()
@@ -35,7 +35,10 @@ class Pawn extends ChessPiece
         throw new UnsupportedOperationException();
     }
 
-    private ArrayList<ChessMove> movesInDirections(ChessMove.Direction mainDirection, ChessMove.Direction takeDirection1, ChessMove.Direction takeDirection2)
+    private ArrayList<ChessMove> movesInDirections(
+            ChessMove.Direction mainDirection,
+            ChessMove.Direction takeDirection1,
+            ChessMove.Direction takeDirection2)
     {
         ArrayList<ChessMove> moves = new ArrayList<>();
 
@@ -78,8 +81,8 @@ class Pawn extends ChessPiece
                     ||
                     !isCapture && blocker == null)
             {
-                if(potentialMove.getRow() == ChessPosition.BottomRow ||
-                   potentialMove.getRow() == ChessPosition.TopRow)
+                if(potentialMove.getRow() == ChessPosition.BOTTOM_ROW ||
+                   potentialMove.getRow() == ChessPosition.TOP_ROW)
                 {
                     moves.add(new ChessMove(startPosition, potentialMove, ChessPiece.PieceType.QUEEN));
                     moves.add(new ChessMove(startPosition, potentialMove, ChessPiece.PieceType.ROOK));
