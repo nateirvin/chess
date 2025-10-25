@@ -21,14 +21,33 @@ public class DatabaseManager {
      */
     static public void createDatabase() throws DataAccessException {
         var statement = "CREATE DATABASE IF NOT EXISTS " + databaseName;
-        executeSetup(statement, "failed to create database");
+        execute(statement, "failed to create database", false);
     }
 
-    static void executeSetup(String statement, String message) throws DataAccessException {
-        try (var conn = DriverManager.getConnection(connectionUrl, dbUsername, dbPassword);
-             var preparedStatement = conn.prepareStatement(statement)) {
-            preparedStatement.executeUpdate();
-        } catch (SQLException ex) {
+    static void execute(String statement, String message) throws DataAccessException
+    {
+        execute(statement, message, true);
+    }
+
+    static void execute(String statement) throws DataAccessException
+    {
+        execute(statement, "database failure", true);
+    }
+
+    private static void execute(String statement, String message, boolean useCatalog) throws DataAccessException
+    {
+        try (var conn = DriverManager.getConnection(connectionUrl, dbUsername, dbPassword))
+        {
+            if(useCatalog)
+            {
+                conn.setCatalog(databaseName);
+            }
+
+            try (PreparedStatement preparedStatement = conn.prepareStatement(statement)) {
+                preparedStatement.executeUpdate();
+            }
+        } catch (SQLException ex)
+        {
             throw new DataAccessException(message, ex);
         }
     }

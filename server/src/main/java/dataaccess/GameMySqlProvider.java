@@ -24,7 +24,7 @@ public class GameMySqlProvider implements GameDataAccess
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
                 """;
 
-        DatabaseManager.executeSetup(statement, "failed to create table 'games'");
+        DatabaseManager.execute(statement, "failed to create table 'games'");
     }
 
     @Override
