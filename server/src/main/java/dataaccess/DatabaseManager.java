@@ -52,6 +52,14 @@ public class DatabaseManager {
         }
     }
 
+    static Integer getIdentity(PreparedStatement ps) throws SQLException {
+        ResultSet rs = ps.getGeneratedKeys();
+        if (rs.next()) {
+            return rs.getInt(1);
+        }
+        return null;
+    }
+
     /**
      * Create a connection to the database and sets the catalog based upon the
      * properties specified in db.properties. Connections to the database should

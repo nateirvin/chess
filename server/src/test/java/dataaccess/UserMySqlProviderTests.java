@@ -5,6 +5,8 @@ import model.UserData;
 import org.junit.jupiter.api.*;
 import java.sql.*;
 
+import static java.sql.Statement.RETURN_GENERATED_KEYS;
+
 public class UserMySqlProviderTests
 {
     private UsersMySqlProvider classUnderTest;
@@ -59,5 +61,36 @@ public class UserMySqlProviderTests
         }
 
         Assertions.assertEquals(1, userCount);
+    }
+
+    @Test
+    public void findOrCreateUserReturnsExistingUserInfoIfUserAlreadyExists() throws DataAccessException, SQLException
+    {
+        int originalId;
+        String userName = "bosephus";
+        String plainTextPassword = "i'm a plaintext password";
+        try (Connection conn = DatabaseManager.getConnection())
+        {
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "INSERT INTO users (username, hashed_password) VALUES (?, ?)", RETURN_GENERATED_KEYS))
+            {
+                ps.setString(1, userName);
+                ps.setString(2, Hasher.hash(plainTextPassword));
+
+                ps.executeUpdate();
+
+                originalId = DatabaseManager.getIdentity(ps);
+            }
+        }
+        assert originalId != 0;
+        UserData userData = new UserData(userName, plainTextPassword, null);
+
+        UpsertUserResult actual = classUnderTest.findOrCreateUser(userData);
+
+        Assertions.assertEquals(originalId, actual.getId());
+        Assertions.assertFalse(actual.isNew());
+        Assertions.assertEquals(userName, actual.username());
+        Assertions.assertEquals(plainTextPassword, actual.password());
+        Assertions.assertTrue(actual.email().isEmpty());
     }
 }

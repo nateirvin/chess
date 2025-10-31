@@ -31,20 +31,26 @@ public class UsersMySqlProvider implements UsersDataAccess
     @Override
     public UpsertUserResult findOrCreateUser(UserData userData)
     {
-        String hashedPassword = BCrypt.hashpw(userData.password(), BCrypt.gensalt());
+        String hashedPassword = Hasher.hash(userData.password());
 
-        String statement = "INSERT INTO users (username, hashed_password, email) VALUES (?, ?, ?)";
+        String commandSql = "INSERT IGNORE INTO users (username, hashed_password, email) VALUES (?, ?, ?)";
         try (Connection conn = DatabaseManager.getConnection())
         {
-            try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS))
+            try (PreparedStatement command = conn.prepareStatement(commandSql, RETURN_GENERATED_KEYS))
             {
-                ps.setString(1, userData.username());
-                ps.setString(2, hashedPassword);
-                ps.setString(3, userData.email());
+                command.setString(1, userData.username());
+                command.setString(2, hashedPassword);
+                command.setString(3, userData.email() != null ? userData.email() : "");
 
-                ps.executeUpdate();
+                command.executeUpdate();
 
-                return new UpsertUserResult(userData, true);
+                Integer userId = DatabaseManager.getIdentity(command);
+                if (userId != null) {
+                    return new UpsertUserResult(userData, true);
+                } else {
+                    userData = getUser(userData.username(), userData.password());
+                    return new UpsertUserResult(userData, false);
+                }
             }
         }
         catch (SQLException | DataAccessException e)
@@ -54,8 +60,37 @@ public class UsersMySqlProvider implements UsersDataAccess
     }
 
     @Override
-    public UserData getUser(String username, String password) {
-        throw new RuntimeException("not implemented");
+    public UserData getUser(String username, String challengePassword)
+    {
+        try (Connection conn = DatabaseManager.getConnection())
+        {
+            var querySql = "SELECT user_id, hashed_password, email FROM users WHERE username = ?";
+            try (PreparedStatement command = conn.prepareStatement(querySql))
+            {
+                command.setString(1, username);
+
+                try (ResultSet rs = command.executeQuery())
+                {
+                    if (rs.next())
+                    {
+                        String actualPassword = rs.getString(2);
+                        if(BCrypt.checkpw(challengePassword, actualPassword))
+                        {
+                            var email = rs.getString(3);
+                            UserData userData = new UserData(username, challengePassword, email);
+                            userData.setId(rs.getInt(1));
+                            return userData;
+                        }
+                    }
+                }
+            }
+        }
+        catch (SQLException | DataAccessException e)
+        {
+            throw new RuntimeException(e);
+        }
+
+        return null;
     }
 
     @Override
