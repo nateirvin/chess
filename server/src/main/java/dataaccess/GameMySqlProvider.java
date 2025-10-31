@@ -110,24 +110,48 @@ public class GameMySqlProvider implements GameDataAccess
     @Override
     public boolean setWhiteTeam(int gamedID, String username)
     {
+        String commandText = """
+                    UPDATE games
+                    SET white_user_id = (SELECT user_id FROM users WHERE username = ?)
+                    WHERE game_id = ?
+                        AND
+                        (
+                            white_user_id IS NULL
+                            OR
+                            white_user_id = (SELECT user_id FROM users WHERE username = ?)
+                        )
+                    """;
+
+        return setPlayer(gamedID, username, commandText);
+    }
+
+    @Override
+    public boolean setBlackTeam(int gamedID, String username)
+    {
+        String commandText = """
+                    UPDATE games
+                    SET black_user_id = (SELECT user_id FROM users WHERE username = ?)
+                    WHERE game_id = ?
+                        AND
+                        (
+                            black_user_id IS NULL
+                            OR
+                            black_user_id = (SELECT user_id FROM users WHERE username = ?)
+                        )
+                    """;
+
+        return setPlayer(gamedID, username, commandText);
+    }
+
+    private static boolean setPlayer(int gamedID, String username, String commandText)
+    {
         try (Connection conn = DatabaseManager.getConnection())
         {
             if(getGame(conn, gamedID, null) == null) {
                 return false;
             }
 
-            try (PreparedStatement ps = conn.prepareStatement(
-                    """
-                        UPDATE games
-                        SET white_user_id = (SELECT user_id FROM users WHERE username = ?)
-                        WHERE game_id = ?
-                            AND
-                            (
-                                white_user_id IS NULL
-                                OR
-                                white_user_id = (SELECT user_id FROM users WHERE username = ?)
-                            )
-                        """))
+            try (PreparedStatement ps = conn.prepareStatement(commandText))
             {
                 ps.setInt(2, gamedID);
                 ps.setString(1, username);
@@ -146,11 +170,6 @@ public class GameMySqlProvider implements GameDataAccess
         }
 
         return true;
-    }
-
-    @Override
-    public boolean setBlackTeam(int gamedID, String username) {
-        throw new RuntimeException("not implemented");
     }
 
     private static UpsertGameResult getGame(Connection conn, Integer gameId, String name) throws SQLException
