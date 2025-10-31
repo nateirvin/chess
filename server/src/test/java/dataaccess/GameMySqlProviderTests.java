@@ -2,9 +2,11 @@ package dataaccess;
 
 import model.GameData;
 import model.UpsertGameResult;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.*;
+import service.AlreadyTakenException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.UUID;
@@ -122,6 +124,91 @@ public class GameMySqlProviderTests
         classUnderTest.deleteAllGames();
 
         Assertions.assertEquals(0, classUnderTest.getAllGames().size());
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true,false})
+    public void setWhiteTeamReturnsFalseAndMakesNoUpdatesIfGameDoesNotExist(boolean userAlreadySet) throws SQLException, DataAccessException
+    {
+        String username = "lois_lane";
+        int userId = TestHelper.insertTestUser(username);
+        int gameId = insertGame("my_test_thingie", userAlreadySet ? userId : null, null);
+
+        boolean actual = classUnderTest.setWhiteTeam(gameId*-1, username);
+
+        Assertions.assertFalse(actual);
+        GameData actualGame = getGame(gameId);
+        if(userAlreadySet) {
+            Assertions.assertEquals(username, actualGame.whiteUsername());
+        } else {
+            Assertions.assertNull(actualGame.whiteUsername());
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true,false})
+    public void setWhiteTeamUpdatesRecordIfNoCurrentValue(boolean hasBlackUserName) throws SQLException, DataAccessException
+    {
+        String userA = "supperman";
+        String userB = "lincoln";
+        Integer blackUserId = null;
+        if(hasBlackUserName)
+        {
+            blackUserId = TestHelper.insertTestUser(userB);
+        }
+        int gameId = insertGame("my_test_thingie", null, blackUserId);
+        TestHelper.insertTestUser(userA);
+
+        boolean actual = classUnderTest.setWhiteTeam(gameId, userA);
+
+        Assertions.assertTrue(actual);
+        GameData actualGame = getGame(gameId);
+        Assertions.assertEquals(userA, actualGame.whiteUsername());
+        if(hasBlackUserName) {
+            Assertions.assertEquals(userB, actualGame.blackUsername());
+        }
+        else {
+            Assertions.assertNull(actualGame.blackUsername());
+        }
+    }
+
+    @Test
+    public void setWhiteTeamThrowsExceptionIfValidGameButWhiteUserAlreadySet() throws SQLException, DataAccessException
+    {
+        String userA = "skyler";
+        String userB = "plantaginut";
+        int userAId = TestHelper.insertTestUser(userA);
+        TestHelper.insertTestUser(userB);
+        int gameId = insertGame("my_test_thingie", userAId, null);
+
+        try{
+            classUnderTest.setWhiteTeam(gameId, userB);
+            Assertions.fail("should have thrown an exception");
+        } catch(AlreadyTakenException actualEx) {
+            Assertions.assertEquals("The username '"+userB+"' is already in use.",
+                    actualEx.getMessage());
+        }
+    }
+
+    @Test
+    public void setWhiteTeamDoesNothingIfUserAlreadySetToThatValue() throws SQLException, DataAccessException
+    {
+        String userA = "skyler";
+        int userAId = TestHelper.insertTestUser(userA);
+        int gameId = insertGame("my_test_thingie", userAId, null);
+
+        boolean actual = classUnderTest.setWhiteTeam(gameId, userA);
+
+        Assertions.assertTrue(actual);
+        GameData actualGame = getGame(gameId);
+        Assertions.assertEquals(userA, actualGame.whiteUsername());
+    }
+
+    @NotNull
+    private GameData getGame(int gameId) {
+        return classUnderTest.getAllGames().stream()
+                            .filter(g -> g.gameID() == gameId)
+                            .findFirst().get();
     }
 
     private static int insertGame(String gameName) throws SQLException, DataAccessException {

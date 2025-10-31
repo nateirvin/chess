@@ -2,6 +2,7 @@ package dataaccess;
 
 import model.GameData;
 import model.UpsertGameResult;
+import service.AlreadyTakenException;
 import java.sql.*;
 import java.util.ArrayList;
 
@@ -53,33 +54,7 @@ public class GameMySqlProvider implements GameDataAccess
                 }
             }
 
-            try (PreparedStatement ps = conn.prepareStatement(
-                    """
-                        SELECT
-                            game_id,
-                            game_name,
-                            u1.username AS white_user_name,
-                            u2.username AS black_user_name
-                        FROM games
-                            LEFT JOIN users AS u1
-                                ON games.white_user_id = u1.user_id
-                            LEFT JOIN users AS u2
-                                ON games.black_user_id = u2.user_id
-                        WHERE game_name = ?
-                        """))
-            {
-                ps.setString(1, name);
-
-                try(var rs = ps.executeQuery()) {
-                    if(rs.next())
-                    {
-                        GameData gameData = getGameData(rs);
-                        return new UpsertGameResult(gameData, false);
-                    }
-                }
-            }
-
-            return null;
+            return getGame(conn, null, name);
         }
         catch (SQLException | DataAccessException e)
         {
@@ -111,7 +86,7 @@ public class GameMySqlProvider implements GameDataAccess
                 try(var rs = ps.executeQuery()) {
                     while (rs.next())
                     {
-                        GameData gameData = getGameData(rs);
+                        GameData gameData = readGameData(rs);
                         list.add(gameData);
                     }
                 }
@@ -124,7 +99,7 @@ public class GameMySqlProvider implements GameDataAccess
         return list;
     }
 
-    private static GameData getGameData(ResultSet rs) throws SQLException {
+    private static GameData readGameData(ResultSet rs) throws SQLException {
         return new GameData(
                 rs.getInt(1),
                 rs.getString(2),
@@ -133,13 +108,88 @@ public class GameMySqlProvider implements GameDataAccess
     }
 
     @Override
-    public boolean setWhiteTeam(int gamedID, String username) {
-        throw new RuntimeException("not implemented");
+    public boolean setWhiteTeam(int gamedID, String username)
+    {
+        try (Connection conn = DatabaseManager.getConnection())
+        {
+            if(getGame(conn, gamedID, null) == null) {
+                return false;
+            }
+
+            try (PreparedStatement ps = conn.prepareStatement(
+                    """
+                        UPDATE games
+                        SET white_user_id = (SELECT user_id FROM users WHERE username = ?)
+                        WHERE game_id = ?
+                            AND
+                            (
+                                white_user_id IS NULL
+                                OR
+                                white_user_id = (SELECT user_id FROM users WHERE username = ?)
+                            )
+                        """))
+            {
+                ps.setInt(2, gamedID);
+                ps.setString(1, username);
+                ps.setString(3, username);
+
+                int rowsAffected = ps.executeUpdate();
+
+                if(rowsAffected == 0) {
+                    throw new AlreadyTakenException("username", username);
+                }
+            }
+        }
+        catch (SQLException | DataAccessException e)
+        {
+            throw new RuntimeException(e);
+        }
+
+        return true;
     }
 
     @Override
     public boolean setBlackTeam(int gamedID, String username) {
         throw new RuntimeException("not implemented");
+    }
+
+    private static UpsertGameResult getGame(Connection conn, Integer gameId, String name) throws SQLException
+    {
+        try (PreparedStatement ps = conn.prepareStatement(
+                """
+                    SELECT
+                        game_id,
+                        game_name,
+                        u1.username AS white_user_name,
+                        u2.username AS black_user_name
+                    FROM games
+                        LEFT JOIN users AS u1
+                            ON games.white_user_id = u1.user_id
+                        LEFT JOIN users AS u2
+                            ON games.black_user_id = u2.user_id
+                    WHERE game_name = ?
+                        OR game_id = ?
+                    """))
+        {
+            if(gameId == null) {
+                ps.setString(1, name);
+                ps.setNull(2, Types.NULL);
+            } else {
+                ps.setNull(1, Types.NULL);
+                ps.setInt(2, gameId);
+            }
+
+            try(var rs = ps.executeQuery())
+            {
+                if(rs.next())
+                {
+                    GameData gameData = readGameData(rs);
+                    return new UpsertGameResult(gameData, false);
+                }
+            }
+        }
+
+        return null;
     }
 
     @Override
