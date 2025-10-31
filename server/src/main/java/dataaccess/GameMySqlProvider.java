@@ -73,11 +73,7 @@ public class GameMySqlProvider implements GameDataAccess
                 try(var rs = ps.executeQuery()) {
                     if(rs.next())
                     {
-                        GameData gameData = new GameData(
-                                rs.getInt(1),
-                                rs.getString(2),
-                                rs.getString(3),
-                                rs.getString(4));
+                        GameData gameData = getGameData(rs);
                         return new UpsertGameResult(gameData, false);
                     }
                 }
@@ -92,8 +88,48 @@ public class GameMySqlProvider implements GameDataAccess
     }
 
     @Override
-    public ArrayList<GameData> getAllGames() {
-        throw new RuntimeException("not implemented");
+    public ArrayList<GameData> getAllGames()
+    {
+        ArrayList<GameData> list = new ArrayList<>();
+
+        try (Connection conn = DatabaseManager.getConnection())
+        {
+            try (PreparedStatement ps = conn.prepareStatement(
+                    """
+                        SELECT
+                            game_id,
+                            game_name,
+                            u1.username AS white_user_name,
+                            u2.username AS black_user_name
+                        FROM games
+                            LEFT JOIN users AS u1
+                                ON games.white_user_id = u1.user_id
+                            LEFT JOIN users AS u2
+                                ON games.black_user_id = u2.user_id
+                        """))
+            {
+                try(var rs = ps.executeQuery()) {
+                    while (rs.next())
+                    {
+                        GameData gameData = getGameData(rs);
+                        list.add(gameData);
+                    }
+                }
+            }
+        } catch (SQLException | DataAccessException e)
+        {
+            throw new RuntimeException(e);
+        }
+
+        return list;
+    }
+
+    private static GameData getGameData(ResultSet rs) throws SQLException {
+        return new GameData(
+                rs.getInt(1),
+                rs.getString(2),
+                rs.getString(3),
+                rs.getString(4));
     }
 
     @Override
@@ -108,6 +144,12 @@ public class GameMySqlProvider implements GameDataAccess
 
     @Override
     public void deleteAllGames() {
-        throw new RuntimeException("not implemented");
+        try (Connection conn = DatabaseManager.getConnection()){
+            try (PreparedStatement ps = conn.prepareStatement("DELETE FROM games")){
+                ps.executeUpdate();
+            }
+        } catch (SQLException | DataAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

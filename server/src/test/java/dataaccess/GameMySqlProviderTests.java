@@ -1,11 +1,13 @@
 package dataaccess;
 
+import model.GameData;
 import model.UpsertGameResult;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.UUID;
 
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
 
@@ -73,8 +75,61 @@ public class GameMySqlProviderTests
         {
             blackUserId = userId2;
         }
+        int gameId = insertGame("game_forty5", whiteUserId, blackUserId);
 
-        int gameId;
+        UpsertGameResult actual = classUnderTest.findOrCreateGame("game_forty5");
+
+        Assertions.assertEquals(gameId, actual.gameID());
+        Assertions.assertEquals("game_forty5", actual.gameName());
+        Assertions.assertFalse(actual.isNew());
+        Assertions.assertEquals(whiteUser, actual.whiteUsername());
+        Assertions.assertEquals(blackUser, actual.blackUsername());
+    }
+
+    @Test
+    public void getAllGamesReturnsNothingIfNoGamesInTheDatabase()
+    {
+        ArrayList<GameData> actual = classUnderTest.getAllGames();
+
+        Assertions.assertEquals(0, actual.size());
+    }
+
+    @Test
+    public void getAllGamesReturnsEveryGameInTheDatabase() throws SQLException, DataAccessException
+    {
+        insertGame(UUID.randomUUID().toString());
+        insertGame(UUID.randomUUID().toString());
+        insertGame(UUID.randomUUID().toString());
+        insertGame(UUID.randomUUID().toString());
+
+        ArrayList<GameData> actual = classUnderTest.getAllGames();
+
+        Assertions.assertEquals(4, actual.size());
+        Assertions.assertEquals(4, actual.stream().map(GameData::gameID).distinct().count());
+        actual.forEach(game -> {
+            Assertions.assertNotEquals(0, game.gameID());
+            Assertions.assertFalse(game.gameName().isEmpty());
+        });
+    }
+
+    @Test
+    public void deleteAllGamesDeletesAllGames() throws SQLException, DataAccessException
+    {
+        insertGame(UUID.randomUUID().toString());
+        insertGame(UUID.randomUUID().toString());
+        insertGame(UUID.randomUUID().toString());
+
+        classUnderTest.deleteAllGames();
+
+        Assertions.assertEquals(0, classUnderTest.getAllGames().size());
+    }
+
+    private static int insertGame(String gameName) throws SQLException, DataAccessException {
+        return insertGame(gameName, null, null);
+    }
+
+    private static int insertGame(String gameName, Integer whiteUserId, Integer blackUserId) throws SQLException, DataAccessException
+    {
         try (Connection conn = DatabaseManager.getConnection())
         {
             try (PreparedStatement ps = conn.prepareStatement(
@@ -84,7 +139,7 @@ public class GameMySqlProviderTests
                         VALUES (?, ?, ?, '{}')
                         """, RETURN_GENERATED_KEYS))
             {
-                ps.setString(1, "game_forty5");
+                ps.setString(1, gameName);
                 if(whiteUserId == null) {
                     ps.setNull(2, Types.NULL);
                 } else {
@@ -98,16 +153,8 @@ public class GameMySqlProviderTests
 
                 ps.executeUpdate();
 
-                gameId = DatabaseManager.getIdentity(ps);
+                return DatabaseManager.getIdentity(ps);
             }
         }
-
-        UpsertGameResult actual = classUnderTest.findOrCreateGame("game_forty5");
-
-        Assertions.assertEquals(gameId, actual.gameID());
-        Assertions.assertEquals("game_forty5", actual.gameName());
-        Assertions.assertFalse(actual.isNew());
-        Assertions.assertEquals(whiteUser, actual.whiteUsername());
-        Assertions.assertEquals(blackUser, actual.blackUsername());
     }
 }
