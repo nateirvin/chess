@@ -1,9 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
-import dataaccess.GameMemoryProvider;
-import dataaccess.SessionMemoryProvider;
-import dataaccess.UsersMemoryProvider;
+import dataaccess.*;
 import io.javalin.http.Context;
 import model.AuthData;
 import org.jetbrains.annotations.NotNull;
@@ -23,9 +21,16 @@ abstract class JsonHandler
 
     public JsonHandler()
     {
-        this.sessionService = new SessionService(new SessionMemoryProvider());
-        this.userService = new UserService(sessionService, new UsersMemoryProvider());
-        this.gameService = new GameService(new GameMemoryProvider());
+        try
+        {
+            this.sessionService = new SessionService(new SessionMySqlProvider());
+            this.userService = new UserService(sessionService, new UsersMySqlProvider());
+            this.gameService = new GameService(new GameMySqlProvider());
+        }
+        catch (DataAccessException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
     @Nullable
@@ -84,7 +89,7 @@ abstract class JsonHandler
         statusObjectResult(context, 200, obj);
     }
 
-    private static void errorMessageResult(@NotNull Context context, int status, @NotNull String message)
+    protected static void errorMessageResult(@NotNull Context context, int status, @NotNull String message)
     {
         statusObjectResult(context, status, Map.of("message", "Error: " + message));
     }

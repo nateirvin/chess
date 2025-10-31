@@ -16,7 +16,9 @@ public class Server {
                                 JsonHandler.badRequest(context, exception.getMessage()))
                .exception(LoginException.class,
                        (exception, context) ->
-                               JsonHandler.unauthorized(context, exception.getMessage()));
+                               JsonHandler.unauthorized(context, exception.getMessage()))
+               .exception(RuntimeException.class,
+                       (e, context) -> JsonHandler.errorMessageResult(context, 500, e.getMessage()));
 
         javalin.delete("/db", new ResetServerHandler());
         javalin.post("/user", new RegisterUserHandler());
