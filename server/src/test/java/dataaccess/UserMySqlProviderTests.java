@@ -6,8 +6,6 @@ import org.junit.jupiter.api.*;
 import java.sql.*;
 import java.util.UUID;
 
-import static java.sql.Statement.RETURN_GENERATED_KEYS;
-
 public class UserMySqlProviderTests
 {
     private UsersMySqlProvider classUnderTest;
@@ -16,10 +14,7 @@ public class UserMySqlProviderTests
     public void setup() throws DataAccessException
     {
         this.classUnderTest = new UsersMySqlProvider();
-
-        DatabaseManager.execute("DELETE FROM games");
-        DatabaseManager.execute("DELETE FROM sessions");
-        DatabaseManager.execute("DELETE FROM users");
+        TestHelper.resetDatabase();
     }
 
     @Test
@@ -67,7 +62,7 @@ public class UserMySqlProviderTests
     {
         String userName = "bosephus";
         String plainTextPassword = "i'm a plaintext password";
-        int userId = insertTestUser(userName, plainTextPassword);
+        int userId = TestHelper.insertTestUser(userName, plainTextPassword);
         UserData userData = new UserData(userName, plainTextPassword, null);
 
         UpsertUserResult actual = classUnderTest.findOrCreateUser(userData);
@@ -92,7 +87,7 @@ public class UserMySqlProviderTests
     {
         String userName = "samwise_the_fourth";
         String plainTextPassword = "i'm a plaintext password";
-        int userId = insertTestUser(userName, plainTextPassword);
+        int userId = TestHelper.insertTestUser(userName, plainTextPassword);
 
         UserData actual = classUnderTest.getUser(userName, plainTextPassword);
 
@@ -105,9 +100,9 @@ public class UserMySqlProviderTests
     @Test
     public void deleteAllUsersRemovesAllUsers() throws DataAccessException, SQLException
     {
-        insertTestUser(UUID.randomUUID().toString(), "joseph sees you");
-        insertTestUser(UUID.randomUUID().toString(), "joseph sees you");
-        insertTestUser(UUID.randomUUID().toString(), "joseph sees you");
+        TestHelper.insertTestUser(UUID.randomUUID().toString(), "joseph sees you");
+        TestHelper.insertTestUser(UUID.randomUUID().toString(), "joseph sees you");
+        TestHelper.insertTestUser(UUID.randomUUID().toString(), "joseph sees you");
         assert getUserCount() == 3;
 
         classUnderTest.deleteAllUsers();
@@ -115,37 +110,7 @@ public class UserMySqlProviderTests
         Assertions.assertEquals(0, getUserCount());
     }
 
-    private static int insertTestUser(String userName, String plainTextPassword) throws SQLException, DataAccessException
-    {
-        int originalId;
-        try (Connection conn = DatabaseManager.getConnection())
-        {
-            try (PreparedStatement ps = conn.prepareStatement(
-                    "INSERT INTO users (username, hashed_password) VALUES (?, ?)", RETURN_GENERATED_KEYS))
-            {
-                ps.setString(1, userName);
-                ps.setString(2, Hasher.hash(plainTextPassword));
-
-                ps.executeUpdate();
-
-                originalId = DatabaseManager.getIdentity(ps);
-            }
-        }
-        assert originalId != 0;
-        return originalId;
-    }
-
     private static int getUserCount() throws SQLException, DataAccessException {
-        int userCount = 0;
-        try (Connection conn = DatabaseManager.getConnection()) {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT * FROM users")) {
-                try (ResultSet rs = ps.executeQuery()) {
-                    while (rs.next()) {
-                        userCount++;
-                    }
-                }
-            }
-        }
-        return userCount;
+        return TestHelper.getRowCountForTable("users");
     }
 }
