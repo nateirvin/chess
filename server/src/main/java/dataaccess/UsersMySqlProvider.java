@@ -94,7 +94,19 @@ public class UsersMySqlProvider implements UsersDataAccess
     }
 
     @Override
-    public void deleteAllUsers() {
-        throw new RuntimeException("not implemented");
+    public void deleteAllUsers()
+    {
+        String commandSql = "DELETE FROM users";
+        try (Connection conn = DatabaseManager.getConnection())
+        {
+            try (PreparedStatement command = conn.prepareStatement(commandSql))
+            {
+                command.executeUpdate();
+            }
+        }
+        catch (SQLException | DataAccessException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 }

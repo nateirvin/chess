@@ -4,6 +4,7 @@ import model.UpsertUserResult;
 import model.UserData;
 import org.junit.jupiter.api.*;
 import java.sql.*;
+import java.util.UUID;
 
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
 
@@ -22,7 +23,7 @@ public class UserMySqlProviderTests
     }
 
     @Test
-    public void findOrCreateUserInsertsUserIfNoneExists() throws DataAccessException
+    public void findOrCreateUserInsertsUserIfNoneExists() throws DataAccessException, SQLException
     {
         String username = "zork";
         String plainTextPassword = "string_bad";
@@ -56,8 +57,6 @@ public class UserMySqlProviderTests
                     }
                 }
             }
-        } catch (Exception e) {
-            throw new DataAccessException(e.getMessage());
         }
 
         Assertions.assertEquals(1, userCount);
@@ -66,9 +65,59 @@ public class UserMySqlProviderTests
     @Test
     public void findOrCreateUserReturnsExistingUserInfoIfUserAlreadyExists() throws DataAccessException, SQLException
     {
-        int originalId;
         String userName = "bosephus";
         String plainTextPassword = "i'm a plaintext password";
+        int userId = insertTestUser(userName, plainTextPassword);
+        UserData userData = new UserData(userName, plainTextPassword, null);
+
+        UpsertUserResult actual = classUnderTest.findOrCreateUser(userData);
+
+        Assertions.assertEquals(userId, actual.getId());
+        Assertions.assertFalse(actual.isNew());
+        Assertions.assertEquals(userName, actual.username());
+        Assertions.assertEquals(plainTextPassword, actual.password());
+        Assertions.assertTrue(actual.email().isEmpty());
+    }
+
+    @Test
+    public void getUserReturnsNullIfUserDoesNotExist()
+    {
+        UserData actual = classUnderTest.getUser(UUID.randomUUID().toString(), "any dream will do");
+
+        Assertions.assertNull(actual);
+    }
+
+    @Test
+    public void getUserReturnsUserIfUserExists() throws SQLException, DataAccessException
+    {
+        String userName = "samwise_the_fourth";
+        String plainTextPassword = "i'm a plaintext password";
+        int userId = insertTestUser(userName, plainTextPassword);
+
+        UserData actual = classUnderTest.getUser(userName, plainTextPassword);
+
+        Assertions.assertNotNull(actual);
+        Assertions.assertEquals(userId, actual.getId());
+        Assertions.assertEquals(userName, actual.username());
+        Assertions.assertEquals(plainTextPassword, actual.password());
+    }
+
+    @Test
+    public void deleteAllUsersRemovesAllUsers() throws DataAccessException, SQLException
+    {
+        insertTestUser(UUID.randomUUID().toString(), "joseph sees you");
+        insertTestUser(UUID.randomUUID().toString(), "joseph sees you");
+        insertTestUser(UUID.randomUUID().toString(), "joseph sees you");
+        assert getUserCount() == 3;
+
+        classUnderTest.deleteAllUsers();
+
+        Assertions.assertEquals(0, getUserCount());
+    }
+
+    private static int insertTestUser(String userName, String plainTextPassword) throws SQLException, DataAccessException
+    {
+        int originalId;
         try (Connection conn = DatabaseManager.getConnection())
         {
             try (PreparedStatement ps = conn.prepareStatement(
@@ -83,14 +132,20 @@ public class UserMySqlProviderTests
             }
         }
         assert originalId != 0;
-        UserData userData = new UserData(userName, plainTextPassword, null);
+        return originalId;
+    }
 
-        UpsertUserResult actual = classUnderTest.findOrCreateUser(userData);
-
-        Assertions.assertEquals(originalId, actual.getId());
-        Assertions.assertFalse(actual.isNew());
-        Assertions.assertEquals(userName, actual.username());
-        Assertions.assertEquals(plainTextPassword, actual.password());
-        Assertions.assertTrue(actual.email().isEmpty());
+    private static int getUserCount() throws SQLException, DataAccessException {
+        int userCount = 0;
+        try (Connection conn = DatabaseManager.getConnection()) {
+            try (PreparedStatement ps = conn.prepareStatement("SELECT * FROM users")) {
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        userCount++;
+                    }
+                }
+            }
+        }
+        return userCount;
     }
 }
