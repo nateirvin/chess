@@ -2,6 +2,7 @@ package model;
 
 public class UserData
 {
+    private int id;
     private final String username;
     private final String password;
     private final String email;
@@ -27,4 +28,7 @@ public class UserData
     public String email() {
         return email;
     }
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
 }

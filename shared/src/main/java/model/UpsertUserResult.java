@@ -7,6 +7,7 @@ public class UpsertUserResult extends UserData
     public UpsertUserResult(UserData userData, boolean isNew)
     {
         super(userData.username(), userData.password(), userData.email());
+        setId(userData.getId());
         this.isNew = isNew;
     }
 
