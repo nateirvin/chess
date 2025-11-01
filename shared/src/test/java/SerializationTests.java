@@ -142,6 +142,10 @@ public class SerializationTests
 
         String actual = gson.toJson(gameData);
 
-        Assertions.assertTrue(actual.startsWith("{\"gameID\":5,\"gameName\":\"zeppo\",\"whiteUsername\":\"hamilton\",\"blackUsername\":\"burr\",\"game\":{\"currentTeam\":\"WHITE\",\"board\":"));
+        Assertions.assertTrue(
+                actual.startsWith(
+                        "{\"gameID\":5,\"gameName\":\"zeppo\"," +
+                        "\"whiteUsername\":\"hamilton\",\"blackUsername\":\"burr\"," +
+                        "\"game\":{\"currentTeam\":\"WHITE\",\"board\":"));
     }
 }

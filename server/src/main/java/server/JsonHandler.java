@@ -1,7 +1,6 @@
 package server;
 
 import com.google.gson.Gson;
-import dataaccess.*;
 import io.javalin.http.Context;
 import model.AuthData;
 import org.jetbrains.annotations.NotNull;
