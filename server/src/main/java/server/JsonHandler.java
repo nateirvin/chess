@@ -9,8 +9,6 @@ import org.jetbrains.annotations.Nullable;
 import service.GameService;
 import service.SessionService;
 import service.UserService;
-import util.SerializerFactory;
-
 import javax.security.auth.login.LoginException;
 import java.util.Map;
 
@@ -21,19 +19,12 @@ class JsonHandler
     protected final UserService userService;
     protected final GameService gameService;
 
-    public JsonHandler()
+    public JsonHandler(Gson gson, UserService userService, SessionService sessionService, GameService gameService)
     {
-        try
-        {
-            this.gson = new SerializerFactory().getGson();
-            this.sessionService = new SessionService(new SessionMySqlProvider());
-            this.userService = new UserService(sessionService, new UsersMySqlProvider());
-            this.gameService = new GameService(new GameMySqlProvider());
-        }
-        catch (DataAccessException e)
-        {
-            throw new RuntimeException(e);
-        }
+        this.gson = gson;
+        this.sessionService = sessionService;
+        this.userService = userService;
+        this.gameService = gameService;
     }
 
     @Nullable

@@ -1,6 +1,7 @@
 package server;
 
 import io.javalin.*;
+import util.SerializerFactory;
 
 import javax.security.auth.login.LoginException;
 
@@ -9,9 +10,10 @@ public class Server {
     private final Javalin javalin;
 
     public Server() {
-        javalin = Javalin.create(config -> config.staticFiles.add("web"));
+        var factory = new HandlerFactory(new SerializerFactory());
+        JsonHandler basicHandler = factory.getHandler(JsonHandler.class);
 
-        JsonHandler basicHandler = new JsonHandler();
+        javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
         javalin.exception(IllegalArgumentException.class,
                         (exception, context) ->
@@ -23,13 +25,13 @@ public class Server {
                        (e, context) ->
                                basicHandler.errorMessageResult(context, 500, e.getMessage()));
 
-        javalin.delete("/db", new ResetServerHandler());
-        javalin.post("/user", new RegisterUserHandler());
-        javalin.post("/session", new LoginHandler());
-        javalin.delete("/session", new LogoutHandler());
-        javalin.post("/game", new CreateGameHandler());
-        javalin.put("/game", new JoinGameHandler());
-        javalin.get("/game", new ListGamesHandler());
+        javalin.delete("/db", factory.getHandler(ResetServerHandler.class));
+        javalin.post("/user", factory.getHandler(RegisterUserHandler.class));
+        javalin.post("/session", factory.getHandler(LoginHandler.class));
+        javalin.delete("/session", factory.getHandler(LogoutHandler.class));
+        javalin.post("/game", factory.getHandler(CreateGameHandler.class));
+        javalin.put("/game", factory.getHandler(JoinGameHandler.class));
+        javalin.get("/game", factory.getHandler(ListGamesHandler.class));
     }
 
     public int run(int desiredPort) {
