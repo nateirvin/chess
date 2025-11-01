@@ -7,24 +7,41 @@ import service.SessionService;
 import service.UserService;
 import util.SerializerFactory;
 
-@SuppressWarnings("unchecked")
 class HandlerFactory
 {
     private final Gson gson;
-    private final UserService userService;
-    private final SessionService sessionService;
-    private final GameService gameService;
+    private SessionDataAccess sessionDataAccess;
+    private UsersDataAccess usersDataAccess;
+    private GameDataAccess gameDataAccess;
+    private UserService userService;
+    private SessionService sessionService;
+    private GameService gameService;
 
     public HandlerFactory(SerializerFactory serializerFactory)
     {
         this.gson = serializerFactory.getGson();
-        this.sessionService = new SessionService(new SessionMySqlProvider());
-        this.userService = new UserService(sessionService, new UsersMySqlProvider());
-        this.gameService = new GameService(new GameMySqlProvider());
+    }
+
+    public void useDatabase()
+    {
+        usersDataAccess = new UsersMySqlProvider();
+        sessionDataAccess = new SessionMySqlProvider();
+        gameDataAccess = new GameMySqlProvider();
+    }
+
+    public void useMemoryStorage()
+    {
+        usersDataAccess = new UsersMemoryProvider();
+        sessionDataAccess = new SessionMemoryProvider();
+        gameDataAccess = new GameMemoryProvider();
     }
 
     public void ensureDependencies()
     {
+        this.sessionService = new SessionService(sessionDataAccess);
+        this.userService = new UserService(sessionService, usersDataAccess);
+        this.gameService = new GameService(gameDataAccess);
+
         try{
             DatabaseManager.createDatabase();
             UsersMySqlProvider.createTables();
@@ -35,6 +52,7 @@ class HandlerFactory
         }
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends JsonHandler> T getHandler(Class<T> clazz)
     {
         if(clazz == ResetServerHandler.class)

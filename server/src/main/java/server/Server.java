@@ -11,6 +11,11 @@ public class Server {
 
     public Server() {
         var factory = new HandlerFactory(new SerializerFactory());
+        if(true) {
+            factory.useDatabase();
+        } else {
+            factory.useMemoryStorage();
+        }
         factory.ensureDependencies();
 
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
