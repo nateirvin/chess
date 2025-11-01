@@ -9,12 +9,14 @@ import org.jetbrains.annotations.Nullable;
 import service.GameService;
 import service.SessionService;
 import service.UserService;
+import util.SerializerFactory;
 
 import javax.security.auth.login.LoginException;
 import java.util.Map;
 
-abstract class JsonHandler
+class JsonHandler
 {
+    protected final Gson gson;
     protected final SessionService sessionService;
     protected final UserService userService;
     protected final GameService gameService;
@@ -23,6 +25,7 @@ abstract class JsonHandler
     {
         try
         {
+            this.gson = new SerializerFactory().getGson();
             this.sessionService = new SessionService(new SessionMySqlProvider());
             this.userService = new UserService(sessionService, new UsersMySqlProvider());
             this.gameService = new GameService(new GameMySqlProvider());
@@ -40,9 +43,9 @@ abstract class JsonHandler
         return this.sessionService.validateSession(authToken);
     }
 
-    protected static <T> T getBodyObject(Context context, Class<T> clazz)
+    protected <T> T getBodyObject(Context context, Class<T> clazz)
     {
-        T bodyObject = new Gson().fromJson(context.body(), clazz);
+        T bodyObject = gson.fromJson(context.body(), clazz);
 
         if (bodyObject == null) {
             throw new IllegalArgumentException("missing required body");
@@ -59,7 +62,7 @@ abstract class JsonHandler
         }
     }
 
-    protected static void badRequest(@NotNull Context context, @NotNull String message)
+    protected void badRequest(@NotNull Context context, @NotNull String message)
     {
         errorMessageResult(context, 400, message);
     }
@@ -69,7 +72,7 @@ abstract class JsonHandler
      * @param context HTTP context
      * @param message error message
      */
-    protected static void unauthorized(@NotNull Context context, @NotNull String message)
+    protected void unauthorized(@NotNull Context context, @NotNull String message)
     {
         errorMessageResult(context, 401, message);
     }
@@ -79,25 +82,25 @@ abstract class JsonHandler
      * @param context HTTP context
      * @param message error message
      */
-    protected static void forbidden(@NotNull Context context, @NotNull String message)
+    protected void forbidden(@NotNull Context context, @NotNull String message)
     {
         errorMessageResult(context, 403, message);
     }
 
-    protected static <T> void successResult(@NotNull Context context, T obj)
+    protected <T> void successResult(@NotNull Context context, T obj)
     {
         statusObjectResult(context, 200, obj);
     }
 
-    protected static void errorMessageResult(@NotNull Context context, int status, @NotNull String message)
+    protected void errorMessageResult(@NotNull Context context, int status, @NotNull String message)
     {
         statusObjectResult(context, status, Map.of("message", "Error: " + message));
     }
 
-    private static <T> void statusObjectResult(@NotNull Context context, int status, T obj)
+    private <T> void statusObjectResult(@NotNull Context context, int status, T obj)
     {
         context.status(status);
         context.contentType("application/json");
-        context.result(new Gson().toJson(obj));
+        context.result(gson.toJson(obj));
     }
 }

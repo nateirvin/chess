@@ -11,14 +11,17 @@ public class Server {
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
+        JsonHandler basicHandler = new JsonHandler();
+
         javalin.exception(IllegalArgumentException.class,
                         (exception, context) ->
-                                JsonHandler.badRequest(context, exception.getMessage()))
+                                basicHandler.badRequest(context, exception.getMessage()))
                .exception(LoginException.class,
                        (exception, context) ->
-                               JsonHandler.unauthorized(context, exception.getMessage()))
+                               basicHandler.unauthorized(context, exception.getMessage()))
                .exception(RuntimeException.class,
-                       (e, context) -> JsonHandler.errorMessageResult(context, 500, e.getMessage()));
+                       (e, context) ->
+                               basicHandler.errorMessageResult(context, 500, e.getMessage()));
 
         javalin.delete("/db", new ResetServerHandler());
         javalin.post("/user", new RegisterUserHandler());

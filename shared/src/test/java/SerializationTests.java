@@ -1,8 +1,8 @@
 import chess.*;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import model.GameData;
 import org.junit.jupiter.api.*;
+import util.SerializerFactory;
 
 public class SerializationTests
 {
@@ -11,9 +11,7 @@ public class SerializationTests
     @BeforeEach
     public void setup()
     {
-        GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.registerTypeAdapter(ChessBoard.class, new ChessBoardSerializer());
-        gson = gsonBuilder.create();
+        gson = new SerializerFactory().getGson();
     }
 
     @Test
