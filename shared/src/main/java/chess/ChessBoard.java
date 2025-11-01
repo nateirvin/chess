@@ -42,6 +42,11 @@ public class ChessBoard {
         return pieces.get(position);
     }
 
+    public Collection<ChessSquare> toSquares()
+    {
+        return findPieces(_ -> true);
+    }
+
     public Collection<ChessSquare> teamPieces(ChessGame.TeamColor teamColor)
     {
         return findPieces(piece -> piece.getTeamColor() == teamColor);

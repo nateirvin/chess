@@ -1,6 +1,7 @@
 package server;
 
 import io.javalin.*;
+import util.SerializerFactory;
 
 import javax.security.auth.login.LoginException;
 
@@ -9,24 +10,34 @@ public class Server {
     private final Javalin javalin;
 
     public Server() {
+        var factory = new HandlerFactory(new SerializerFactory());
+        if(true) {
+            factory.useDatabase();
+        } else {
+            factory.useMemoryStorage();
+        }
+        factory.ensureDependencies();
+
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
+        JsonHandler errorHandler = factory.getHandler(JsonHandler.class);
         javalin.exception(IllegalArgumentException.class,
                         (exception, context) ->
-                                JsonHandler.badRequest(context, exception.getMessage()))
+                                errorHandler.badRequest(context, exception.getMessage()))
                .exception(LoginException.class,
                        (exception, context) ->
-                               JsonHandler.unauthorized(context, exception.getMessage()))
+                               errorHandler.unauthorized(context, exception.getMessage()))
                .exception(RuntimeException.class,
-                       (e, context) -> JsonHandler.errorMessageResult(context, 500, e.getMessage()));
+                       (exception, context) ->
+                               errorHandler.errorMessageResult(context, 500, exception.getMessage()));
 
-        javalin.delete("/db", new ResetServerHandler());
-        javalin.post("/user", new RegisterUserHandler());
-        javalin.post("/session", new LoginHandler());
-        javalin.delete("/session", new LogoutHandler());
-        javalin.post("/game", new CreateGameHandler());
-        javalin.put("/game", new JoinGameHandler());
-        javalin.get("/game", new ListGamesHandler());
+        javalin.delete("/db", factory.getHandler(ResetServerHandler.class));
+        javalin.post("/user", factory.getHandler(RegisterUserHandler.class));
+        javalin.post("/session", factory.getHandler(LoginHandler.class));
+        javalin.delete("/session", factory.getHandler(LogoutHandler.class));
+        javalin.post("/game", factory.getHandler(CreateGameHandler.class));
+        javalin.put("/game", factory.getHandler(JoinGameHandler.class));
+        javalin.get("/game", factory.getHandler(ListGamesHandler.class));
     }
 
     public int run(int desiredPort) {

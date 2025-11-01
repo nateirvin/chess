@@ -10,19 +10,19 @@ import java.util.HashMap;
 public class GameMemoryProvider implements GameDataAccess
 {
     private static int lastId = 0;
-    private final static HashMap<String, GameData> games = new HashMap<>();
+    private final static HashMap<String, GameData> GAMES = new HashMap<>();
 
     @Override
     public UpsertGameResult findOrCreateGame(String name)
     {
-        if(games.containsKey(name))
+        if(GAMES.containsKey(name))
         {
-            return new UpsertGameResult(games.get(name), false);
+            return new UpsertGameResult(GAMES.get(name), false);
         }
         else
         {
             GameData gameData = new GameData(++lastId, name);
-            games.put(name, gameData);
+            GAMES.put(name, gameData);
             return new UpsertGameResult(gameData, true);
         }
     }
@@ -30,12 +30,12 @@ public class GameMemoryProvider implements GameDataAccess
     @Override
     public ArrayList<GameData> getAllGames()
     {
-        return new ArrayList<>(games.values());
+        return new ArrayList<>(GAMES.values());
     }
 
     @Override
     public boolean setWhiteTeam(int gamedID, String username) {
-        for (GameData game : games.values()) {
+        for (GameData game : GAMES.values()) {
             if(game.gameID() == gamedID) {
                 if(game.whiteUsername() != null && !game.whiteUsername().equals(username)) {
                     throw new AlreadyTakenException("username", username);
@@ -49,7 +49,7 @@ public class GameMemoryProvider implements GameDataAccess
 
     @Override
     public boolean setBlackTeam(int gamedID, String username) {
-        for (GameData game : games.values()) {
+        for (GameData game : GAMES.values()) {
             if(game.gameID() == gamedID) {
                 if(game.blackUsername() != null && !game.blackUsername().equals(username)) {
                     throw new AlreadyTakenException("username", username);
@@ -64,6 +64,6 @@ public class GameMemoryProvider implements GameDataAccess
     @Override
     public void deleteAllGames()
     {
-        games.clear();
+        GAMES.clear();
     }
 }

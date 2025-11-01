@@ -5,7 +5,6 @@ import dataaccess.GameDataAccess;
 import model.CreateGameRequest;
 import model.GameData;
 import model.UpsertGameResult;
-
 import java.util.ArrayList;
 
 @SuppressWarnings("ClassCanBeRecord")

@@ -7,34 +7,34 @@ import java.util.HashMap;
 
 public class SessionMemoryProvider implements SessionDataAccess
 {
-    private static final HashMap<String, AuthData> sessions = new HashMap<>();
+    private static final HashMap<String, AuthData> SESSIONS = new HashMap<>();
 
     @Override
     public AuthData insertSession(String authToken, String username)
     {
         AuthData authData = new AuthData(authToken, username);
-        sessions.put(authToken, authData);
+        SESSIONS.put(authToken, authData);
         return authData;
     }
 
     @Override
     public AuthData getSession(String authToken)
     {
-        return sessions.getOrDefault(authToken, null);
+        return SESSIONS.getOrDefault(authToken, null);
     }
 
     @Override
     public void deleteSession(String authToken)
     {
-        sessions.remove(authToken);
+        SESSIONS.remove(authToken);
     }
 
     @Override
     public void deleteAllSessions() {
-        sessions.clear();
+        SESSIONS.clear();
     }
 
     public Collection<AuthData> getAllSessions() {
-        return sessions.values();
+        return SESSIONS.values();
     }
 }
