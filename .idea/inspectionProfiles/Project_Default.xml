@@ -4,6 +4,7 @@
     <inspection_tool class="ControlFlowStatementWithoutBraces" enabled="true" level="WARNING" enabled_by_default="true" editorAttributes="WARNING_ATTRIBUTES" />
     <inspection_tool class="FieldNamingConvention" enabled="true" level="WARNING" enabled_by_default="true">
       <extension name="ConstantNamingConvention" enabled="true" />
+      <extension name="ConstantWithMutableFieldTypeNamingConvention" enabled="true" />
     </inspection_tool>
     <inspection_tool class="GroovyConstantNamingConvention" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="m_regex" value="[A-Z\d]*" />

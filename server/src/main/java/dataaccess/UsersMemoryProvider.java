@@ -8,19 +8,19 @@ import java.util.HashMap;
 
 public class UsersMemoryProvider implements UsersDataAccess
 {
-    private static final HashMap<String, UserData> users = new HashMap<>();
+    private static final HashMap<String, UserData> USERS = new HashMap<>();
 
     @Override
     public UpsertUserResult findOrCreateUser(UserData userData)
     {
-        if(users.containsKey(userData.username()))
+        if(USERS.containsKey(userData.username()))
         {
-            UserData data = users.get(userData.username());
+            UserData data = USERS.get(userData.username());
             return new UpsertUserResult(data, false);
         }
         else
         {
-            users.put(userData.username(), userData);
+            USERS.put(userData.username(), userData);
             return new UpsertUserResult(userData, true);
         }
     }
@@ -28,8 +28,8 @@ public class UsersMemoryProvider implements UsersDataAccess
     @Override
     public UserData getUser(String username, String password)
     {
-        if(users.containsKey(username)){
-            UserData userData = users.get(username);
+        if(USERS.containsKey(username)){
+            UserData userData = USERS.get(username);
             if(userData.password().equals(password)) {
                 return userData;
             }
@@ -40,10 +40,10 @@ public class UsersMemoryProvider implements UsersDataAccess
 
     @Override
     public void deleteAllUsers() {
-        users.clear();
+        USERS.clear();
     }
 
     public Collection<UserData> getAllUsers() {
-        return users.values();
+        return USERS.values();
     }
 }
