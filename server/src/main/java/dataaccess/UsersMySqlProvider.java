@@ -65,35 +65,44 @@ public class UsersMySqlProvider implements UsersDataAccess
     @Override
     public UserData getUser(String username, String challengePassword)
     {
-        try (Connection conn = DatabaseManager.getConnection())
-        {
-            var querySql = "SELECT user_id, hashed_password, email FROM users WHERE username = ?";
-            try (PreparedStatement command = conn.prepareStatement(querySql))
-            {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var querySql =
+                """
+                SELECT user_id, username, hashed_password, email
+                FROM users
+                WHERE username = ?
+                """;
+            try (PreparedStatement command = conn.prepareStatement(querySql)) {
                 command.setString(1, username);
-
-                try (ResultSet rs = command.executeQuery())
-                {
-                    if (rs.next())
-                    {
-                        String actualPassword = rs.getString(2);
-                        if(BCrypt.checkpw(challengePassword, actualPassword))
-                        {
-                            var email = rs.getString(3);
-                            UserData userData = new UserData(username, challengePassword, email);
-                            userData.setId(rs.getInt(1));
-                            return userData;
-                        }
+                try (ResultSet rs = command.executeQuery()) {
+                    if (rs.next()) {
+                        return readUserData(rs, challengePassword);
                     }
                 }
             }
-        }
-        catch (SQLException | DataAccessException e)
-        {
+        } catch (SQLException | DataAccessException e) {
             throw new RuntimeException(e);
         }
 
         return null;
+    }
+
+    private static UserData readUserData(ResultSet resultSet, String challengePassword) throws SQLException
+    {
+        UserData userData = null;
+
+        String actualPassword = resultSet.getString(3);
+        if(BCrypt.checkpw(challengePassword, actualPassword))
+        {
+            int userId = resultSet.getInt(1);
+            String username = resultSet.getString(2);
+            String email = resultSet.getString(4);
+
+            userData = new UserData(username, challengePassword, email);
+            userData.setId(userId);
+        }
+
+        return userData;
     }
 
     @Override
