@@ -7,8 +7,13 @@ import static java.sql.Statement.RETURN_GENERATED_KEYS;
 
 class TestHelper
 {
-    static void resetDatabase() throws DataAccessException
+    static void ensureDatabaseSetup() throws DataAccessException
     {
+        DatabaseManager.createDatabase();
+        UsersMySqlProvider.createTables();
+        SessionMySqlProvider.createTables();
+        GameMySqlProvider.createTables();
+
         DatabaseManager.execute("DELETE FROM games");
         DatabaseManager.execute("DELETE FROM sessions");
         DatabaseManager.execute("DELETE FROM users");

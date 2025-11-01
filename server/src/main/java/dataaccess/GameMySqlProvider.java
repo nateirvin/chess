@@ -13,7 +13,11 @@ public class GameMySqlProvider implements GameDataAccess
     public GameMySqlProvider() throws DataAccessException
     {
         DatabaseManager.createDatabase();
+        UsersMySqlProvider.createTables();
+        createTables();
+    }
 
+    protected static void createTables() throws DataAccessException {
         String statement =
                 """     
                 CREATE TABLE IF NOT EXISTS `games` (

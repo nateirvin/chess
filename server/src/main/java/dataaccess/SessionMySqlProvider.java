@@ -11,7 +11,11 @@ public class SessionMySqlProvider implements SessionDataAccess
     public SessionMySqlProvider()  throws DataAccessException
     {
         DatabaseManager.createDatabase();
+        UsersMySqlProvider.createTables();
+        createTables();
+    }
 
+    protected static void createTables() throws DataAccessException {
         String statement =
                 """     
                 CREATE TABLE IF NOT EXISTS `sessions` (
