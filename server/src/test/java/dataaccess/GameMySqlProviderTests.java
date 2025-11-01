@@ -21,7 +21,7 @@ public class GameMySqlProviderTests
     public void setup() throws DataAccessException
     {
         this.classUnderTest = new GameMySqlProvider();
-        TestHelper.resetDatabase();
+        TestHelper.ensureDatabaseSetup();
     }
 
     @Test

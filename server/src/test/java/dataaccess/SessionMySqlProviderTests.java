@@ -14,7 +14,7 @@ public class SessionMySqlProviderTests
     public void setup() throws DataAccessException
     {
         this.classUnderTest = new SessionMySqlProvider();
-        TestHelper.resetDatabase();
+        TestHelper.ensureDatabaseSetup();
     }
 
     @Test
