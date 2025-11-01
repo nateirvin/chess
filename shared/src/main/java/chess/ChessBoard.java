@@ -44,7 +44,7 @@ public class ChessBoard {
 
     public Collection<ChessSquare> toSquares()
     {
-        return findPieces(_ -> true);
+        return findPieces(p -> true);
     }
 
     public Collection<ChessSquare> teamPieces(ChessGame.TeamColor teamColor)
