@@ -11,19 +11,20 @@ public class Server {
 
     public Server() {
         var factory = new HandlerFactory(new SerializerFactory());
-        JsonHandler basicHandler = factory.getHandler(JsonHandler.class);
+        factory.ensureDependencies();
 
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
+        JsonHandler errorHandler = factory.getHandler(JsonHandler.class);
         javalin.exception(IllegalArgumentException.class,
                         (exception, context) ->
-                                basicHandler.badRequest(context, exception.getMessage()))
+                                errorHandler.badRequest(context, exception.getMessage()))
                .exception(LoginException.class,
                        (exception, context) ->
-                               basicHandler.unauthorized(context, exception.getMessage()))
+                               errorHandler.unauthorized(context, exception.getMessage()))
                .exception(RuntimeException.class,
-                       (e, context) ->
-                               basicHandler.errorMessageResult(context, 500, e.getMessage()));
+                       (exception, context) ->
+                               errorHandler.errorMessageResult(context, 500, exception.getMessage()));
 
         javalin.delete("/db", factory.getHandler(ResetServerHandler.class));
         javalin.post("/user", factory.getHandler(RegisterUserHandler.class));

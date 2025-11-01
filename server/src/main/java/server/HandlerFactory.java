@@ -1,10 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
-import dataaccess.DataAccessException;
-import dataaccess.GameMySqlProvider;
-import dataaccess.SessionMySqlProvider;
-import dataaccess.UsersMySqlProvider;
+import dataaccess.*;
 import service.GameService;
 import service.SessionService;
 import service.UserService;
@@ -20,12 +17,19 @@ class HandlerFactory
 
     public HandlerFactory(SerializerFactory serializerFactory)
     {
-        try
-        {
-            this.gson = serializerFactory.getGson();
-            this.sessionService = new SessionService(new SessionMySqlProvider());
-            this.userService = new UserService(sessionService, new UsersMySqlProvider());
-            this.gameService = new GameService(new GameMySqlProvider());
+        this.gson = serializerFactory.getGson();
+        this.sessionService = new SessionService(new SessionMySqlProvider());
+        this.userService = new UserService(sessionService, new UsersMySqlProvider());
+        this.gameService = new GameService(new GameMySqlProvider());
+    }
+
+    public void ensureDependencies()
+    {
+        try{
+            DatabaseManager.createDatabase();
+            UsersMySqlProvider.createTables();
+            SessionMySqlProvider.createTables();
+            GameMySqlProvider.createTables();
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }

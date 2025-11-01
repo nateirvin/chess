@@ -10,14 +10,7 @@ import static java.sql.Statement.RETURN_GENERATED_KEYS;
 
 public class GameMySqlProvider implements GameDataAccess
 {
-    public GameMySqlProvider() throws DataAccessException
-    {
-        DatabaseManager.createDatabase();
-        UsersMySqlProvider.createTables();
-        createTables();
-    }
-
-    protected static void createTables() throws DataAccessException {
+    public static void createTables() throws DataAccessException {
         String statement =
                 """     
                 CREATE TABLE IF NOT EXISTS `games` (
