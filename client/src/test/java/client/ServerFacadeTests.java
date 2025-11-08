@@ -3,7 +3,6 @@ package client;
 import org.junit.jupiter.api.*;
 import server.Server;
 
-
 public class ServerFacadeTests {
 
     private static Server server;
@@ -20,10 +19,8 @@ public class ServerFacadeTests {
         server.stop();
     }
 
-
     @Test
     public void sampleTest() {
         Assertions.assertTrue(true);
     }
-
 }
