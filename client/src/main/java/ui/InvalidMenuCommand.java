@@ -2,12 +2,16 @@ package ui;
 
 public class InvalidMenuCommand implements MenuCommand {
     @Override
-    public void execute(String... arguments) {
+    public String execute(String... arguments) {
         print();
+        return null;
     }
 
     private static void print() {
-        System.out.println(">>> Unknown command");
-        HelpCommand.printHelp();
+        print("Unknown command");
+    }
+
+    public static void print(String message) {
+        System.out.println(">>> " + message);
     }
 }

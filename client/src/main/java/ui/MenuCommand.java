@@ -1,5 +1,5 @@
 package ui;
 
 public interface MenuCommand {
-    void execute(String... arguments);
+    String execute(String... arguments);
 }

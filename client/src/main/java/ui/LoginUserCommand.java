@@ -2,7 +2,8 @@ package ui;
 
 public class LoginUserCommand implements MenuCommand {
     @Override
-    public void execute(String... arguments) {
+    public String execute(String... arguments) {
         System.out.println("*** coming soon ***"); //TODO: implement
+        return null;
     }
 }

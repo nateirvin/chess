@@ -1,44 +1,43 @@
-import ui.HelpCommand;
-import ui.MenuCommand;
-import ui.MenuCommandFactory;
-import java.util.Arrays;
-import java.util.Scanner;
+import ui.*;
 
 public class Main
 {
     public static void main(String[] args)
     {
         System.out.println("Welcome to the Chess app!");
-        HelpCommand.printHelp();
 
-        while(true)
-        {
-            System.out.print("CHESS (guest) $ ");
+        AppState appState = new AppState();
+        var menuCommandFactory = new MenuCommandFactory(appState, new ServerFacade());
 
-            String[] fullInput = getInputTokens();
+        try (ConsoleReader consoleReader = new ConsoleReader()) {
 
-            String commandName = null;
-            if(fullInput.length > 0)
-            {
-                commandName = fullInput[0].trim().toLowerCase();
+            while (true) {
+                System.out.print("CHESS [" + appState.currentUsername() + "] $ ");
+                consoleReader.read();
+
+                MenuCommand command;
+                if(appState.userIsLoggedIn()) {
+                    command = menuCommandFactory.getPostloginCommand(consoleReader.firstToken());
+                } else {
+                    command = menuCommandFactory.getPreloginCommand(consoleReader.firstToken());
+                }
+
+                if (command == null)   //user selected to quit
+                {
+                    System.out.println("Have a great day!");
+                    System.out.println();
+                    return;
+                }
+
+                String errorMessage = command.execute(consoleReader.allButFirstToken());
+
+                if (errorMessage != null) {
+                    InvalidMenuCommand.print(errorMessage);
+                }
             }
-            String[] menuArguments = Arrays.stream(fullInput).skip(1).toArray(String[]::new);
-
-            MenuCommand command = MenuCommandFactory.getCommand(commandName);
-            if(command == null)
-            {
-                System.out.println("Have a great day!");
-                System.out.println();
-                return;
-            }
-            command.execute(menuArguments);
+        } catch (Exception e) {
+            //TOOD: better handling
+            System.out.println(e);
         }
-    }
-
-    private static String[] getInputTokens() {
-        Scanner inputReader = new Scanner(System.in);
-        String input = inputReader.nextLine();
-        String fullText = input != null ? input.trim().toLowerCase() : "";
-        return fullText.split(" ");
     }
 }

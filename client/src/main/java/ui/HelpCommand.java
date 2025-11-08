@@ -1,19 +1,22 @@
 package ui;
 
-public class HelpCommand implements MenuCommand {
+public abstract class HelpCommand implements MenuCommand
+{
     @Override
-    public void execute(String... arguments) {
+    public String execute(String... arguments) {
         printHelp();
+        return null;
     }
 
-    public static void printHelp()
+    private void printHelp()
     {
         System.out.println();
         System.out.println("Available commands:");
         System.out.println("  help : show this menu");
-        System.out.println("  register <username> <password> <email> : required to play");
-        System.out.println("  login <username> <password> : start playing games");
+        specificCommands();
         System.out.println("  quit : exit the app");
         System.out.println();
     }
+    
+    protected abstract void specificCommands();
 }
