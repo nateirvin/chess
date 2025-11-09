@@ -7,20 +7,10 @@ import chess.ChessPosition;
 
 public class ChessBoardRenderer
 {
-    private final String borderBackgroundColor;
-    private final String borderTextColor;
-    private final String lightSquareBackgroundColor;
-    private final String darkSquareBackgroundColor;
-    private final String player1TextColor;
-    private final String player2TextColor;
+    private final ColorScheme colors;
 
-    public ChessBoardRenderer() {
-        borderBackgroundColor = EscapeSequences.SET_BG_COLOR_DARK_GREY;
-        borderTextColor = EscapeSequences.SET_TEXT_COLOR_WHITE;
-        lightSquareBackgroundColor = EscapeSequences.SET_BG_COLOR_LIGHT_GREY;
-        darkSquareBackgroundColor = EscapeSequences.SET_BG_COLOR_BLACK;
-        player1TextColor = EscapeSequences.SET_TEXT_COLOR_RED;
-        player2TextColor = EscapeSequences.SET_TEXT_COLOR_BLUE;
+    public ChessBoardRenderer(ColorScheme colors) {
+        this.colors = colors;
     }
 
     private enum SquareColor {
@@ -123,8 +113,8 @@ public class ChessBoardRenderer
     }
 
     private void startBorder() {
-        System.out.print(borderBackgroundColor);
-        System.out.print(borderTextColor);
+        System.out.print(colors.forBorderBackground());
+        System.out.print(colors.forBorderText());
     }
 
     private static void printRowNumber(int row) {
@@ -153,9 +143,9 @@ public class ChessBoardRenderer
     private void startSquare(SquareColor squareColor) {
         String backgroundColor;
         if(squareColor == SquareColor.LIGHT) {
-            backgroundColor = lightSquareBackgroundColor;
+            backgroundColor = colors.forLightSquareBackground();
         } else {
-            backgroundColor = darkSquareBackgroundColor;
+            backgroundColor = colors.forDarkSquareBackground();
         }
         System.out.print(backgroundColor);
     }
@@ -163,9 +153,9 @@ public class ChessBoardRenderer
     private void setPieceColor(ChessGame.TeamColor teamColor) {
         String textColor;
         if(teamColor == ChessGame.TeamColor.WHITE) {
-            textColor = player1TextColor;
+            textColor = colors.forPlayer1Text();
         } else {
-            textColor = player2TextColor;
+            textColor = colors.forPlayer2Text();
         }
         System.out.print(textColor);
     }

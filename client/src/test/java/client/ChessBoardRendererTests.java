@@ -4,6 +4,7 @@ import chess.ChessBoard;
 import chess.ChessGame;
 import org.junit.jupiter.api.Test;
 import ui.ChessBoardRenderer;
+import ui.ColorScheme;
 
 public class ChessBoardRendererTests
 {
@@ -12,7 +13,7 @@ public class ChessBoardRendererTests
     {
         ChessBoard board = new ChessBoard();
         board.resetBoard();
-        var classUnderTest = new ChessBoardRenderer();
+        var classUnderTest = new ChessBoardRenderer(ColorScheme.example());
 
         classUnderTest.render(board, ChessGame.TeamColor.WHITE);
     }
@@ -22,7 +23,7 @@ public class ChessBoardRendererTests
     {
         ChessBoard board = new ChessBoard();
         board.resetBoard();
-        var classUnderTest = new ChessBoardRenderer();
+        var classUnderTest = new ChessBoardRenderer(ColorScheme.example());
 
         classUnderTest.render(board, ChessGame.TeamColor.BLACK);
     }
