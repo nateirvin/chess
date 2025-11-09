@@ -1,22 +1,31 @@
 package ui;
 
+import model.UserData;
+
 public class AppState
 {
     private String authToken;
-    private String username;
+    private UserData user;
 
-    public void setSession(String authToken, String username) {
+    public void setSession(String authToken, UserData userData) {
         if(authToken == null || authToken.isEmpty()) {
             throw new IllegalArgumentException("Cannot register blank auth token");
         }
 
         this.authToken = authToken;
-        this.username = username;
+        this.user = userData;
+    }
+
+    public Integer getUserID() {
+        if(userIsLoggedIn()) {
+            return user.getId();
+        }
+        return null;
     }
 
     public String currentUsername() {
         if(userIsLoggedIn()) {
-            return username;
+            return user.username();
         }
         return RegisterUserCommand.GUEST_USERNAME;
     }
@@ -31,6 +40,6 @@ public class AppState
 
     public void endSession() {
         authToken = null;
-        username = null;
+        user = null;
     }
 }

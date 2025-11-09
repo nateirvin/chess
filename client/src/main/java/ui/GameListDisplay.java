@@ -1,7 +1,6 @@
 package ui;
 
 import model.GameData;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 
@@ -18,12 +17,11 @@ public class GameListDisplay {
     }
 
     public void showGamesListWithAlternateText(String altText) {
-        ArrayList<GameData> games = serverFacade.getAllGames();
+        ArrayList<GameData> games = getAllGames();
 
         if(!games.isEmpty()) {
             System.out.println("Games:");
 
-            games.sort(Comparator.comparing(GameData::gameName));
             for (int i = 0; i < games.size(); i++)
             {
                 GameData game = games.get(i);
@@ -35,5 +33,15 @@ public class GameListDisplay {
         else if(altText != null && !altText.isEmpty()) {
             System.out.println(altText);
         }
+    }
+
+    public int getGameIdFromNumber(int number) throws IndexOutOfBoundsException {
+        return getAllGames().get(number - 1).gameID();
+    }
+
+    private ArrayList<GameData> getAllGames() {
+        ArrayList<GameData> games = serverFacade.getAllGames();
+        games.sort(Comparator.comparing(GameData::gameName));
+        return games;
     }
 }

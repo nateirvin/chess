@@ -1,5 +1,7 @@
 package ui;
 
+import model.SessionData;
+
 public class LoginUserCommand implements MenuCommand {
     private final AppState appState;
     private final ServerFacade serverFacade;
@@ -24,8 +26,8 @@ public class LoginUserCommand implements MenuCommand {
             return "Invalid arguments";
         }
 
-        var authToken = serverFacade.loginUser(username, plainTextPassword);
-        appState.setSession(authToken, username);
+        SessionData sessionData = serverFacade.loginUser(username, plainTextPassword);
+        appState.setSession(sessionData.authToken(), sessionData.userData());
 
         System.out.println("Login successful!");
         System.out.println();

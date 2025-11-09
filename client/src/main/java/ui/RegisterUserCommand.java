@@ -1,5 +1,7 @@
 package ui;
 
+import model.SessionData;
+
 public class RegisterUserCommand implements MenuCommand
 {
     public static final String GUEST_USERNAME = "guest";
@@ -28,8 +30,8 @@ public class RegisterUserCommand implements MenuCommand
                 return "This username is reserved and cannot be used.";
             }
 
-            var authToken = serverFacade.registerUser(userName, plainTextPassword, email);
-            appState.setSession(authToken, userName);
+            SessionData registrationResult = serverFacade.registerUser(userName, plainTextPassword, email);
+            appState.setSession(registrationResult.authToken(), registrationResult.userData());
 
             System.out.println("You are registered and logged in!");
             System.out.println();

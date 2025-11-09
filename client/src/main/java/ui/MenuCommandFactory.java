@@ -23,7 +23,7 @@ public class MenuCommandFactory
         return getMenuCommand(commandName, true);
     }
 
-    private MenuCommand getMenuCommand(String commandName, boolean wantsSecuredContent)
+    private MenuCommand getMenuCommand(String commandName, boolean isSecured)
     {
         if(commandName == null)
         {
@@ -32,32 +32,37 @@ public class MenuCommandFactory
 
         switch (commandName.toLowerCase()) {
             case "register" -> {
-                if (!wantsSecuredContent) {
+                if (!isSecured) {
                     return new RegisterUserCommand(appState, serverFacade);
                 }
             }
             case "login" -> {
-                if (!wantsSecuredContent) {
+                if (!isSecured) {
                     return new LoginUserCommand(appState, serverFacade);
                 }
             }
             case "logout" -> {
-                if(wantsSecuredContent) {
+                if(isSecured) {
                     return new LogoutUserCommand(appState, serverFacade);
                 }
             }
             case "create" -> {
-                if(wantsSecuredContent) {
+                if(isSecured) {
                     return new CreateGameCommand(serverFacade, displayer);
                 }
             }
             case "list" -> {
-                if(wantsSecuredContent) {
+                if(isSecured) {
                     return new ListGameCommand(displayer);
                 }
             }
+            case "join" -> {
+                if(isSecured) {
+                    return new JoinGameCommand(appState, serverFacade, displayer);
+                }
+            }
             case "help" -> {
-                if(wantsSecuredContent) {
+                if(isSecured) {
                     return new PostloginHelpCommand();
                 }
                 return new PreloginHelpCommand();

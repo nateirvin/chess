@@ -17,7 +17,7 @@ public class ConsoleReader implements Closeable
 
     public boolean read() {
         String input = inputReader.nextLine();
-        String fullText = input != null ? input.trim().toLowerCase() : "";
+        String fullText = input != null ? input.trim() : "";
         this.captures = Arrays.stream(fullText.split(" ")).map(String::trim).toArray(String[]::new);
         return true;
     }
