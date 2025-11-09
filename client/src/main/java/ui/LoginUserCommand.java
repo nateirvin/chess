@@ -27,7 +27,7 @@ public class LoginUserCommand implements MenuCommand {
         }
 
         SessionData sessionData = serverFacade.loginUser(username, plainTextPassword);
-        appState.setSession(sessionData.authToken(), sessionData.userData());
+        appState.setSession(sessionData);
 
         System.out.println("Login successful!");
         System.out.println();

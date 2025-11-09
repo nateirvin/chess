@@ -1,45 +1,45 @@
 package ui;
 
+import model.SessionData;
 import model.UserData;
 
 public class AppState
 {
-    private String authToken;
-    private UserData user;
+    private SessionData currentSession;
 
-    public void setSession(String authToken, UserData userData) {
-        if(authToken == null || authToken.isEmpty()) {
-            throw new IllegalArgumentException("Cannot register blank auth token");
+    public void setSession(SessionData sessionData) {
+        if(sessionData == null) {
+            throw new IllegalArgumentException();
         }
-
-        this.authToken = authToken;
-        this.user = userData;
+        if(userIsLoggedIn()) {
+            throw new IllegalStateException("You must enter the previous session before assigning a new one.");
+        }
+        this.currentSession = sessionData;
     }
 
     public Integer getUserID() {
         if(userIsLoggedIn()) {
-            return user.getId();
+            return currentSession.userData().getId();
         }
         return null;
     }
 
-    public String currentUsername() {
-        if(userIsLoggedIn()) {
-            return user.username();
-        }
-        return RegisterUserCommand.GUEST_USERNAME;
+    public String currentUsername()
+    {
+        return userIsLoggedIn()
+                ? currentSession.userData().username()
+                : RegisterUserCommand.GUEST_USERNAME;
     }
 
     public boolean userIsLoggedIn() {
-        return authToken != null;
+        return currentSession != null;
     }
 
     public String getAuthToken() {
-        return authToken;
+        return currentSession.authToken();
     }
 
     public void endSession() {
-        authToken = null;
-        user = null;
+        currentSession = null;
     }
 }

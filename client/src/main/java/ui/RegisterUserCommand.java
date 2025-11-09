@@ -31,7 +31,7 @@ public class RegisterUserCommand implements MenuCommand
             }
 
             SessionData registrationResult = serverFacade.registerUser(userName, plainTextPassword, email);
-            appState.setSession(registrationResult.authToken(), registrationResult.userData());
+            appState.setSession(registrationResult);
 
             System.out.println("You are registered and logged in!");
             System.out.println();
