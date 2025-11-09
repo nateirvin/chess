@@ -7,7 +7,8 @@ public class Main
         System.out.println("Welcome to the Chess app!");
 
         AppState appState = new AppState();
-        var menuCommandFactory = new MenuCommandFactory(appState, new ServerFacade());
+        ServerFacade serverFacade = new ServerFacade();
+        var menuCommandFactory = new MenuCommandFactory(appState, serverFacade, new GameListDisplay(serverFacade));
 
         try (ConsoleReader consoleReader = new ConsoleReader()) {
 
@@ -17,9 +18,9 @@ public class Main
 
                 MenuCommand command;
                 if (!appState.userIsLoggedIn()) {
-                    command = menuCommandFactory.getPreloginCommand(consoleReader.firstToken());
+                    command = menuCommandFactory.getPreLoginCommand(consoleReader.firstToken());
                 } else {
-                    command = menuCommandFactory.getPostloginCommand(consoleReader.firstToken());
+                    command = menuCommandFactory.getPostLoginCommand(consoleReader.firstToken());
                 }
 
                 if (command == null)   //user selected to quit

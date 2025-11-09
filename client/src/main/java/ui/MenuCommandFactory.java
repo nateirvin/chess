@@ -4,19 +4,21 @@ public class MenuCommandFactory
 {
     private final AppState appState;
     private final ServerFacade serverFacade;
+    private final GameListDisplay displayer;
 
-    public MenuCommandFactory(AppState appState, ServerFacade serverFacade)
+    public MenuCommandFactory(AppState appState, ServerFacade serverFacade, GameListDisplay displayer)
     {
         this.appState = appState;
         this.serverFacade = serverFacade;
+        this.displayer = displayer;
     }
 
-    public MenuCommand getPreloginCommand(String commandName)
+    public MenuCommand getPreLoginCommand(String commandName)
     {
         return getMenuCommand(commandName, false);
     }
 
-    public MenuCommand getPostloginCommand(String commandName)
+    public MenuCommand getPostLoginCommand(String commandName)
     {
         return getMenuCommand(commandName, true);
     }
@@ -30,22 +32,29 @@ public class MenuCommandFactory
 
         switch (commandName.toLowerCase()) {
             case "register" -> {
-                if(wantsSecuredContent) {
-                    return new InvalidMenuCommand();
+                if (!wantsSecuredContent) {
+                    return new RegisterUserCommand(appState, serverFacade);
                 }
-                return new RegisterUserCommand(appState, serverFacade);
             }
             case "login" -> {
-                if(wantsSecuredContent) {
-                    return new InvalidMenuCommand();
+                if (!wantsSecuredContent) {
+                    return new LoginUserCommand(appState, serverFacade);
                 }
-                return new LoginUserCommand(appState, serverFacade);
             }
             case "logout" -> {
                 if(wantsSecuredContent) {
                     return new LogoutUserCommand(appState, serverFacade);
                 }
-                return new InvalidMenuCommand();
+            }
+            case "create" -> {
+                if(wantsSecuredContent) {
+                    return new CreateGameCommand(serverFacade, displayer);
+                }
+            }
+            case "list" -> {
+                if(wantsSecuredContent) {
+                    return new ListGameCommand(displayer);
+                }
             }
             case "help" -> {
                 if(wantsSecuredContent) {
@@ -56,9 +65,8 @@ public class MenuCommandFactory
             case "quit", "exit" -> {
                 return null;
             }
-            default -> {
-                return new InvalidMenuCommand();
-            }
         }
+
+        return new InvalidMenuCommand();
     }
 }
