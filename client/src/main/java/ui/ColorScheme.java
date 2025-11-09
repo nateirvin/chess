@@ -10,10 +10,21 @@ public class ColorScheme {
 
     public static ColorScheme example() {
         ColorScheme colorScheme = new ColorScheme();
-        colorScheme.borderBackground = EscapeSequences.SET_BG_COLOR_DARK_GREY;
+        colorScheme.borderBackground = EscapeSequences.SET_BG_COLOR_LIGHT_GREY;
+        colorScheme.borderText = EscapeSequences.SET_TEXT_COLOR_BLACK;
+        colorScheme.lightSquareBackground = EscapeSequences.SET_BG_COLOR_WHITE;
+        colorScheme.darkSquareBackground = EscapeSequences.SET_BG_COLOR_DARK_GREY;
+        colorScheme.player1Text = EscapeSequences.SET_TEXT_COLOR_RED;
+        colorScheme.player2Text = EscapeSequences.SET_TEXT_COLOR_BLUE;
+        return colorScheme;
+    }
+
+    public static ColorScheme lighter() {
+        ColorScheme colorScheme = new ColorScheme();
+        colorScheme.borderBackground = EscapeSequences.SET_BG_COLOR_LIGHT_GREY;
         colorScheme.borderText = EscapeSequences.SET_TEXT_COLOR_WHITE;
-        colorScheme.lightSquareBackground = EscapeSequences.SET_BG_COLOR_LIGHT_GREY;
-        colorScheme.darkSquareBackground = EscapeSequences.SET_BG_COLOR_BLACK;
+        colorScheme.lightSquareBackground = EscapeSequences.SET_BG_COLOR_WHITE;
+        colorScheme.darkSquareBackground = EscapeSequences.SET_BG_COLOR_DARK_GREY;
         colorScheme.player1Text = EscapeSequences.SET_TEXT_COLOR_RED;
         colorScheme.player2Text = EscapeSequences.SET_TEXT_COLOR_BLUE;
         return colorScheme;
