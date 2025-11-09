@@ -13,6 +13,16 @@ public class MenuCommandFactory
 
     public MenuCommand getPreloginCommand(String commandName)
     {
+        return getMenuCommand(commandName, false);
+    }
+
+    public MenuCommand getPostloginCommand(String commandName)
+    {
+        return getMenuCommand(commandName, true);
+    }
+
+    private MenuCommand getMenuCommand(String commandName, boolean wantsSecuredContent)
+    {
         if(commandName == null)
         {
             commandName = "";
@@ -20,28 +30,28 @@ public class MenuCommandFactory
 
         switch (commandName.toLowerCase()) {
             case "register" -> {
+                if(wantsSecuredContent) {
+                    return new InvalidMenuCommand();
+                }
                 return new RegisterUserCommand(appState, serverFacade);
             }
             case "login" -> {
-                return new LoginUserCommand();
+                if(wantsSecuredContent) {
+                    return new InvalidMenuCommand();
+                }
+                return new LoginUserCommand(appState, serverFacade);
             }
-            case "help" -> {
-                return new PreloginHelpCommand();
-            }
-            case "quit", "exit" -> {
-                return null;
-            }
-            default -> {
+            case "logout" -> {
+                if(wantsSecuredContent) {
+                    return new LogoutUserCommand(appState, serverFacade);
+                }
                 return new InvalidMenuCommand();
             }
-        }
-    }
-
-    public MenuCommand getPostloginCommand(String commandName)
-    {
-        switch (commandName.toLowerCase()) {
             case "help" -> {
-                return new PostloginHelpCommand();
+                if(wantsSecuredContent) {
+                    return new PostloginHelpCommand();
+                }
+                return new PreloginHelpCommand();
             }
             case "quit", "exit" -> {
                 return null;

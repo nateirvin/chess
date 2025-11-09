@@ -16,10 +16,10 @@ public class Main
                 consoleReader.read();
 
                 MenuCommand command;
-                if(appState.userIsLoggedIn()) {
-                    command = menuCommandFactory.getPostloginCommand(consoleReader.firstToken());
-                } else {
+                if (!appState.userIsLoggedIn()) {
                     command = menuCommandFactory.getPreloginCommand(consoleReader.firstToken());
+                } else {
+                    command = menuCommandFactory.getPostloginCommand(consoleReader.firstToken());
                 }
 
                 if (command == null)   //user selected to quit

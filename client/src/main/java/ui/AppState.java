@@ -5,7 +5,7 @@ public class AppState
     private String authToken;
     private String username;
 
-    public void register(String authToken, String username) {
+    public void setSession(String authToken, String username) {
         if(authToken == null || authToken.isEmpty()) {
             throw new IllegalArgumentException("Cannot register blank auth token");
         }
@@ -23,5 +23,14 @@ public class AppState
 
     public boolean userIsLoggedIn() {
         return authToken != null;
+    }
+
+    public String getAuthToken() {
+        return authToken;
+    }
+
+    public void endSession() {
+        authToken = null;
+        username = null;
     }
 }
