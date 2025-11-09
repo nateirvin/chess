@@ -1,6 +1,6 @@
 package ui;
 
-public abstract class HelpCommand implements MenuCommand
+public abstract class HelpCommandHandler implements MenuCommandHandler
 {
     @Override
     public String execute(String... arguments) {
@@ -13,10 +13,10 @@ public abstract class HelpCommand implements MenuCommand
         System.out.println();
         System.out.println("Available commands:");
         System.out.println("  help : show this menu");
-        specificCommands();
+        printCommands();
         System.out.println("  quit : exit the app");
         System.out.println();
     }
     
-    protected abstract void specificCommands();
+    protected abstract void printCommands();
 }

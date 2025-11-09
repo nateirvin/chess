@@ -2,12 +2,12 @@ package ui;
 
 import chess.ChessGame;
 
-public class JoinGameCommand implements MenuCommand {
+public class JoinGameCommandHandler implements MenuCommandHandler {
     private final AppState appState;
     private final ServerFacade serverFacade;
     private final GameListDisplay displayer;
 
-    public JoinGameCommand(AppState appState, ServerFacade serverFacade, GameListDisplay displayer) {
+    public JoinGameCommandHandler(AppState appState, ServerFacade serverFacade, GameListDisplay displayer) {
         this.appState = appState;
         this.serverFacade = serverFacade;
         this.displayer = displayer;

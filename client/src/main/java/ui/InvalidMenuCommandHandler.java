@@ -1,6 +1,6 @@
 package ui;
 
-public class InvalidMenuCommand implements MenuCommand {
+public class InvalidMenuCommandHandler implements MenuCommandHandler {
     @Override
     public String execute(String... arguments) {
         print();

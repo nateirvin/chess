@@ -13,17 +13,17 @@ public class MenuCommandFactory
         this.displayer = displayer;
     }
 
-    public MenuCommand getPreLoginCommand(String commandName)
+    public MenuCommandHandler getPreLoginCommand(String commandName)
     {
         return getMenuCommand(commandName, false);
     }
 
-    public MenuCommand getPostLoginCommand(String commandName)
+    public MenuCommandHandler getPostLoginCommand(String commandName)
     {
         return getMenuCommand(commandName, true);
     }
 
-    private MenuCommand getMenuCommand(String commandName, boolean isSecured)
+    private MenuCommandHandler getMenuCommand(String commandName, boolean isSecured)
     {
         if(commandName == null)
         {
@@ -33,45 +33,45 @@ public class MenuCommandFactory
         switch (commandName.toLowerCase()) {
             case "register" -> {
                 if (!isSecured) {
-                    return new RegisterUserCommand(appState, serverFacade);
+                    return new RegisterUserCommandHandler(appState, serverFacade);
                 }
             }
             case "login" -> {
                 if (!isSecured) {
-                    return new LoginUserCommand(appState, serverFacade);
+                    return new LoginUserCommandHandler(appState, serverFacade);
                 }
             }
             case "logout" -> {
                 if(isSecured) {
-                    return new LogoutUserCommand(appState, serverFacade);
+                    return new LogoutUserCommandHandler(appState, serverFacade);
                 }
             }
             case "create" -> {
                 if(isSecured) {
-                    return new CreateGameCommand(serverFacade, displayer);
+                    return new CreateGameCommandHandler(serverFacade, displayer);
                 }
             }
             case "list" -> {
                 if(isSecured) {
-                    return new ListGameCommand(displayer);
+                    return new ListGameCommandHandler(displayer);
                 }
             }
             case "join" -> {
                 if(isSecured) {
-                    return new JoinGameCommand(appState, serverFacade, displayer);
+                    return new JoinGameCommandHandler(appState, serverFacade, displayer);
                 }
             }
             case "help" -> {
                 if(isSecured) {
-                    return new PostloginHelpCommand();
+                    return new PostloginHelpCommandHandler();
                 }
-                return new PreloginHelpCommand();
+                return new PreloginHelpCommandHandler();
             }
             case "quit", "exit" -> {
                 return null;
             }
         }
 
-        return new InvalidMenuCommand();
+        return new InvalidMenuCommandHandler();
     }
 }

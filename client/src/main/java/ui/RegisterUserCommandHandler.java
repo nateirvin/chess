@@ -2,14 +2,14 @@ package ui;
 
 import model.SessionData;
 
-public class RegisterUserCommand implements MenuCommand
+public class RegisterUserCommandHandler implements MenuCommandHandler
 {
     public static final String GUEST_USERNAME = "guest";
 
     private final AppState appState;
     private final ServerFacade serverFacade;
 
-    public RegisterUserCommand(AppState appState, ServerFacade serverFacade) {
+    public RegisterUserCommandHandler(AppState appState, ServerFacade serverFacade) {
         this.appState = appState;
         this.serverFacade = serverFacade;
     }

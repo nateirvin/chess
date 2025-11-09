@@ -1,10 +1,10 @@
 package ui;
 
-public class LogoutUserCommand implements MenuCommand {
+public class LogoutUserCommandHandler implements MenuCommandHandler {
     private final AppState appState;
     private final ServerFacade serverFacade;
 
-    public LogoutUserCommand(AppState appState, ServerFacade serverFacade) {
+    public LogoutUserCommandHandler(AppState appState, ServerFacade serverFacade) {
         this.appState = appState;
         this.serverFacade = serverFacade;
     }

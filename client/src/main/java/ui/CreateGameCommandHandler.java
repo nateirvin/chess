@@ -1,10 +1,10 @@
 package ui;
 
-public class CreateGameCommand implements MenuCommand {
+public class CreateGameCommandHandler implements MenuCommandHandler {
     private final ServerFacade serverFacade;
     private final GameListDisplay displayer;
 
-    public CreateGameCommand(ServerFacade serverFacade, GameListDisplay displayer) {
+    public CreateGameCommandHandler(ServerFacade serverFacade, GameListDisplay displayer) {
         this.serverFacade = serverFacade;
         this.displayer = displayer;
     }

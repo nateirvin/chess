@@ -1,9 +1,9 @@
 package ui;
 
-public class ListGameCommand implements MenuCommand {
+public class ListGameCommandHandler implements MenuCommandHandler {
     private final GameListDisplay displayer;
 
-    public ListGameCommand(GameListDisplay displayer) {
+    public ListGameCommandHandler(GameListDisplay displayer) {
         this.displayer = displayer;
     }
     @Override

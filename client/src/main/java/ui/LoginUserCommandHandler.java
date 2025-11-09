@@ -2,11 +2,11 @@ package ui;
 
 import model.SessionData;
 
-public class LoginUserCommand implements MenuCommand {
+public class LoginUserCommandHandler implements MenuCommandHandler {
     private final AppState appState;
     private final ServerFacade serverFacade;
 
-    public LoginUserCommand(AppState appState, ServerFacade serverFacade) {
+    public LoginUserCommandHandler(AppState appState, ServerFacade serverFacade) {
         this.appState = appState;
         this.serverFacade = serverFacade;
     }

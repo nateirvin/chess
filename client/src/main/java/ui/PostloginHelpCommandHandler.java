@@ -1,9 +1,9 @@
 package ui;
 
-public class PostloginHelpCommand extends HelpCommand
+public class PostloginHelpCommandHandler extends HelpCommandHandler
 {
     @Override
-    protected void specificCommands() {
+    protected void printCommands() {
         System.out.println("  create <game_name> : start a new game");
         System.out.println("  list : list all the games");
         System.out.println("  observe <game_id> : watch a game");

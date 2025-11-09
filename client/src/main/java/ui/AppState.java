@@ -1,7 +1,6 @@
 package ui;
 
 import model.SessionData;
-import model.UserData;
 
 public class AppState
 {
@@ -28,7 +27,7 @@ public class AppState
     {
         return userIsLoggedIn()
                 ? currentSession.userData().username()
-                : RegisterUserCommand.GUEST_USERNAME;
+                : RegisterUserCommandHandler.GUEST_USERNAME;
     }
 
     public boolean userIsLoggedIn() {

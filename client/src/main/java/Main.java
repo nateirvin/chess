@@ -16,7 +16,7 @@ public class Main
                 System.out.print("CHESS [" + appState.currentUsername() + "] $ ");
                 consoleReader.read();
 
-                MenuCommand command;
+                MenuCommandHandler command;
                 if (!appState.userIsLoggedIn()) {
                     command = menuCommandFactory.getPreLoginCommand(consoleReader.firstToken());
                 } else {
@@ -33,7 +33,7 @@ public class Main
                 String errorMessage = command.execute(consoleReader.allButFirstToken());
 
                 if (errorMessage != null) {
-                    InvalidMenuCommand.print(errorMessage);
+                    InvalidMenuCommandHandler.print(errorMessage);
                 }
             }
         } catch (Exception e) {
