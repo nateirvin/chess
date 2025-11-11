@@ -1,14 +1,18 @@
 package ui;
 
+import java.util.logging.Logger;
+
 public class MenuCommandHandlerFactory
 {
     private final AppState appState;
+    private final Logger logger;
     private final ServerFacade serverFacade;
     private final GameListDisplay displayer;
 
-    public MenuCommandHandlerFactory(AppState appState, ServerFacade serverFacade, GameListDisplay displayer)
+    public MenuCommandHandlerFactory(AppState appState, Logger logger, ServerFacade serverFacade, GameListDisplay displayer)
     {
         this.appState = appState;
+        this.logger = logger;
         this.serverFacade = serverFacade;
         this.displayer = displayer;
     }
@@ -33,7 +37,7 @@ public class MenuCommandHandlerFactory
         switch (commandName.toLowerCase()) {
             case "register" -> {
                 if (!isSecured) {
-                    return new RegisterUserCommandHandler(appState, serverFacade);
+                    return new RegisterUserCommandHandler(appState, logger, serverFacade);
                 }
             }
             case "login" -> {

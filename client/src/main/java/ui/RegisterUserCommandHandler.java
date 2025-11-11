@@ -1,16 +1,21 @@
 package ui;
 
 import model.SessionData;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class RegisterUserCommandHandler implements MenuCommandHandler
 {
     public static final String GUEST_USERNAME = "guest";
 
     private final AppState appState;
+    private final Logger logger;
     private final ServerFacade serverFacade;
 
-    public RegisterUserCommandHandler(AppState appState, ServerFacade serverFacade) {
+    public RegisterUserCommandHandler(AppState appState, Logger logger, ServerFacade serverFacade) {
         this.appState = appState;
+        this.logger = logger;
         this.serverFacade = serverFacade;
     }
 
@@ -30,7 +35,13 @@ public class RegisterUserCommandHandler implements MenuCommandHandler
                 return "This username is reserved and cannot be used.";
             }
 
-            SessionData registrationResult = serverFacade.registerUser(userName, plainTextPassword, email);
+            SessionData registrationResult;
+            try {
+                registrationResult = serverFacade.registerUser(userName, plainTextPassword, email);
+            } catch (IOException | InterruptedException e) {
+                logger.log(Level.SEVERE, "Error on registration endpoint", e);
+                return "Registration failed.";
+            }
             appState.setSession(registrationResult);
 
             System.out.println("You are registered and logged in!");

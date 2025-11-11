@@ -1,4 +1,6 @@
 import ui.*;
+import util.SerializerFactory;
+import java.util.logging.*;
 
 public class Main
 {
@@ -6,11 +8,17 @@ public class Main
     {
         System.out.println("Welcome to the Chess app!");
 
+        LogManager.getLogManager().reset();
+        Logger logger = Logger.getLogger("default");
         AppState appState = new AppState();
-        ServerFacade serverFacade = new ServerFacade();
-        var menuCommandFactory = new MenuCommandHandlerFactory(appState, serverFacade, new GameListDisplay(serverFacade));
+        ServerFacade serverFacade = new ServerFacade(new SerializerFactory().getGson());
+        var menuCommandFactory =
+                new MenuCommandHandlerFactory(appState, logger, serverFacade, new GameListDisplay(serverFacade));
 
-        try (ConsoleReader consoleReader = new ConsoleReader()) {
+        try (ConsoleReader consoleReader = new ConsoleReader())
+        {
+            logger.addHandler(new FileHandler("chess-app.log", true));
+            serverFacade.bindTo("localhost", 8080);
 
             while (true) {
                 System.out.print("CHESS [" + appState.currentUsername() + "] $ ");
@@ -36,9 +44,11 @@ public class Main
                     InvalidMenuCommandHandler.print(errorMessage);
                 }
             }
-        } catch (Exception e) {
-            //TOOD: better handling
-            System.out.println(e);
+        }
+        catch (Exception e)
+        {
+            logger.log(Level.SEVERE, "Critical failure", e);
+            System.out.println("A critical error has occurred.");
         }
     }
 }
