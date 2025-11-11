@@ -1,12 +1,12 @@
 package ui;
 
-public class MenuCommandFactory
+public class MenuCommandHandlerFactory
 {
     private final AppState appState;
     private final ServerFacade serverFacade;
     private final GameListDisplay displayer;
 
-    public MenuCommandFactory(AppState appState, ServerFacade serverFacade, GameListDisplay displayer)
+    public MenuCommandHandlerFactory(AppState appState, ServerFacade serverFacade, GameListDisplay displayer)
     {
         this.appState = appState;
         this.serverFacade = serverFacade;
@@ -54,6 +54,11 @@ public class MenuCommandFactory
             case "list" -> {
                 if(isSecured) {
                     return new ListGameCommandHandler(displayer);
+                }
+            }
+            case "observe" -> {
+                if(isSecured) {
+                    return new ObserveGameCommandHandler(displayer);
                 }
             }
             case "join" -> {

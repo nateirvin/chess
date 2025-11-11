@@ -1,5 +1,6 @@
 package ui;
 
+import chess.ChessBoard;
 import chess.ChessGame;
 import model.GameData;
 import model.SessionData;
@@ -32,6 +33,13 @@ public class ServerFacade {
         ArrayList<GameData> games = new ArrayList<>();
         games.add(new GameData(222, "strong", "flek", "weep"));
         games.add(new GameData(323, "jacob"));
+        for(var g : games) {
+            ChessGame game = new ChessGame();
+            ChessBoard board = new ChessBoard();
+            board.resetBoard();
+            game.setBoard(board);
+            g.setGame(game);
+        }
         return games;
     }
 

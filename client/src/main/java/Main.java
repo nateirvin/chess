@@ -8,7 +8,7 @@ public class Main
 
         AppState appState = new AppState();
         ServerFacade serverFacade = new ServerFacade();
-        var menuCommandFactory = new MenuCommandFactory(appState, serverFacade, new GameListDisplay(serverFacade));
+        var menuCommandFactory = new MenuCommandHandlerFactory(appState, serverFacade, new GameListDisplay(serverFacade));
 
         try (ConsoleReader consoleReader = new ConsoleReader()) {
 

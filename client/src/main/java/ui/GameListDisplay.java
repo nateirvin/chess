@@ -44,4 +44,8 @@ public class GameListDisplay {
         games.sort(Comparator.comparing(GameData::gameName));
         return games;
     }
+
+    public GameData getGameFromNumber(int gameId) {
+        return getAllGames().stream().filter(g -> g.gameID() == gameId).findFirst().get();
+    }
 }
