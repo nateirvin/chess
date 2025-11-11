@@ -45,7 +45,12 @@ public class ServerFacade
                 .POST(requestBody)
                 .build();
 
-        LoginResult loginResult = sendAndReceive(httpRequest, LoginResult.class);
+        LoginResult loginResult;
+        try {
+            loginResult = sendAndReceive(httpRequest, LoginResult.class);
+        } catch (HttpFailureException e) {
+            return null;
+        }
 
         return new SessionData(loginResult.authToken(),
                                new UserData(userName, plainTextPassword, email));
@@ -60,10 +65,19 @@ public class ServerFacade
         }
     }
 
-    private <T> T sendAndReceive(HttpRequest httpRequest, Class<T> clazz) throws IOException, InterruptedException {
+    private <T> T sendAndReceive(HttpRequest httpRequest, Class<T> clazz)
+                    throws IOException, InterruptedException, HttpFailureException
+    {
         HttpResponse<InputStream> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofInputStream());
-        try (InputStream responseBody = response.body()) {
-            try (InputStreamReader reader = new InputStreamReader(responseBody)) {
+        if(response.statusCode() == 403)
+        {
+            throw new HttpFailureException(response.statusCode());
+        }
+
+        try (InputStream responseBody = response.body())
+        {
+            try (InputStreamReader reader = new InputStreamReader(responseBody))
+            {
                 return gson.fromJson(reader, clazz);
             }
         }

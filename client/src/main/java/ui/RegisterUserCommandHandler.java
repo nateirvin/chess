@@ -42,6 +42,11 @@ public class RegisterUserCommandHandler implements MenuCommandHandler
                 logger.log(Level.SEVERE, "Error on registration endpoint", e);
                 return "Registration failed.";
             }
+
+            if(registrationResult == null) {
+                return "That username is already in use.";
+            }
+
             appState.setSession(registrationResult);
 
             System.out.println("You are registered and logged in!");
