@@ -47,12 +47,12 @@ public class MenuCommandHandlerFactory
             }
             case "logout" -> {
                 if(isSecured) {
-                    return new LogoutUserCommandHandler(appState, serverFacade);
+                    return new LogoutUserCommandHandler(appState, logger, serverFacade);
                 }
             }
             case "create" -> {
                 if(isSecured) {
-                    return new CreateGameCommandHandler(serverFacade, displayer);
+                    return new CreateGameCommandHandler(appState, logger, serverFacade, displayer);
                 }
             }
             case "list" -> {

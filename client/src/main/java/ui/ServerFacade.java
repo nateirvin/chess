@@ -63,8 +63,7 @@ public class ServerFacade
     private <T> LoginResult sendUserRequest(String path, T request, int handleableCode)
                             throws IOException, InterruptedException
     {
-        String requestJson = gson.toJson(request);
-        var requestBody = HttpRequest.BodyPublishers.ofString(requestJson);
+        HttpRequest.BodyPublisher requestBody = toRequestBody(request);
         HttpRequest httpRequest = HttpRequest.newBuilder()
                 .uri(getUri(path))
                 .header("Content-Type", "application/json")
@@ -88,6 +87,35 @@ public class ServerFacade
         return loginResult;
     }
 
+
+
+    public void logoutUser(String authToken) throws IOException, InterruptedException {
+        var request =
+            HttpRequest.newBuilder()
+                    .uri(getUri("session"))
+                    .header("authorization", authToken)
+                    .DELETE()
+                    .build();
+
+        try {
+            send(request);
+        } catch (HttpFailureException e) {
+            throw new RuntimeException("Failed to logout", e);
+        }
+    }
+
+    public void createGame(String authToken, String gameName)
+                throws HttpFailureException, IOException, InterruptedException
+    {
+        CreateGameRequest request = new CreateGameRequest(gameName);
+        HttpRequest httpRequest = HttpRequest.newBuilder()
+                .uri(getUri("game"))
+                .header("authorization", authToken)
+                .POST(toRequestBody(request)).build();
+
+        send(httpRequest);
+    }
+
     private URI getUri(String path) {
         try {
             String urlString = String.format(Locale.getDefault(), "http://%s:%d/%s", host, port, path);
@@ -97,14 +125,15 @@ public class ServerFacade
         }
     }
 
+    private <T> HttpRequest.BodyPublisher toRequestBody(T request) {
+        String requestJson = gson.toJson(request);
+        return HttpRequest.BodyPublishers.ofString(requestJson);
+    }
+
     private <T> T sendAndReceive(HttpRequest httpRequest, Class<T> clazz)
                     throws IOException, InterruptedException, HttpFailureException
     {
-        HttpResponse<InputStream> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofInputStream());
-        if(response.statusCode() != 200)
-        {
-            throw new HttpFailureException(response.statusCode());
-        }
+        HttpResponse<InputStream> response = send(httpRequest);
 
         try (InputStream responseBody = response.body())
         {
@@ -115,12 +144,15 @@ public class ServerFacade
         }
     }
 
-    public void logoutUser(String authToken) {
-        //TODO: actually implement
-    }
-
-    public void createGame(String gameName) {
-        //TODO: actually implement
+    private static HttpResponse<InputStream> send(HttpRequest httpRequest)
+                    throws IOException, InterruptedException, HttpFailureException
+    {
+        HttpResponse<InputStream> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofInputStream());
+        if(response.statusCode() != 200)
+        {
+            throw new HttpFailureException(response.statusCode());
+        }
+        return response;
     }
 
     //TODO: actually implement
