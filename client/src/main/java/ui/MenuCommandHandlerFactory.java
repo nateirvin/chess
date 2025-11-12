@@ -42,7 +42,7 @@ public class MenuCommandHandlerFactory
             }
             case "login" -> {
                 if (!isSecured) {
-                    return new LoginUserCommandHandler(appState, serverFacade);
+                    return new LoginUserCommandHandler(appState, logger, serverFacade);
                 }
             }
             case "logout" -> {

@@ -40,8 +40,6 @@ public class SessionMySqlProvider implements SessionDataAccess
                 command.setString(2, username);
 
                 command.executeUpdate();
-
-                return new AuthData(authToken, username);
             }
         }
         catch(SQLIntegrityConstraintViolationException uniqueException)
@@ -52,6 +50,9 @@ public class SessionMySqlProvider implements SessionDataAccess
         {
             throw new RuntimeException(e);
         }
+
+        AuthData authData = getSession(authToken);
+        return new AuthData(authToken, username, authData.userId());
     }
 
     @Override
@@ -61,7 +62,7 @@ public class SessionMySqlProvider implements SessionDataAccess
         {
             var querySql =
                     """
-                    SELECT users.username
+                    SELECT users.user_id, users.username
                     FROM sessions
                         INNER JOIN users
                             ON sessions.user_id = users.user_id
@@ -75,7 +76,7 @@ public class SessionMySqlProvider implements SessionDataAccess
                 {
                     if (rs.next())
                     {
-                        return new AuthData(authToken, rs.getString(1));
+                        return new AuthData(authToken, rs.getString(2), rs.getInt(1));
                     }
                 }
             }

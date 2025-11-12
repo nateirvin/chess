@@ -3,7 +3,6 @@ package client;
 import model.SessionData;
 import org.junit.jupiter.api.*;
 import server.Server;
-import ui.HttpFailureException;
 import ui.ServerFacade;
 import util.SerializerFactory;
 import java.io.IOException;
@@ -30,7 +29,7 @@ public class ServerFacadeTests {
     }
 
     @Test
-    public void registerUserReturnsSessionData() throws IOException, InterruptedException, HttpFailureException
+    public void registerUserReturnsSessionData() throws IOException, InterruptedException
     {
         String username = UUID.randomUUID().toString();
         String plainTextPassword = UUID.randomUUID().toString();
@@ -39,19 +38,44 @@ public class ServerFacadeTests {
         SessionData actual = classUnderTest.registerUser(username, plainTextPassword, email);
 
         Assertions.assertFalse(actual.authToken().isEmpty());
+        Assertions.assertNotEquals(0, actual.userData().getId());
         Assertions.assertEquals(username, actual.userData().username());
-        Assertions.assertEquals(plainTextPassword, actual.userData().password());
-        Assertions.assertEquals(email, actual.userData().email());
     }
 
     @Test
-    public void registerUserIfUsernameAlreadyTaken() throws IOException, InterruptedException, HttpFailureException
+    public void registerUserIfUsernameAlreadyTaken() throws IOException, InterruptedException
     {
         String username = UUID.randomUUID().toString();
         String plainTextPassword = UUID.randomUUID().toString();
         classUnderTest.registerUser(username, plainTextPassword, "");
 
         SessionData actual = classUnderTest.registerUser(username, plainTextPassword, "");
+
+        Assertions.assertNull(actual);
+    }
+
+    @Test
+    public void loginUserWorks() throws IOException, InterruptedException
+    {
+        String username = UUID.randomUUID().toString();
+        String plainTextPassword = UUID.randomUUID().toString();
+        classUnderTest.registerUser(username, plainTextPassword, null);
+
+        SessionData actual = classUnderTest.loginUser(username, plainTextPassword);
+
+        Assertions.assertFalse(actual.authToken().isEmpty());
+        Assertions.assertNotEquals(0, actual.userData().getId());
+        Assertions.assertEquals(username, actual.userData().username());
+    }
+
+    @Test
+    public void loginUserFails() throws IOException, InterruptedException
+    {
+        String username = UUID.randomUUID().toString();
+        String plainTextPassword = UUID.randomUUID().toString();
+        classUnderTest.registerUser(username, plainTextPassword, null);
+
+        SessionData actual = classUnderTest.loginUser(username, "incorrect");
 
         Assertions.assertNull(actual);
     }

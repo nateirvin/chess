@@ -2,12 +2,19 @@ package ui;
 
 import model.SessionData;
 
-public class LoginUserCommandHandler implements MenuCommandHandler {
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+public class LoginUserCommandHandler implements MenuCommandHandler
+{
     private final AppState appState;
+    private final Logger logger;
     private final ServerFacade serverFacade;
 
-    public LoginUserCommandHandler(AppState appState, ServerFacade serverFacade) {
+    public LoginUserCommandHandler(AppState appState, Logger logger, ServerFacade serverFacade) {
         this.appState = appState;
+        this.logger = logger;
         this.serverFacade = serverFacade;
     }
 
@@ -26,7 +33,17 @@ public class LoginUserCommandHandler implements MenuCommandHandler {
             return "Invalid arguments";
         }
 
-        SessionData sessionData = serverFacade.loginUser(username, plainTextPassword);
+        SessionData sessionData;
+        try {
+            sessionData = serverFacade.loginUser(username, plainTextPassword);
+        } catch (IOException | InterruptedException e) {
+            logger.log(Level.SEVERE, "Login call failed", e);
+            return "There was an error during login.";
+        }
+        if(sessionData == null) {
+            return "Incorrect username or password.";
+        }
+
         appState.setSession(sessionData);
 
         System.out.println("Login successful!");

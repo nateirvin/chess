@@ -12,7 +12,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.Locale;
-import java.util.UUID;
 
 public class ServerFacade
 {
@@ -37,23 +36,56 @@ public class ServerFacade
     {
         RegisterRequest request = new RegisterRequest(userName, plainTextPassword, email);
 
+        LoginResult loginResult = sendUserRequest("user", request, 403);
+        if (loginResult == null) {
+            return null;
+        }
+
+        UserData userData = new UserData(loginResult.username(), plainTextPassword, email);
+        userData.setId(loginResult.userId());
+        return new SessionData(loginResult.authToken(), userData);
+    }
+
+    public SessionData loginUser(String username, String plainTextPassword) throws IOException, InterruptedException
+    {
+        LoginRequest request = new LoginRequest(username, plainTextPassword);
+
+        LoginResult loginResult = sendUserRequest("session", request, 401);
+        if (loginResult == null) {
+            return null;
+        }
+
+        UserData userData = new UserData(loginResult.username(), plainTextPassword, "");
+        userData.setId(loginResult.userId());
+        return new SessionData(loginResult.authToken(), userData);
+    }
+
+    private <T> LoginResult sendUserRequest(String path, T request, int handleableCode)
+                            throws IOException, InterruptedException
+    {
         String requestJson = gson.toJson(request);
         var requestBody = HttpRequest.BodyPublishers.ofString(requestJson);
         HttpRequest httpRequest = HttpRequest.newBuilder()
-                .uri(getUri("user"))
+                .uri(getUri(path))
                 .header("Content-Type", "application/json")
                 .POST(requestBody)
                 .build();
 
         LoginResult loginResult;
-        try {
+        try
+        {
             loginResult = sendAndReceive(httpRequest, LoginResult.class);
-        } catch (HttpFailureException e) {
-            return null;
+        }
+        catch (HttpFailureException e)
+        {
+            if(e.getStatusCode() == handleableCode)
+            {
+                return null;
+            }
+            throw new RuntimeException(e);
         }
 
-        return new SessionData(loginResult.authToken(),
-                               new UserData(userName, plainTextPassword, email));
+        return loginResult;
     }
 
     private URI getUri(String path) {
@@ -69,7 +101,7 @@ public class ServerFacade
                     throws IOException, InterruptedException, HttpFailureException
     {
         HttpResponse<InputStream> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofInputStream());
-        if(response.statusCode() == 403)
+        if(response.statusCode() != 200)
         {
             throw new HttpFailureException(response.statusCode());
         }
@@ -81,11 +113,6 @@ public class ServerFacade
                 return gson.fromJson(reader, clazz);
             }
         }
-    }
-
-    //TODO: actually implement
-    public SessionData loginUser(String username, String plainTextPassword) {
-        return new SessionData(UUID.randomUUID().toString(), new UserData("bob", "", ""));
     }
 
     public void logoutUser(String authToken) {

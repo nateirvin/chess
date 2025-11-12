@@ -43,6 +43,7 @@ public class UsersMySqlProvider implements UsersDataAccess
 
                 Integer userId = DatabaseManager.getIdentity(command);
                 if (userId != null) {
+                    userData.setId(userId);
                     return new UpsertUserResult(userData, true);
                 } else {
                     userData = getUser(userData.username(), userData.password());
