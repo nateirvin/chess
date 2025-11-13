@@ -10,7 +10,7 @@ public class Server {
     private final Javalin javalin;
 
     public Server() {
-        var factory = new HandlerFactory(new SerializerFactory());
+        var factory = new EndpointHandlerFactory(new SerializerFactory());
         if(true) {
             factory.useDatabase();
         } else {
@@ -20,7 +20,7 @@ public class Server {
 
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
-        JsonHandler errorHandler = factory.getHandler(JsonHandler.class);
+        JsonEndpointHandler errorHandler = factory.getHandler(JsonEndpointHandler.class);
         javalin.exception(IllegalArgumentException.class,
                         (exception, context) ->
                                 errorHandler.badRequest(context, exception.getMessage()))
@@ -31,13 +31,13 @@ public class Server {
                        (exception, context) ->
                                errorHandler.errorMessageResult(context, 500, exception.getMessage()));
 
-        javalin.delete("/db", factory.getHandler(ResetServerHandler.class));
-        javalin.post("/user", factory.getHandler(RegisterUserHandler.class));
-        javalin.post("/session", factory.getHandler(LoginHandler.class));
-        javalin.delete("/session", factory.getHandler(LogoutHandler.class));
-        javalin.post("/game", factory.getHandler(CreateGameHandler.class));
-        javalin.put("/game", factory.getHandler(JoinGameHandler.class));
-        javalin.get("/game", factory.getHandler(ListGamesHandler.class));
+        javalin.delete("/db", factory.getHandler(ResetServerEndpointHandler.class));
+        javalin.post("/user", factory.getHandler(RegisterUserEndpointHandler.class));
+        javalin.post("/session", factory.getHandler(LoginEndpointHandler.class));
+        javalin.delete("/session", factory.getHandler(LogoutEndpointHandler.class));
+        javalin.post("/game", factory.getHandler(CreateGameEndpointHandler.class));
+        javalin.put("/game", factory.getHandler(JoinGameEndpointHandler.class));
+        javalin.get("/game", factory.getHandler(ListGamesEndpointHandler.class));
     }
 
     public int run(int desiredPort) {

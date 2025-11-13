@@ -11,9 +11,9 @@ import service.SessionService;
 import service.UserService;
 import java.util.ArrayList;
 
-public class ListGamesHandler extends JsonHandler implements Handler
+public class ListGamesEndpointHandler extends JsonEndpointHandler implements Handler
 {
-    public ListGamesHandler(Gson gson, UserService userService, SessionService sessionService, GameService gameService) {
+    public ListGamesEndpointHandler(Gson gson, UserService userService, SessionService sessionService, GameService gameService) {
         super(gson, userService, sessionService, gameService);
     }
 

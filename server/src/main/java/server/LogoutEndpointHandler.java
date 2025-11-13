@@ -9,9 +9,9 @@ import service.GameService;
 import service.SessionService;
 import service.UserService;
 
-public class LogoutHandler extends JsonHandler implements Handler
+public class LogoutEndpointHandler extends JsonEndpointHandler implements Handler
 {
-    public LogoutHandler(Gson gson, UserService userService, SessionService sessionService, GameService gameService) {
+    public LogoutEndpointHandler(Gson gson, UserService userService, SessionService sessionService, GameService gameService) {
         super(gson, userService, sessionService, gameService);
     }
 

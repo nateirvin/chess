@@ -12,9 +12,9 @@ import service.GameService;
 import service.SessionService;
 import service.UserService;
 
-public class JoinGameHandler extends JsonHandler implements Handler
+public class JoinGameEndpointHandler extends JsonEndpointHandler implements Handler
 {
-    public JoinGameHandler(Gson gson, UserService userService, SessionService sessionService, GameService gameService) {
+    public JoinGameEndpointHandler(Gson gson, UserService userService, SessionService sessionService, GameService gameService) {
         super(gson, userService, sessionService, gameService);
     }
 
