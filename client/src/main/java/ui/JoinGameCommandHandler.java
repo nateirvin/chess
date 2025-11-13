@@ -2,16 +2,20 @@ package ui;
 
 import chess.ChessGame;
 import model.UserEntryResult;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class JoinGameCommandHandler extends GameScopedCommandHandler implements MenuCommandHandler
 {
     private final AppState appState;
+    private final Logger logger;
     private final ServerFacade serverFacade;
 
-    public JoinGameCommandHandler(AppState appState, ServerFacade serverFacade, GameListDisplay displayer)
+    public JoinGameCommandHandler(AppState appState, Logger logger, ServerFacade serverFacade, GameListDisplay displayer)
     {
         super(displayer);
         this.appState = appState;
+        this.logger = logger;
         this.serverFacade = serverFacade;
     }
 
@@ -28,17 +32,22 @@ public class JoinGameCommandHandler extends GameScopedCommandHandler implements 
                 return colorResult.getErrorMessage();
             }
 
-            int gameId = gameNumberResult.getValue();
-            ChessGame.TeamColor color = colorResult.getValue();
-            String errorMessage = serverFacade.joinGame(gameId, appState.getUserID(), color);
+            String errorMessage;
 
-            if(errorMessage == null) {
-                System.out.println("Joined!");
-                System.out.println();
-                displayer.showGamesList();
+            try {
+                int gameId = gameNumberResult.getValue();
+                ChessGame.TeamColor color = colorResult.getValue();
+                serverFacade.joinGame(gameId, appState.getSession(), color);
+            } catch (Exception e) {
+                logger.log(Level.SEVERE, "Failure in join game", e);
+                return "Failed to join game.";
             }
 
-            return errorMessage;
+            System.out.println("Joined!");
+            System.out.println();
+            displayer.showGamesList();
+
+            return null;
         } else {
             return "Invalid arguments";
         }

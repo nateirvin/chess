@@ -1,8 +1,10 @@
 package client;
 
 import chess.ChessBoard;
+import chess.ChessGame;
 import model.GameData;
 import model.SessionData;
+import model.UserData;
 import org.junit.jupiter.api.*;
 import server.Server;
 import ui.HttpFailureException;
@@ -179,5 +181,29 @@ public class ServerFacadeTests {
         } catch(HttpFailureException actualException) {
             Assertions.assertEquals(401, actualException.getStatusCode());
         }
+    }
+
+    @Test
+    public void joinGameThrowsExceptionIfInputsInvalid() throws IOException, InterruptedException
+    {
+        SessionData session = new SessionData("", new UserData("", "", ""));
+
+        try {
+            classUnderTest.joinGame(0, session, ChessGame.TeamColor.WHITE);
+            Assertions.fail("Should have thrown exception");
+        } catch(HttpFailureException actualException) {
+            Assertions.assertEquals(400, actualException.getStatusCode());
+        }
+    }
+
+    @Test
+    public void joinGameWorks() throws IOException, InterruptedException, HttpFailureException
+    {
+        String username = UUID.randomUUID().toString();
+        String plainTextPassword = UUID.randomUUID().toString();
+        SessionData session = classUnderTest.registerUser(username, plainTextPassword, "zark@start.com");
+        GameData gameData = classUnderTest.createGame(session.authToken(), UUID.randomUUID().toString());
+
+        classUnderTest.joinGame(gameData.gameID(), session, ChessGame.TeamColor.BLACK);
     }
 }

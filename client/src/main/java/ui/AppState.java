@@ -38,6 +38,10 @@ public class AppState
         return currentSession.authToken();
     }
 
+    public SessionData getSession() {
+        return currentSession;
+    }
+
     public void endSession() {
         currentSession = null;
     }

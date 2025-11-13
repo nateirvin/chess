@@ -101,17 +101,18 @@ public class ServerFacade
         }
     }
 
-    public void createGame(String authToken, String gameName)
+    public GameData createGame(String authToken, String gameName)
                 throws HttpFailureException, IOException, InterruptedException
     {
         CreateGameRequest request = new CreateGameRequest(gameName);
+
         HttpRequest httpRequest = HttpRequest.newBuilder()
                 .uri(getUri("game"))
                 .header("authorization", authToken)
                 .POST(toRequestBody(request))
                 .build();
 
-        send(httpRequest);
+        return sendAndReceive(httpRequest, GameData.class);
     }
 
     public ArrayList<GameData> getAllGames(String authToken)
@@ -126,6 +127,21 @@ public class ServerFacade
         GamesList reply = sendAndReceive(request, GamesList.class);
 
         return reply.games();
+    }
+
+    public void joinGame(int gameId, SessionData sessionData, ChessGame.TeamColor color)
+            throws HttpFailureException, IOException, InterruptedException
+    {
+        JoinGameRequest request = new JoinGameRequest(gameId, color.toString());
+
+        HttpRequest httpRequest =
+            HttpRequest.newBuilder()
+                        .uri(getUri("game"))
+                        .header("authorization", sessionData.authToken())
+                        .PUT(toRequestBody(request))
+                        .build();
+
+        send(httpRequest);
     }
 
     private URI getUri(String path) {
@@ -165,9 +181,5 @@ public class ServerFacade
             throw new HttpFailureException(response.statusCode());
         }
         return response;
-    }
-
-    public String joinGame(int gameId, int userId, ChessGame.TeamColor color) {
-        return null;  //TODO: actually implement
     }
 }

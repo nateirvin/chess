@@ -67,7 +67,7 @@ public class MenuCommandHandlerFactory
             }
             case "join" -> {
                 if(isSecured) {
-                    return new JoinGameCommandHandler(appState, serverFacade, displayer);
+                    return new JoinGameCommandHandler(appState, logger, serverFacade, displayer);
                 }
             }
             case "help" -> {
