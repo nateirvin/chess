@@ -23,6 +23,10 @@ public class ObserveGameCommandHandler extends GameScopedCommandHandler implemen
         }
 
         GameData game = displayer.getGameFromNumber(gameNumberResult.getValue());
+        if(game == null) {
+            return "No such game.";
+        }
+
         ChessBoardRenderer renderer = new ChessBoardRenderer(ColorScheme.example());
         renderer.render(game.getGame().getBoard(), ChessGame.TeamColor.WHITE);
 

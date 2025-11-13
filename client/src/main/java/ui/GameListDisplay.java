@@ -1,7 +1,6 @@
 package ui;
 
 import model.GameData;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -9,6 +8,8 @@ import java.util.Comparator;
 public class GameListDisplay {
     private final AppState appState;
     private final ServerFacade serverFacade;
+
+    private ArrayList<GameData> games;
 
     public GameListDisplay(AppState appState, ServerFacade serverFacade) {
         this.appState = appState;
@@ -21,7 +22,7 @@ public class GameListDisplay {
     }
 
     public void showGamesListWithAlternateText(String altText) {
-        ArrayList<GameData> games = getAllGames();
+        loadGames();
 
         if(!games.isEmpty()) {
             System.out.println("Games:");
@@ -40,20 +41,30 @@ public class GameListDisplay {
     }
 
     public int getGameIdFromNumber(int number) throws IndexOutOfBoundsException {
-        return getAllGames().get(number - 1).gameID();
+        return getGames().get(number - 1).gameID();
     }
 
-    private ArrayList<GameData> getAllGames() {
+    private void loadGames() {
         try {
             ArrayList<GameData> games = serverFacade.getAllGames(appState.getAuthToken());
             games.sort(Comparator.comparing(GameData::gameName));
-            return games;
+            this.games = games;
         } catch (HttpFailureException | IOException | InterruptedException e) {
             throw new RuntimeException("Failed to get games list", e);
         }
     }
 
     public GameData getGameFromNumber(int gameId) {
-        return getAllGames().stream().filter(g -> g.gameID() == gameId).findFirst().get();
+        return getGames().stream()
+                .filter(g -> g.gameID() == gameId)
+                .findFirst()
+                .orElse(null);
+    }
+
+    private ArrayList<GameData> getGames() {
+        if(this.games == null) {
+            throw new IllegalStateException("You must list the games in order to know the game numbers.");
+        }
+        return this.games;
     }
 }
