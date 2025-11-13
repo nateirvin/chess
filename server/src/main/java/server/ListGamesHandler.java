@@ -4,13 +4,12 @@ import com.google.gson.Gson;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import model.GameData;
+import model.GamesList;
 import org.jetbrains.annotations.NotNull;
 import service.GameService;
 import service.SessionService;
 import service.UserService;
-
 import java.util.ArrayList;
-import java.util.Map;
 
 public class ListGamesHandler extends JsonHandler implements Handler
 {
@@ -25,7 +24,7 @@ public class ListGamesHandler extends JsonHandler implements Handler
 
         ArrayList<GameData> games = this.gameService.getGames();
 
-        var gamesMap = Map.of("games", games);
+        var gamesMap = new GamesList(games);
         successResult(context, gamesMap);
     }
 }

@@ -114,10 +114,6 @@ public class ServerFacade
         send(httpRequest);
     }
 
-    private record GamesList(ArrayList<GameData> games) {
-
-    }
-
     public ArrayList<GameData> getAllGames(String authToken)
                                     throws HttpFailureException, IOException, InterruptedException
     {
