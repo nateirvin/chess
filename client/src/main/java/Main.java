@@ -1,5 +1,6 @@
 import ui.*;
 import util.SerializerFactory;
+import java.io.IOException;
 import java.util.logging.*;
 
 public class Main
@@ -49,6 +50,14 @@ public class Main
         {
             logger.log(Level.SEVERE, "Critical failure", e);
             System.out.println("A critical error has occurred.");
+        }
+        finally
+        {
+            try {
+                serverFacade.close();
+            } catch (IOException e) {
+                logger.log(Level.SEVERE, "shutdown failure", e);
+            }
         }
     }
 }

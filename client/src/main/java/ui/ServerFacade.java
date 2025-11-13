@@ -12,17 +12,18 @@ import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.Locale;
 
-public class ServerFacade
+public class ServerFacade implements Closeable
 {
     private final Gson gson;
+    private HttpClient httpClient;
+
     private String host;
     private int port;
-
-    private static final HttpClient httpClient = HttpClient.newHttpClient();
 
     public ServerFacade(Gson gson)
     {
         this.gson = gson;
+        httpClient = HttpClient.newHttpClient();
     }
 
     public void bindTo(String host, int port) {
@@ -172,8 +173,8 @@ public class ServerFacade
         }
     }
 
-    private static HttpResponse<InputStream> send(HttpRequest httpRequest)
-                    throws IOException, InterruptedException, HttpFailureException
+    private HttpResponse<InputStream> send(HttpRequest httpRequest)
+                                        throws IOException, InterruptedException, HttpFailureException
     {
         HttpResponse<InputStream> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofInputStream());
         if(response.statusCode() != 200)
@@ -181,5 +182,11 @@ public class ServerFacade
             throw new HttpFailureException(response.statusCode());
         }
         return response;
+    }
+
+    @Override
+    public void close() throws IOException {
+        httpClient.close();
+        httpClient= null;
     }
 }
