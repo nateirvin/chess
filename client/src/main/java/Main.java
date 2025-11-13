@@ -13,7 +13,7 @@ public class Main
         AppState appState = new AppState();
         ServerFacade serverFacade = new ServerFacade(new SerializerFactory().getGson());
         var menuCommandFactory =
-                new MenuCommandHandlerFactory(appState, logger, serverFacade, new GameListDisplay(serverFacade));
+                new MenuCommandHandlerFactory(appState, logger, serverFacade, new GameListDisplay(appState, serverFacade));
 
         try (ConsoleReader consoleReader = new ConsoleReader())
         {

@@ -57,7 +57,7 @@ public class MenuCommandHandlerFactory
             }
             case "list" -> {
                 if(isSecured) {
-                    return new ListGameCommandHandler(displayer);
+                    return new ListGameCommandHandler(logger, displayer);
                 }
             }
             case "observe" -> {

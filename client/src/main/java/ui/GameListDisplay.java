@@ -1,13 +1,17 @@
 package ui;
 
 import model.GameData;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 
 public class GameListDisplay {
+    private final AppState appState;
     private final ServerFacade serverFacade;
 
-    public GameListDisplay(ServerFacade serverFacade) {
+    public GameListDisplay(AppState appState, ServerFacade serverFacade) {
+        this.appState = appState;
         this.serverFacade = serverFacade;
     }
 
@@ -40,9 +44,13 @@ public class GameListDisplay {
     }
 
     private ArrayList<GameData> getAllGames() {
-        ArrayList<GameData> games = serverFacade.getAllGames();
-        games.sort(Comparator.comparing(GameData::gameName));
-        return games;
+        try {
+            ArrayList<GameData> games = serverFacade.getAllGames(appState.getAuthToken());
+            games.sort(Comparator.comparing(GameData::gameName));
+            return games;
+        } catch (HttpFailureException | IOException | InterruptedException e) {
+            throw new RuntimeException("Failed to get games list", e);
+        }
     }
 
     public GameData getGameFromNumber(int gameId) {

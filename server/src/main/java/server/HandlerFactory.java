@@ -26,7 +26,7 @@ class HandlerFactory
     {
         usersDataAccess = new UsersMySqlProvider();
         sessionDataAccess = new SessionMySqlProvider();
-        gameDataAccess = new GameMySqlProvider();
+        gameDataAccess = new GameMySqlProvider(gson);
     }
 
     public void useMemoryStorage()

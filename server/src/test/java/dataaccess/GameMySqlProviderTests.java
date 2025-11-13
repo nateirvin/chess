@@ -1,5 +1,7 @@
 package dataaccess;
 
+import chess.ChessGame;
+import com.google.gson.Gson;
 import model.GameData;
 import model.UpsertGameResult;
 import org.jetbrains.annotations.NotNull;
@@ -20,14 +22,14 @@ public class GameMySqlProviderTests
     @BeforeEach
     public void setup() throws DataAccessException
     {
-        this.classUnderTest = new GameMySqlProvider();
+        this.classUnderTest = new GameMySqlProvider(new Gson());
         TestHelper.ensureDatabaseSetup();
     }
 
     @Test
     public void findOrCreateGameCreatesGameIfItDoesNotExist() throws DataAccessException, SQLException
     {
-        UpsertGameResult actual = classUnderTest.findOrCreateGame("game_forty");
+        UpsertGameResult actual = classUnderTest.findOrCreateGame("game_forty", new ChessGame());
 
         Assertions.assertEquals("game_forty", actual.gameName());
         Assertions.assertTrue(actual.isNew());
@@ -79,7 +81,7 @@ public class GameMySqlProviderTests
         }
         int gameId = insertGame("game_forty5", whiteUserId, blackUserId);
 
-        UpsertGameResult actual = classUnderTest.findOrCreateGame("game_forty5");
+        UpsertGameResult actual = classUnderTest.findOrCreateGame("game_forty5", new ChessGame());
 
         Assertions.assertEquals(gameId, actual.gameID());
         Assertions.assertEquals("game_forty5", actual.gameName());

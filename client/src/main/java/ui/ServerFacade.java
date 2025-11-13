@@ -1,6 +1,5 @@
 package ui;
 
-import chess.ChessBoard;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import model.*;
@@ -87,8 +86,6 @@ public class ServerFacade
         return loginResult;
     }
 
-
-
     public void logoutUser(String authToken) throws IOException, InterruptedException {
         var request =
             HttpRequest.newBuilder()
@@ -111,9 +108,28 @@ public class ServerFacade
         HttpRequest httpRequest = HttpRequest.newBuilder()
                 .uri(getUri("game"))
                 .header("authorization", authToken)
-                .POST(toRequestBody(request)).build();
+                .POST(toRequestBody(request))
+                .build();
 
         send(httpRequest);
+    }
+
+    private record GamesList(ArrayList<GameData> games) {
+
+    }
+
+    public ArrayList<GameData> getAllGames(String authToken)
+                                    throws HttpFailureException, IOException, InterruptedException
+    {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(getUri("game"))
+                .header("authorization", authToken)
+                .GET()
+                .build();
+
+        GamesList reply = sendAndReceive(request, GamesList.class);
+
+        return reply.games();
     }
 
     private URI getUri(String path) {
@@ -153,21 +169,6 @@ public class ServerFacade
             throw new HttpFailureException(response.statusCode());
         }
         return response;
-    }
-
-    //TODO: actually implement
-    public ArrayList<GameData> getAllGames() {
-        ArrayList<GameData> games = new ArrayList<>();
-        games.add(new GameData(222, "strong", "flek", "weep"));
-        games.add(new GameData(323, "jacob"));
-        for(var g : games) {
-            ChessGame game = new ChessGame();
-            ChessBoard board = new ChessBoard();
-            board.resetBoard();
-            game.setBoard(board);
-            g.setGame(game);
-        }
-        return games;
     }
 
     public String joinGame(int gameId, int userId, ChessGame.TeamColor color) {

@@ -1,5 +1,7 @@
 package client;
 
+import chess.ChessBoard;
+import model.GameData;
 import model.SessionData;
 import org.junit.jupiter.api.*;
 import server.Server;
@@ -7,6 +9,7 @@ import ui.HttpFailureException;
 import ui.ServerFacade;
 import util.SerializerFactory;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.UUID;
 
 public class ServerFacadeTests {
@@ -122,6 +125,57 @@ public class ServerFacadeTests {
         try {
             classUnderTest.createGame(authToken, gameName);
             Assertions.fail("should have thrown exception");
+        } catch(HttpFailureException actualException) {
+            Assertions.assertEquals(401, actualException.getStatusCode());
+        }
+    }
+
+    @Test
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
+    public void getAllGamesReturnsGameWithBoard() throws IOException, InterruptedException, HttpFailureException
+    {
+        String username = UUID.randomUUID().toString();
+        String plainTextPassword = UUID.randomUUID().toString();
+        SessionData session = classUnderTest.registerUser(username, plainTextPassword, "zark@start.com");
+        String authToken = session.authToken();
+        String gameName1 = UUID.randomUUID().toString();
+        classUnderTest.createGame(authToken, gameName1);
+
+        ArrayList<GameData> actualList = classUnderTest.getAllGames(authToken);
+
+        GameData actualGame = actualList.stream().filter(g -> g.gameName().equals(gameName1)).findFirst().get();
+        ChessBoard actualBoard = actualGame.getGame().getBoard();
+        System.out.println(actualBoard.toString());
+        Assertions.assertEquals(32, actualBoard.toSquares().size());
+    }
+
+    @Test
+    public void getAllGamesReturnsAllGamesIfUserLoggedIn() throws IOException, InterruptedException, HttpFailureException
+    {
+        String username = UUID.randomUUID().toString();
+        String plainTextPassword = UUID.randomUUID().toString();
+        SessionData session = classUnderTest.registerUser(username, plainTextPassword, "zark@start.com");
+        String authToken = session.authToken();
+        String gameName1 = UUID.randomUUID().toString();
+        String gameName2 = UUID.randomUUID().toString();
+        String gameName3 = UUID.randomUUID().toString();
+        classUnderTest.createGame(authToken, gameName1);
+        classUnderTest.createGame(authToken, gameName2);
+        classUnderTest.createGame(authToken, gameName3);
+
+        ArrayList<GameData> actual = classUnderTest.getAllGames(authToken);
+
+        Assertions.assertTrue(actual.size() >= 3);
+        Assertions.assertEquals(1, actual.stream().filter(p -> p.gameName().equals(gameName1)).count());
+        Assertions.assertEquals(1, actual.stream().filter(p -> p.gameName().equals(gameName2)).count());
+        Assertions.assertEquals(1, actual.stream().filter(p -> p.gameName().equals(gameName3)).count());
+    }
+
+    @Test
+    public void getAllGamesThrowsExceptionIfUserNotLoggedIn() throws IOException, InterruptedException
+    {
+        try {
+            ArrayList<GameData> actual = classUnderTest.getAllGames(UUID.randomUUID().toString());
         } catch(HttpFailureException actualException) {
             Assertions.assertEquals(401, actualException.getStatusCode());
         }

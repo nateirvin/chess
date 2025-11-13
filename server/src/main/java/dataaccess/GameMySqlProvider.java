@@ -1,5 +1,7 @@
 package dataaccess;
 
+import chess.ChessGame;
+import com.google.gson.Gson;
 import model.GameData;
 import model.UpsertGameResult;
 import service.AlreadyTakenException;
@@ -10,6 +12,12 @@ import static java.sql.Statement.RETURN_GENERATED_KEYS;
 
 public class GameMySqlProvider implements GameDataAccess
 {
+    private final Gson gson;
+
+    public GameMySqlProvider(Gson gson) {
+        this.gson = gson;
+    }
+
     public static void createTables() throws DataAccessException {
         String statement =
                 """     
@@ -28,7 +36,7 @@ public class GameMySqlProvider implements GameDataAccess
     }
 
     @Override
-    public UpsertGameResult findOrCreateGame(String name)
+    public UpsertGameResult findOrCreateGame(String name, ChessGame gameInfo)
     {
         try (Connection conn = DatabaseManager.getConnection())
         {
@@ -37,10 +45,11 @@ public class GameMySqlProvider implements GameDataAccess
                         INSERT IGNORE INTO games
                           (game_name, game_data)
                         VALUES
-                          (?, '{}')
+                          (?, ?)
                         """, RETURN_GENERATED_KEYS))
             {
                 ps.setString(1, name);
+                ps.setString(2, gson.toJson(gameInfo));
 
                 ps.executeUpdate();
 
@@ -72,7 +81,8 @@ public class GameMySqlProvider implements GameDataAccess
                             game_id,
                             game_name,
                             u1.username AS white_user_name,
-                            u2.username AS black_user_name
+                            u2.username AS black_user_name,
+                            game_data
                         FROM games
                             LEFT JOIN users AS u1
                                 ON games.white_user_id = u1.user_id
@@ -96,12 +106,23 @@ public class GameMySqlProvider implements GameDataAccess
         return list;
     }
 
-    private static GameData readGameData(ResultSet rs) throws SQLException {
-        return new GameData(
-                rs.getInt(1),
-                rs.getString(2),
-                rs.getString(3),
-                rs.getString(4));
+    private GameData readGameData(ResultSet rs) throws SQLException
+    {
+        int gameId = rs.getInt(1);
+        String gameName = rs.getString(2);
+        String whiteUsername = rs.getString(3);
+        String blackUsername = rs.getString(4);
+        String gameJson = rs.getString(5);
+        ChessGame game = gson.fromJson(gameJson, ChessGame.class);
+
+        GameData gameData = new GameData(
+                gameId,
+                gameName,
+                whiteUsername,
+                blackUsername);
+        gameData.setGame(game);
+
+        return gameData;
     }
 
     @Override
@@ -140,7 +161,7 @@ public class GameMySqlProvider implements GameDataAccess
         return setPlayer(gamedID, username, commandText);
     }
 
-    private static boolean setPlayer(int gamedID, String username, String commandText)
+    private boolean setPlayer(int gamedID, String username, String commandText)
     {
         try (Connection conn = DatabaseManager.getConnection())
         {
@@ -169,7 +190,7 @@ public class GameMySqlProvider implements GameDataAccess
         return true;
     }
 
-    private static UpsertGameResult getGame(Connection conn, Integer gameId, String name) throws SQLException
+    private UpsertGameResult getGame(Connection conn, Integer gameId, String name) throws SQLException
     {
         try (PreparedStatement ps = conn.prepareStatement(
                 """
@@ -177,7 +198,8 @@ public class GameMySqlProvider implements GameDataAccess
                         game_id,
                         game_name,
                         u1.username AS white_user_name,
-                        u2.username AS black_user_name
+                        u2.username AS black_user_name,
+                        game_data
                     FROM games
                         LEFT JOIN users AS u1
                             ON games.white_user_id = u1.user_id

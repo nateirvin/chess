@@ -1,5 +1,6 @@
 package dataaccess;
 
+import chess.ChessGame;
 import model.GameData;
 import model.UpsertGameResult;
 import service.AlreadyTakenException;
@@ -13,7 +14,7 @@ public class GameMemoryProvider implements GameDataAccess
     private final static HashMap<String, GameData> GAMES = new HashMap<>();
 
     @Override
-    public UpsertGameResult findOrCreateGame(String name)
+    public UpsertGameResult findOrCreateGame(String name, ChessGame gameInfo)
     {
         if(GAMES.containsKey(name))
         {
