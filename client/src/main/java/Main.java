@@ -1,6 +1,5 @@
 import ui.*;
 import util.SerializerFactory;
-import java.io.IOException;
 import java.util.logging.*;
 
 public class Main
@@ -11,13 +10,14 @@ public class Main
 
         LogManager.getLogManager().reset();
         Logger logger = Logger.getLogger("default");
-        AppState appState = new AppState();
-        ServerFacade serverFacade = new ServerFacade(new SerializerFactory().getGson());
-        var menuCommandFactory =
-                new MenuCommandHandlerFactory(appState, logger, serverFacade, new GameListDisplay(appState, serverFacade));
 
-        try (ConsoleReader consoleReader = new ConsoleReader())
+        try (ServerFacade serverFacade = new ServerFacade(new SerializerFactory().getGson());
+             ConsoleReader consoleReader = new ConsoleReader())
         {
+            AppState appState = new AppState();
+            GameListDisplay gameListDisplay = new GameListDisplay(appState, serverFacade);
+            var menuCommandFactory = new MenuCommandHandlerFactory(appState, logger, serverFacade, gameListDisplay);
+
             logger.addHandler(new FileHandler("chess-app.log", true));
             serverFacade.bindTo("localhost", 8080);
 
@@ -50,14 +50,6 @@ public class Main
         {
             logger.log(Level.SEVERE, "Critical failure", e);
             System.out.println("A critical error has occurred.");
-        }
-        finally
-        {
-            try {
-                serverFacade.close();
-            } catch (IOException e) {
-                logger.log(Level.SEVERE, "shutdown failure", e);
-            }
         }
     }
 }
