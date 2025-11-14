@@ -2,6 +2,8 @@ package ui;
 
 import chess.ChessGame;
 import model.UserEntryResult;
+
+import java.net.ConnectException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -38,6 +40,9 @@ public class JoinGameCommandHandler extends GameScopedCommandHandler implements 
                 int gameId = gameNumberResult.getValue();
                 ChessGame.TeamColor color = colorResult.getValue();
                 serverFacade.joinGame(gameId, appState.getSession(), color);
+            } catch(ConnectException e) {
+                logger.log(Level.INFO, "Cannot connect", e);
+                return "Game server cannot be reached.";
             } catch (Exception e) {
                 logger.log(Level.SEVERE, "Failure in join game", e);
                 return "Failed to join game.";

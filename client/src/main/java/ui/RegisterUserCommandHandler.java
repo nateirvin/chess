@@ -2,6 +2,7 @@ package ui;
 
 import model.SessionData;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -38,6 +39,9 @@ public class RegisterUserCommandHandler implements MenuCommandHandler
             SessionData registrationResult;
             try {
                 registrationResult = serverFacade.registerUser(userName, plainTextPassword, email);
+            } catch(ConnectException e) {
+                logger.log(Level.INFO, "Cannot connect", e);
+                return "Game server cannot be reached.";
             } catch (IOException | InterruptedException e) {
                 logger.log(Level.SEVERE, "Error on registration endpoint", e);
                 return "Registration failed.";

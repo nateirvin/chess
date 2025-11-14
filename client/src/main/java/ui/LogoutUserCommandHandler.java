@@ -1,6 +1,7 @@
 package ui;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -20,6 +21,9 @@ public class LogoutUserCommandHandler implements MenuCommandHandler {
     {
         try {
             serverFacade.logoutUser(appState.getAuthToken());
+        } catch(ConnectException e) {
+            logger.log(Level.INFO, "Cannot connect", e);
+            return "Game server cannot be reached.";
         } catch (IOException | InterruptedException e) {
             logger.log(Level.SEVERE, "Logout failure", e);
             return "Could not log you out.";

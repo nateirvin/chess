@@ -3,6 +3,7 @@ package ui;
 import model.SessionData;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -36,6 +37,9 @@ public class LoginUserCommandHandler implements MenuCommandHandler
         SessionData sessionData;
         try {
             sessionData = serverFacade.loginUser(username, plainTextPassword);
+        } catch(ConnectException e) {
+            logger.log(Level.INFO, "Cannot connect", e);
+            return "Game server cannot be reached.";
         } catch (IOException | InterruptedException e) {
             logger.log(Level.SEVERE, "Login call failed", e);
             return "There was an error during login.";

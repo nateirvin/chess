@@ -1,6 +1,7 @@
 package ui;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -25,6 +26,9 @@ public class CreateGameCommandHandler implements MenuCommandHandler
 
             try {
                 serverFacade.createGame(appState.getAuthToken(), gameName);
+            } catch(ConnectException e) {
+                logger.log(Level.INFO, "Cannot connect", e);
+                return "Game server cannot be reached.";
             } catch (HttpFailureException | InterruptedException | IOException e) {
                 logger.log(Level.SEVERE, "Game creation failed", e);
                 return "Game creation failed";
