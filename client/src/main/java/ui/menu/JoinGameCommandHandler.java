@@ -1,10 +1,9 @@
 package ui.menu;
 
 import chess.ChessGame;
+import model.GameData;
 import model.UserEntryResult;
-import ui.AppState;
-import ui.GameListDisplay;
-import ui.ServerFacade;
+import ui.*;
 
 import java.net.ConnectException;
 import java.util.logging.Level;
@@ -33,16 +32,16 @@ public class JoinGameCommandHandler extends GameScopedCommandHandler implements 
             if(!gameNumberResult.success()) {
                 return gameNumberResult.getErrorMessage();
             }
+            int gameNumber = gameNumberResult.getValue();
+            GameData game = displayer.getGameByNumber(gameNumber);
+
             if(!colorResult.success()) {
                 return colorResult.getErrorMessage();
             }
-
-            String errorMessage;
+            ChessGame.TeamColor color = colorResult.getValue();
 
             try {
-                int gameId = gameNumberResult.getValue();
-                ChessGame.TeamColor color = colorResult.getValue();
-                serverFacade.joinGame(gameId, appState.getSession(), color);
+                serverFacade.joinGame(game.gameID(), appState.getSession(), color);
             } catch(ConnectException e) {
                 logger.log(Level.INFO, "Cannot connect", e);
                 return "Game server cannot be reached.";
@@ -52,8 +51,9 @@ public class JoinGameCommandHandler extends GameScopedCommandHandler implements 
             }
 
             System.out.println("Joined!");
-            System.out.println();
-            displayer.showGamesList();
+
+            ChessBoardRenderer renderer = new ChessBoardRenderer(ColorScheme.example());
+            renderer.render(game.getGame().getBoard(), color);
 
             return null;
         } else {

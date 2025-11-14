@@ -25,7 +25,7 @@ public class ObserveGameCommandHandler extends GameScopedCommandHandler implemen
             return gameNumberResult.getErrorMessage();
         }
 
-        GameData game = displayer.getGameFromNumber(gameNumberResult.getValue());
+        GameData game = displayer.getGameByNumber(gameNumberResult.getValue());
         if(game == null) {
             return "No such game.";
         }

@@ -16,9 +16,9 @@ public class GameListAccessor {
     }
     
     private ArrayList<GameData> games;
-    
-    public int getGameIdFromNumber(int number) throws IndexOutOfBoundsException {
-        return getGames().get(number - 1).gameID();
+
+    public GameData getGameByNumber(int number) {
+        return getGames().get(number - 1);
     }
 
     protected ArrayList<GameData> loadGames() {
@@ -30,13 +30,6 @@ public class GameListAccessor {
         } catch (HttpFailureException | IOException | InterruptedException e) {
             throw new RuntimeException("Failed to get games list", e);
         }
-    }
-
-    public GameData getGameFromNumber(int gameId) {
-        return getGames().stream()
-                .filter(g -> g.gameID() == gameId)
-                .findFirst()
-                .orElse(null);
     }
 
     private ArrayList<GameData> getGames() {
