@@ -22,8 +22,18 @@ public class GameListDisplay extends GameListAccessor {
             {
                 GameData game = games.get(i);
                 int gameNumber = i + 1;
-                System.out.printf("%d. %s (white: %s, white: %s)%n",
-                        gameNumber, game.gameName(), game.whiteUsername(), game.blackUsername());
+
+                String whiteUsername = game.whiteUsername();
+                String blackUsername = game.blackUsername();
+                if(whiteUsername == null) {
+                    whiteUsername = "(none)";
+                }
+                if(blackUsername == null) {
+                    blackUsername = "(none)";
+                }
+
+                System.out.printf("%d. %s (white: %s, black: %s)%n",
+                                  gameNumber, game.gameName(), whiteUsername, blackUsername);
             }
         }
         else if(altText != null && !altText.isEmpty()) {
