@@ -23,7 +23,7 @@ public class ChessBoardRendererTests
     {
         ChessBoard board = new ChessBoard();
         board.resetBoard();
-        var classUnderTest = new ChessBoardRenderer(ColorScheme.example());
+        var classUnderTest = new ChessBoardRenderer(ColorScheme.lighter());
 
         classUnderTest.render(board, ChessGame.TeamColor.BLACK);
     }

@@ -16,13 +16,6 @@ public class AppState
         this.currentSession = sessionData;
     }
 
-    public Integer getUserID() {
-        if(userIsLoggedIn()) {
-            return currentSession.userData().getId();
-        }
-        return null;
-    }
-
     public String currentUsername()
     {
         return userIsLoggedIn()

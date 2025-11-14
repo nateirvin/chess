@@ -80,29 +80,40 @@ public class UsersMySqlProvider implements UsersDataAccess
                 FROM users
                 WHERE username = ?
                 """;
-            try (PreparedStatement command = conn.prepareStatement(querySql)) {
-                command.setString(1, username);
-                try (ResultSet rs = command.executeQuery()) {
-                    if (rs.next()) {
-                        UserData userData = readUserData(rs);
-                        if(challengePassword != null) {
-                            if(BCrypt.checkpw(challengePassword, userData.getPassword())) {
-                                userData.setPassword(challengePassword);
-                                return userData;
-                            } else {
-                                return null;
-                            }
-                        } else {
-                            return userData;
-                        }
-                    }
-                }
-            }
+            return queryUserData(conn, querySql, username, challengePassword);
         } catch (SQLException | DataAccessException e) {
             throw new RuntimeException(e);
         }
+    }
 
+    @Nullable
+    private static UserData queryUserData(Connection conn, String querySql, String username, String challengePassword)
+                                throws SQLException
+    {
+        try (PreparedStatement command = conn.prepareStatement(querySql)) {
+            command.setString(1, username);
+            try (ResultSet rs = command.executeQuery()) {
+                if (rs.next()) {
+                    return fetchUserData(rs, challengePassword);
+                }
+            }
+        }
         return null;
+    }
+
+    @Nullable
+    private static UserData fetchUserData(ResultSet resultSet, String challengePassword) throws SQLException {
+        UserData userData = readUserData(resultSet);
+
+        if(challengePassword != null) {
+            if (!BCrypt.checkpw(challengePassword, userData.getPassword())) {
+                return null;
+            } else {
+                userData.setPassword(challengePassword);
+            }
+        }
+
+        return userData;
     }
 
     private static UserData readUserData(ResultSet resultSet) throws SQLException
