@@ -38,7 +38,7 @@ public class GameServiceTests
     @Test
     public void createGameThrowsIfGameAlreadyExists()
     {
-        dataAccess.findOrCreateGame("zork");
+        dataAccess.findOrCreateGame("zork", new ChessGame());
 
         try{
             classUnderTest.createGame(new CreateGameRequest("zork"));
@@ -63,8 +63,8 @@ public class GameServiceTests
     @Test
     public void getGamesReturnsGamesIfSomeFound()
     {
-        dataAccess.findOrCreateGame("game1");
-        dataAccess.findOrCreateGame("game2");
+        dataAccess.findOrCreateGame("game1", new ChessGame());
+        dataAccess.findOrCreateGame("game2", new ChessGame());
         assert !dataAccess.getAllGames().isEmpty();
 
         ArrayList<GameData> actual = classUnderTest.getGames();
@@ -78,7 +78,7 @@ public class GameServiceTests
     @Test
     public void joinGameSetsWhitePlayer()
     {
-        UpsertGameResult game = dataAccess.findOrCreateGame("zeppo");
+        UpsertGameResult game = dataAccess.findOrCreateGame("zeppo", new ChessGame());
         assert game.whiteUsername() == null;
         assert game.blackUsername() == null;
         int gamedID = game.gameID();
@@ -101,7 +101,7 @@ public class GameServiceTests
     @Test
     public void joinGameSetsBlackPlayer()
     {
-        UpsertGameResult game = dataAccess.findOrCreateGame("turkey");
+        UpsertGameResult game = dataAccess.findOrCreateGame("turkey", new ChessGame());
         assert game.whiteUsername() == null;
         assert game.blackUsername() == null;
         int gamedID = game.gameID();
@@ -124,8 +124,8 @@ public class GameServiceTests
     @Test
     public void resetClearsAllGamesIfSomePresent()
     {
-        dataAccess.findOrCreateGame("game01");
-        dataAccess.findOrCreateGame("game02");
+        dataAccess.findOrCreateGame("game01", new ChessGame());
+        dataAccess.findOrCreateGame("game02", new ChessGame());
         assert !dataAccess.getAllGames().isEmpty();
 
         classUnderTest.reset();

@@ -44,7 +44,9 @@ public class UserServiceTests
 
         try
         {
-            classUnderTest.register(new RegisterRequest(userData.username(), userData.password(), userData.email()));
+            classUnderTest.register(new RegisterRequest(userData.getUsername(),
+                                                        userData.getPassword(),
+                                                        userData.getEmail()));
             fail("an exception should have been thrown");
         }
         catch(AlreadyTakenException actualException)

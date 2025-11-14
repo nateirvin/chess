@@ -7,7 +7,7 @@ import service.SessionService;
 import service.UserService;
 import util.SerializerFactory;
 
-class HandlerFactory
+class EndpointHandlerFactory
 {
     private final Gson gson;
     private SessionDataAccess sessionDataAccess;
@@ -17,7 +17,7 @@ class HandlerFactory
     private SessionService sessionService;
     private GameService gameService;
 
-    public HandlerFactory(SerializerFactory serializerFactory)
+    public EndpointHandlerFactory(SerializerFactory serializerFactory)
     {
         this.gson = serializerFactory.getGson();
     }
@@ -26,7 +26,7 @@ class HandlerFactory
     {
         usersDataAccess = new UsersMySqlProvider();
         sessionDataAccess = new SessionMySqlProvider();
-        gameDataAccess = new GameMySqlProvider();
+        gameDataAccess = new GameMySqlProvider(gson);
     }
 
     public void useMemoryStorage()
@@ -53,37 +53,37 @@ class HandlerFactory
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends JsonHandler> T getHandler(Class<T> clazz)
+    public <T extends JsonEndpointHandler> T getHandler(Class<T> clazz)
     {
-        if(clazz == ResetServerHandler.class)
+        if(clazz == ResetServerEndpointHandler.class)
         {
-            return (T) new ResetServerHandler(gson, userService, sessionService, gameService);
+            return (T) new ResetServerEndpointHandler(gson, userService, sessionService, gameService);
         }
-        if(clazz == RegisterUserHandler.class)
+        if(clazz == RegisterUserEndpointHandler.class)
         {
-            return (T) new RegisterUserHandler(gson, userService, sessionService, gameService);
+            return (T) new RegisterUserEndpointHandler(gson, userService, sessionService, gameService);
         }
-        if(clazz == LoginHandler.class)
+        if(clazz == LoginEndpointHandler.class)
         {
-            return (T) new LoginHandler(gson, userService, sessionService, gameService);
+            return (T) new LoginEndpointHandler(gson, userService, sessionService, gameService);
         }
-        if(clazz == LogoutHandler.class)
+        if(clazz == LogoutEndpointHandler.class)
         {
-            return (T) new LogoutHandler(gson, userService, sessionService, gameService);
+            return (T) new LogoutEndpointHandler(gson, userService, sessionService, gameService);
         }
-        if(clazz == CreateGameHandler.class)
+        if(clazz == CreateGameEndpointHandler.class)
         {
-            return (T) new CreateGameHandler(gson, userService, sessionService, gameService);
+            return (T) new CreateGameEndpointHandler(gson, userService, sessionService, gameService);
         }
-        if(clazz == JoinGameHandler.class)
+        if(clazz == JoinGameEndpointHandler.class)
         {
-            return (T) new JoinGameHandler(gson, userService, sessionService, gameService);
+            return (T) new JoinGameEndpointHandler(gson, userService, sessionService, gameService);
         }
-        if(clazz == ListGamesHandler.class)
+        if(clazz == ListGamesEndpointHandler.class)
         {
-            return (T) new ListGamesHandler(gson, userService, sessionService, gameService);
+            return (T) new ListGamesEndpointHandler(gson, userService, sessionService, gameService);
         }
 
-        return (T) new JsonHandler(gson, userService, sessionService, gameService);
+        return (T) new JsonEndpointHandler(gson, userService, sessionService, gameService);
     }
 }

@@ -4,7 +4,7 @@ public class UserData
 {
     private int id;
     private final String username;
-    private final String password;
+    private String password;
     private final String email;
 
     public UserData(String username, String password, String email) {
@@ -17,18 +17,27 @@ public class UserData
         this(registration.username(), registration.password(), registration.email());
     }
 
-    public String username() {
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getUsername() {
         return username;
     }
 
-    public String password() {
+    public String getPassword() {
         return password;
     }
 
-    public String email() {
-        return email;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public String getEmail() {
+        return email;
+    }
 }

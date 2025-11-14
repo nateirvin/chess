@@ -11,9 +11,9 @@ import service.GameService;
 import service.SessionService;
 import service.UserService;
 
-public class LoginHandler extends JsonHandler implements Handler
+public class LoginEndpointHandler extends JsonEndpointHandler implements Handler
 {
-    public LoginHandler(Gson gson, UserService userService, SessionService sessionService, GameService gameService) {
+    public LoginEndpointHandler(Gson gson, UserService userService, SessionService sessionService, GameService gameService) {
         super(gson, userService, sessionService, gameService);
     }
 

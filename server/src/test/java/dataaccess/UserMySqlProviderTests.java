@@ -1,5 +1,6 @@
 package dataaccess;
 
+import model.RegisterRequest;
 import model.UpsertUserResult;
 import model.UserData;
 import org.junit.jupiter.api.*;
@@ -28,9 +29,9 @@ public class UserMySqlProviderTests
         UpsertUserResult actual = classUnderTest.findOrCreateUser(userData);
 
         Assertions.assertNotNull(actual);
-        Assertions.assertEquals(username, actual.username());
-        Assertions.assertEquals(plainTextPassword, actual.password());
-        Assertions.assertEquals(email, actual.email());
+        Assertions.assertEquals(username, actual.getUsername());
+        Assertions.assertEquals(plainTextPassword, actual.getPassword());
+        Assertions.assertEquals(email, actual.getEmail());
         Assertions.assertTrue(actual.isNew());
 
         int userCount = 0;
@@ -69,9 +70,44 @@ public class UserMySqlProviderTests
 
         Assertions.assertEquals(userId, actual.getId());
         Assertions.assertFalse(actual.isNew());
-        Assertions.assertEquals(userName, actual.username());
-        Assertions.assertEquals(plainTextPassword, actual.password());
-        Assertions.assertTrue(actual.email().isEmpty());
+        Assertions.assertEquals(userName, actual.getUsername());
+        Assertions.assertTrue(actual.getPassword() == null || actual.getPassword().isEmpty());
+        Assertions.assertTrue(actual.getEmail().isEmpty());
+    }
+
+    @Test
+    public void findOrCreateUserReturnsExistingUserInfoIfUserAlreadyExistsForWrongPassword() throws DataAccessException, SQLException
+    {
+        String userName = "bosephus";
+        String correctPlainTextPassword = "i'm a plaintext password";
+        int userId = TestHelper.insertTestUser(userName, correctPlainTextPassword);
+        String incorrectPlainTextPassword = "bluey";
+        UserData userData = new UserData(userName, incorrectPlainTextPassword, null);
+
+        UpsertUserResult actual = classUnderTest.findOrCreateUser(userData);
+
+        Assertions.assertEquals(userId, actual.getId());
+        Assertions.assertFalse(actual.isNew());
+        Assertions.assertEquals(userName, actual.getUsername());
+        Assertions.assertTrue(actual.getPassword() == null || actual.getPassword().isEmpty());
+        Assertions.assertTrue(actual.getEmail().isEmpty());
+    }
+
+    @Test
+    public void findOrCreateUserReturnsExistingUserInfoIfUserAlreadyExistsForRegisterOverload() throws DataAccessException, SQLException
+    {
+        String userName = "bosephus";
+        String plainTextPassword = "i'm a plaintext password";
+        int userId = TestHelper.insertTestUser(userName, plainTextPassword);
+        UserData userData = new UserData(new RegisterRequest(userName, plainTextPassword, null));
+
+        UpsertUserResult actual = classUnderTest.findOrCreateUser(userData);
+
+        Assertions.assertEquals(userId, actual.getId());
+        Assertions.assertFalse(actual.isNew());
+        Assertions.assertEquals(userName, actual.getUsername());
+        Assertions.assertTrue(actual.getPassword() == null || actual.getPassword().isEmpty());
+        Assertions.assertTrue(actual.getEmail().isEmpty());
     }
 
     @Test
@@ -93,8 +129,8 @@ public class UserMySqlProviderTests
 
         Assertions.assertNotNull(actual);
         Assertions.assertEquals(userId, actual.getId());
-        Assertions.assertEquals(userName, actual.username());
-        Assertions.assertEquals(plainTextPassword, actual.password());
+        Assertions.assertEquals(userName, actual.getUsername());
+        Assertions.assertEquals(plainTextPassword, actual.getPassword());
     }
 
     @Test

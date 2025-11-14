@@ -1,5 +1,6 @@
 package service;
 
+import chess.ChessBoard;
 import chess.ChessGame;
 import dataaccess.GameDataAccess;
 import model.CreateGameRequest;
@@ -19,7 +20,12 @@ public class GameService
 
     public GameData createGame(CreateGameRequest gameData)
     {
-        UpsertGameResult upsertResult = dataAccess.findOrCreateGame(gameData.gameName());
+        ChessBoard board = new ChessBoard();
+        board.resetBoard();
+        ChessGame gameInfo = new ChessGame();
+        gameInfo.setBoard(board);
+
+        UpsertGameResult upsertResult = dataAccess.findOrCreateGame(gameData.gameName(), gameInfo);
         if(!upsertResult.isNew())
         {
             throw new AlreadyTakenException("game", gameData.gameName());

@@ -13,14 +13,14 @@ public class UsersMemoryProvider implements UsersDataAccess
     @Override
     public UpsertUserResult findOrCreateUser(UserData userData)
     {
-        if(USERS.containsKey(userData.username()))
+        if(USERS.containsKey(userData.getUsername()))
         {
-            UserData data = USERS.get(userData.username());
+            UserData data = USERS.get(userData.getUsername());
             return new UpsertUserResult(data, false);
         }
         else
         {
-            USERS.put(userData.username(), userData);
+            USERS.put(userData.getUsername(), userData);
             return new UpsertUserResult(userData, true);
         }
     }
@@ -30,7 +30,7 @@ public class UsersMemoryProvider implements UsersDataAccess
     {
         if(USERS.containsKey(username)){
             UserData userData = USERS.get(username);
-            if(userData.password().equals(password)) {
+            if(userData.getPassword().equals(password)) {
                 return userData;
             }
         }

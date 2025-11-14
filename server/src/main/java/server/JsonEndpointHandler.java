@@ -1,7 +1,6 @@
 package server;
 
 import com.google.gson.Gson;
-import dataaccess.*;
 import io.javalin.http.Context;
 import model.AuthData;
 import org.jetbrains.annotations.NotNull;
@@ -12,14 +11,14 @@ import service.UserService;
 import javax.security.auth.login.LoginException;
 import java.util.Map;
 
-class JsonHandler
+class JsonEndpointHandler
 {
     protected final Gson gson;
     protected final SessionService sessionService;
     protected final UserService userService;
     protected final GameService gameService;
 
-    public JsonHandler(Gson gson, UserService userService, SessionService sessionService, GameService gameService)
+    public JsonEndpointHandler(Gson gson, UserService userService, SessionService sessionService, GameService gameService)
     {
         this.gson = gson;
         this.sessionService = sessionService;
