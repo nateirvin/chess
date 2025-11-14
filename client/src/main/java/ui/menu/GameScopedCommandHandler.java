@@ -1,6 +1,7 @@
-package ui;
+package ui.menu;
 
 import model.UserEntryResult;
+import ui.GameListDisplay;
 
 public class GameScopedCommandHandler {
     protected final GameListDisplay displayer;

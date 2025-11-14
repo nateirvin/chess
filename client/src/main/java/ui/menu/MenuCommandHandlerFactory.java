@@ -1,4 +1,8 @@
-package ui;
+package ui.menu;
+
+import ui.AppState;
+import ui.GameListDisplay;
+import ui.ServerFacade;
 
 import java.util.logging.Logger;
 

@@ -1,6 +1,7 @@
 package ui;
 
 import model.SessionData;
+import ui.menu.RegisterUserCommandHandler;
 
 public class AppState
 {

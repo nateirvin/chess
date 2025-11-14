@@ -1,6 +1,8 @@
-package ui;
+package ui.menu;
 
 import model.SessionData;
+import ui.AppState;
+import ui.ServerFacade;
 
 import java.io.IOException;
 import java.net.ConnectException;
