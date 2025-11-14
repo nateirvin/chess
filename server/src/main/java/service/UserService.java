@@ -25,7 +25,7 @@ public class UserService
             throw new AlreadyTakenException("username", registration.username());
         }
 
-        AuthData authData = sessionService.createSession(userData.username());
+        AuthData authData = sessionService.createSession(userData.getUsername());
 
         return new LoginResult(registration.username(), authData.authToken(), authData.userId());
     }
@@ -38,7 +38,7 @@ public class UserService
             throw new LoginException("unauthorized");
         }
 
-        return sessionService.createSession(user.username());
+        return sessionService.createSession(user.getUsername());
     }
 
     public void reset() {

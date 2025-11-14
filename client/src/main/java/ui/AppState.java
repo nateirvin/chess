@@ -26,7 +26,7 @@ public class AppState
     public String currentUsername()
     {
         return userIsLoggedIn()
-                ? currentSession.userData().username()
+                ? currentSession.userData().getUsername()
                 : RegisterUserCommandHandler.GUEST_USERNAME;
     }
 

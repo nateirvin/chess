@@ -29,9 +29,9 @@ public class UserMySqlProviderTests
         UpsertUserResult actual = classUnderTest.findOrCreateUser(userData);
 
         Assertions.assertNotNull(actual);
-        Assertions.assertEquals(username, actual.username());
-        Assertions.assertEquals(plainTextPassword, actual.password());
-        Assertions.assertEquals(email, actual.email());
+        Assertions.assertEquals(username, actual.getUsername());
+        Assertions.assertEquals(plainTextPassword, actual.getPassword());
+        Assertions.assertEquals(email, actual.getEmail());
         Assertions.assertTrue(actual.isNew());
 
         int userCount = 0;
@@ -70,9 +70,9 @@ public class UserMySqlProviderTests
 
         Assertions.assertEquals(userId, actual.getId());
         Assertions.assertFalse(actual.isNew());
-        Assertions.assertEquals(userName, actual.username());
-        Assertions.assertTrue(actual.password() == null || actual.password().isEmpty());
-        Assertions.assertTrue(actual.email().isEmpty());
+        Assertions.assertEquals(userName, actual.getUsername());
+        Assertions.assertTrue(actual.getPassword() == null || actual.getPassword().isEmpty());
+        Assertions.assertTrue(actual.getEmail().isEmpty());
     }
 
     @Test
@@ -88,9 +88,9 @@ public class UserMySqlProviderTests
 
         Assertions.assertEquals(userId, actual.getId());
         Assertions.assertFalse(actual.isNew());
-        Assertions.assertEquals(userName, actual.username());
-        Assertions.assertTrue(actual.password() == null || actual.password().isEmpty());
-        Assertions.assertTrue(actual.email().isEmpty());
+        Assertions.assertEquals(userName, actual.getUsername());
+        Assertions.assertTrue(actual.getPassword() == null || actual.getPassword().isEmpty());
+        Assertions.assertTrue(actual.getEmail().isEmpty());
     }
 
     @Test
@@ -105,9 +105,9 @@ public class UserMySqlProviderTests
 
         Assertions.assertEquals(userId, actual.getId());
         Assertions.assertFalse(actual.isNew());
-        Assertions.assertEquals(userName, actual.username());
-        Assertions.assertTrue(actual.password() == null || actual.password().isEmpty());
-        Assertions.assertTrue(actual.email().isEmpty());
+        Assertions.assertEquals(userName, actual.getUsername());
+        Assertions.assertTrue(actual.getPassword() == null || actual.getPassword().isEmpty());
+        Assertions.assertTrue(actual.getEmail().isEmpty());
     }
 
     @Test
@@ -129,8 +129,8 @@ public class UserMySqlProviderTests
 
         Assertions.assertNotNull(actual);
         Assertions.assertEquals(userId, actual.getId());
-        Assertions.assertEquals(userName, actual.username());
-        Assertions.assertEquals(plainTextPassword, actual.password());
+        Assertions.assertEquals(userName, actual.getUsername());
+        Assertions.assertEquals(plainTextPassword, actual.getPassword());
     }
 
     @Test

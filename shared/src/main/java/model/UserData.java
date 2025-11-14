@@ -17,22 +17,27 @@ public class UserData
         this(registration.username(), registration.password(), registration.email());
     }
 
-    public String username() {
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getUsername() {
         return username;
     }
 
-    public String password() {
+    public String getPassword() {
         return password;
     }
 
-    public String email() {
-        return email;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
-
-    public void password(String password) {
-        this.password = password;
+    public String getEmail() {
+        return email;
     }
 }

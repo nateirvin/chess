@@ -45,7 +45,7 @@ public class ServerFacadeTests {
 
         Assertions.assertFalse(actual.authToken().isEmpty());
         Assertions.assertNotEquals(0, actual.userData().getId());
-        Assertions.assertEquals(username, actual.userData().username());
+        Assertions.assertEquals(username, actual.userData().getUsername());
     }
 
     @Test
@@ -71,7 +71,7 @@ public class ServerFacadeTests {
 
         Assertions.assertFalse(actual.authToken().isEmpty());
         Assertions.assertNotEquals(0, actual.userData().getId());
-        Assertions.assertEquals(username, actual.userData().username());
+        Assertions.assertEquals(username, actual.userData().getUsername());
     }
 
     @Test

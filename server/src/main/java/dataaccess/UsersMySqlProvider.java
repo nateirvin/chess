@@ -29,16 +29,16 @@ public class UsersMySqlProvider implements UsersDataAccess
     @Override
     public UpsertUserResult findOrCreateUser(UserData userData)
     {
-        String hashedPassword = Hasher.hash(userData.password());
+        String hashedPassword = Hasher.hash(userData.getPassword());
 
         String commandSql = "INSERT IGNORE INTO users (username, hashed_password, email) VALUES (?, ?, ?)";
         try (Connection conn = DatabaseManager.getConnection())
         {
             try (PreparedStatement command = conn.prepareStatement(commandSql, RETURN_GENERATED_KEYS))
             {
-                command.setString(1, userData.username());
+                command.setString(1, userData.getUsername());
                 command.setString(2, hashedPassword);
-                command.setString(3, userData.email() != null ? userData.email() : "");
+                command.setString(3, userData.getEmail() != null ? userData.getEmail() : "");
 
                 command.executeUpdate();
 
@@ -47,8 +47,8 @@ public class UsersMySqlProvider implements UsersDataAccess
                     userData.setId(userId);
                     return new UpsertUserResult(userData, true);
                 } else {
-                    userData = getUser(userData.username());
-                    userData.password(null);
+                    userData = getUser(userData.getUsername());
+                    userData.setPassword(null);
                     return new UpsertUserResult(userData, false);
                 }
             }
@@ -86,8 +86,8 @@ public class UsersMySqlProvider implements UsersDataAccess
                     if (rs.next()) {
                         UserData userData = readUserData(rs);
                         if(challengePassword != null) {
-                            if(BCrypt.checkpw(challengePassword, userData.password())) {
-                                userData.password(challengePassword);
+                            if(BCrypt.checkpw(challengePassword, userData.getPassword())) {
+                                userData.setPassword(challengePassword);
                                 return userData;
                             } else {
                                 return null;
