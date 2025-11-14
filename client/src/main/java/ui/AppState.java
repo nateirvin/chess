@@ -1,10 +1,11 @@
 package ui;
 
 import model.SessionData;
-import ui.menu.RegisterUserCommandHandler;
 
 public class AppState
 {
+    public static final String GUEST_USERNAME = "guest";
+
     private SessionData currentSession;
 
     public void setSession(SessionData sessionData) {
@@ -21,7 +22,7 @@ public class AppState
     {
         return userIsLoggedIn()
                 ? currentSession.userData().getUsername()
-                : RegisterUserCommandHandler.GUEST_USERNAME;
+                : GUEST_USERNAME;
     }
 
     public boolean userIsLoggedIn() {
