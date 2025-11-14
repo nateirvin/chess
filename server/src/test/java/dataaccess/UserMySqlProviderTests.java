@@ -1,5 +1,6 @@
 package dataaccess;
 
+import model.RegisterRequest;
 import model.UpsertUserResult;
 import model.UserData;
 import org.junit.jupiter.api.*;
@@ -70,7 +71,42 @@ public class UserMySqlProviderTests
         Assertions.assertEquals(userId, actual.getId());
         Assertions.assertFalse(actual.isNew());
         Assertions.assertEquals(userName, actual.username());
-        Assertions.assertEquals(plainTextPassword, actual.password());
+        Assertions.assertTrue(actual.password() == null || actual.password().isEmpty());
+        Assertions.assertTrue(actual.email().isEmpty());
+    }
+
+    @Test
+    public void findOrCreateUserReturnsExistingUserInfoIfUserAlreadyExistsForWrongPassword() throws DataAccessException, SQLException
+    {
+        String userName = "bosephus";
+        String correctPlainTextPassword = "i'm a plaintext password";
+        int userId = TestHelper.insertTestUser(userName, correctPlainTextPassword);
+        String incorrectPlainTextPassword = "bluey";
+        UserData userData = new UserData(userName, incorrectPlainTextPassword, null);
+
+        UpsertUserResult actual = classUnderTest.findOrCreateUser(userData);
+
+        Assertions.assertEquals(userId, actual.getId());
+        Assertions.assertFalse(actual.isNew());
+        Assertions.assertEquals(userName, actual.username());
+        Assertions.assertTrue(actual.password() == null || actual.password().isEmpty());
+        Assertions.assertTrue(actual.email().isEmpty());
+    }
+
+    @Test
+    public void findOrCreateUserReturnsExistingUserInfoIfUserAlreadyExistsForRegisterOverload() throws DataAccessException, SQLException
+    {
+        String userName = "bosephus";
+        String plainTextPassword = "i'm a plaintext password";
+        int userId = TestHelper.insertTestUser(userName, plainTextPassword);
+        UserData userData = new UserData(new RegisterRequest(userName, plainTextPassword, null));
+
+        UpsertUserResult actual = classUnderTest.findOrCreateUser(userData);
+
+        Assertions.assertEquals(userId, actual.getId());
+        Assertions.assertFalse(actual.isNew());
+        Assertions.assertEquals(userName, actual.username());
+        Assertions.assertTrue(actual.password() == null || actual.password().isEmpty());
         Assertions.assertTrue(actual.email().isEmpty());
     }
 

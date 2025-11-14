@@ -2,6 +2,7 @@ package dataaccess;
 
 import model.UpsertUserResult;
 import model.UserData;
+import org.jetbrains.annotations.Nullable;
 import org.mindrot.jbcrypt.BCrypt;
 import java.sql.*;
 
@@ -46,7 +47,8 @@ public class UsersMySqlProvider implements UsersDataAccess
                     userData.setId(userId);
                     return new UpsertUserResult(userData, true);
                 } else {
-                    userData = getUser(userData.username(), userData.password());
+                    userData = getUser(userData.username());
+                    userData.password(null);
                     return new UpsertUserResult(userData, false);
                 }
             }
@@ -60,6 +62,17 @@ public class UsersMySqlProvider implements UsersDataAccess
     @Override
     public UserData getUser(String username, String challengePassword)
     {
+        assert challengePassword != null;
+        return getUserInternal(username, challengePassword);
+    }
+
+    private UserData getUser(String username)
+    {
+        return getUserInternal(username, null);
+    }
+
+    @Nullable
+    private static UserData getUserInternal(String username, String challengePassword) {
         try (Connection conn = DatabaseManager.getConnection()) {
             var querySql =
                 """
@@ -71,7 +84,17 @@ public class UsersMySqlProvider implements UsersDataAccess
                 command.setString(1, username);
                 try (ResultSet rs = command.executeQuery()) {
                     if (rs.next()) {
-                        return readUserData(rs, challengePassword);
+                        UserData userData = readUserData(rs);
+                        if(challengePassword != null) {
+                            if(BCrypt.checkpw(challengePassword, userData.password())) {
+                                userData.password(challengePassword);
+                                return userData;
+                            } else {
+                                return null;
+                            }
+                        } else {
+                            return userData;
+                        }
                     }
                 }
             }
@@ -82,20 +105,15 @@ public class UsersMySqlProvider implements UsersDataAccess
         return null;
     }
 
-    private static UserData readUserData(ResultSet resultSet, String challengePassword) throws SQLException
+    private static UserData readUserData(ResultSet resultSet) throws SQLException
     {
-        UserData userData = null;
+        int userId = resultSet.getInt(1);
+        String username = resultSet.getString(2);
+        String hashedPassword = resultSet.getString(3);
+        String email = resultSet.getString(4);
 
-        String actualPassword = resultSet.getString(3);
-        if(BCrypt.checkpw(challengePassword, actualPassword))
-        {
-            int userId = resultSet.getInt(1);
-            String username = resultSet.getString(2);
-            String email = resultSet.getString(4);
-
-            userData = new UserData(username, challengePassword, email);
-            userData.setId(userId);
-        }
+        UserData userData = new UserData(username, hashedPassword, email);
+        userData.setId(userId);
 
         return userData;
     }
