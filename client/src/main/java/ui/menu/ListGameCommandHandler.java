@@ -1,4 +1,6 @@
-package ui;
+package ui.menu;
+
+import ui.GameListDisplay;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;

@@ -1,4 +1,6 @@
 import ui.*;
+import ui.menu.MenuCommandHandler;
+import ui.menu.MenuCommandHandlerFactory;
 import util.SerializerFactory;
 import java.util.logging.*;
 
@@ -56,7 +58,7 @@ public class Main
             String errorMessage = command.execute(consoleReader.allButFirstToken());
 
             if (errorMessage != null) {
-                InvalidMenuCommandHandler.print(errorMessage);
+                ErrorRenderer.print(errorMessage);
             }
         }
     }

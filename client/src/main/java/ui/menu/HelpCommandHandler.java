@@ -1,4 +1,4 @@
-package ui;
+package ui.menu;
 
 public abstract class HelpCommandHandler implements MenuCommandHandler
 {

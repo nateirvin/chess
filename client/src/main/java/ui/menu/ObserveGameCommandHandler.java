@@ -1,8 +1,11 @@
-package ui;
+package ui.menu;
 
 import chess.ChessGame;
 import model.GameData;
 import model.UserEntryResult;
+import ui.ChessBoardRenderer;
+import ui.ColorScheme;
+import ui.GameListDisplay;
 
 public class ObserveGameCommandHandler extends GameScopedCommandHandler implements MenuCommandHandler
 {

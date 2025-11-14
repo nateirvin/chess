@@ -1,7 +1,10 @@
-package ui;
+package ui.menu;
 
 import chess.ChessGame;
 import model.UserEntryResult;
+import ui.AppState;
+import ui.GameListDisplay;
+import ui.ServerFacade;
 
 import java.net.ConnectException;
 import java.util.logging.Level;

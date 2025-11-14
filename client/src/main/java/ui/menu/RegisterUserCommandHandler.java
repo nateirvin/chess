@@ -1,6 +1,8 @@
-package ui;
+package ui.menu;
 
 import model.SessionData;
+import ui.AppState;
+import ui.ServerFacade;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.util.logging.Level;
@@ -8,8 +10,6 @@ import java.util.logging.Logger;
 
 public class RegisterUserCommandHandler implements MenuCommandHandler
 {
-    public static final String GUEST_USERNAME = "guest";
-
     private final AppState appState;
     private final Logger logger;
     private final ServerFacade serverFacade;
@@ -32,7 +32,7 @@ public class RegisterUserCommandHandler implements MenuCommandHandler
                 email = arguments[2];
             }
 
-            if(userName.equalsIgnoreCase(GUEST_USERNAME)) {
+            if(userName.equalsIgnoreCase(AppState.GUEST_USERNAME)) {
                 return "This username is reserved and cannot be used.";
             }
 

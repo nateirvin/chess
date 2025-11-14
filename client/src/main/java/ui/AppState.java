@@ -4,6 +4,8 @@ import model.SessionData;
 
 public class AppState
 {
+    public static final String GUEST_USERNAME = "guest";
+
     private SessionData currentSession;
 
     public void setSession(SessionData sessionData) {
@@ -16,18 +18,11 @@ public class AppState
         this.currentSession = sessionData;
     }
 
-    public Integer getUserID() {
-        if(userIsLoggedIn()) {
-            return currentSession.userData().getId();
-        }
-        return null;
-    }
-
     public String currentUsername()
     {
         return userIsLoggedIn()
                 ? currentSession.userData().getUsername()
-                : RegisterUserCommandHandler.GUEST_USERNAME;
+                : GUEST_USERNAME;
     }
 
     public boolean userIsLoggedIn() {

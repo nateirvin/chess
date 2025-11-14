@@ -1,4 +1,6 @@
-package ui;
+package ui.menu;
+
+import ui.*;
 
 import java.io.IOException;
 import java.net.ConnectException;

@@ -1,4 +1,4 @@
-package ui;
+package ui.menu;
 
 public class PreloginHelpCommandHandler extends HelpCommandHandler {
     @Override
