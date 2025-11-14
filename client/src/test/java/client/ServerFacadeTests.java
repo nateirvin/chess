@@ -94,6 +94,13 @@ public class ServerFacadeTests {
         SessionData session = classUnderTest.registerUser(username, plainTextPassword, "zark@start.com");
 
         classUnderTest.logoutUser(session.authToken());
+
+        //assert that the auth token is no longer valid
+        try {
+            classUnderTest.getAllGames(session.authToken());
+        } catch(HttpFailureException actualException) {
+            Assertions.assertEquals(401, actualException.getStatusCode());
+        }
     }
 
     @Test
@@ -116,6 +123,9 @@ public class ServerFacadeTests {
         String gameName = UUID.randomUUID().toString();
 
         classUnderTest.createGame(session.authToken(), gameName);
+
+        ArrayList<GameData> allGames = classUnderTest.getAllGames(session.authToken());
+        Assertions.assertEquals(1, allGames.stream().filter(g -> g.gameName().equals(gameName)).count());
     }
 
     @Test
@@ -197,6 +207,7 @@ public class ServerFacadeTests {
     }
 
     @Test
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
     public void joinGameWorks() throws IOException, InterruptedException, HttpFailureException
     {
         String username = UUID.randomUUID().toString();
@@ -205,5 +216,9 @@ public class ServerFacadeTests {
         GameData gameData = classUnderTest.createGame(session.authToken(), UUID.randomUUID().toString());
 
         classUnderTest.joinGame(gameData.gameID(), session, ChessGame.TeamColor.BLACK);
+
+        ArrayList<GameData> allGames = classUnderTest.getAllGames(session.authToken());
+        GameData actualGame = allGames.stream().filter(g -> g.gameID() == gameData.gameID()).findFirst().get();
+        Assertions.assertEquals(username, actualGame.blackUsername());
     }
 }
