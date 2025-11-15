@@ -34,11 +34,23 @@ public class JoinGameCommandHandler extends GameScopedCommandHandler implements 
             }
             int gameNumber = gameNumberResult.getValue();
             GameData game = displayer.getGameByNumber(gameNumber);
+            if (game == null) {
+                return "No such game.";
+            }
 
             if(!colorResult.success()) {
                 return colorResult.getErrorMessage();
             }
             ChessGame.TeamColor color = colorResult.getValue();
+
+            String currentUserName = game.usernameFor(color);
+            if(currentUserName != null) {
+                if(currentUserName.equals(appState.currentUsername())) {
+                    return "You have already joined this game as this player.";
+                } else {
+                    return "You cannot join this game as that player.";
+                }
+            }
 
             try {
                 serverFacade.joinGame(game.gameID(), appState.getSession(), color);
@@ -51,6 +63,8 @@ public class JoinGameCommandHandler extends GameScopedCommandHandler implements 
             }
 
             System.out.println("Joined!");
+            assert appState.userIsLoggedIn();
+            game.setPlayer(color, appState.currentUsername());
 
             ChessBoardRenderer renderer = new ChessBoardRenderer(ColorScheme.example());
             renderer.render(game.getGame().getBoard(), color);

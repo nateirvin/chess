@@ -18,7 +18,10 @@ public class GameListAccessor {
     private ArrayList<GameData> games;
 
     public GameData getGameByNumber(int number) {
-        return getGames().get(number - 1);
+        if(number >= 1 && number <= games.size()) {
+            return getGames().get(number - 1);
+        }
+        return null;
     }
 
     protected ArrayList<GameData> loadGames() {

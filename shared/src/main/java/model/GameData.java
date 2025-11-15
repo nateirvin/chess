@@ -49,4 +49,23 @@ public class GameData
 
     public ChessGame getGame() { return game; }
     public void setGame(ChessGame game) { this.game = game; }
+
+    public String usernameFor(ChessGame.TeamColor teamColor) {
+        if(teamColor == ChessGame.TeamColor.WHITE) {
+            return whiteUsername;
+        } else if(teamColor == ChessGame.TeamColor.BLACK) {
+            return blackUsername;
+        }
+        return null;
+    }
+
+    public void setPlayer(ChessGame.TeamColor teamColor, String username) {
+        if(teamColor == ChessGame.TeamColor.WHITE) {
+            this.whiteUsername = username;
+        } else if(teamColor == ChessGame.TeamColor.BLACK) {
+            this.blackUsername = username;
+        } else {
+            throw new UnsupportedOperationException();
+        }
+    }
 }
