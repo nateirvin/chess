@@ -1,10 +1,9 @@
 package ui.menu;
 
 import chess.ChessGame;
+import model.GameData;
 import model.UserEntryResult;
-import ui.AppState;
-import ui.GameListDisplay;
-import ui.ServerFacade;
+import ui.*;
 
 import java.net.ConnectException;
 import java.util.logging.Level;
@@ -33,16 +32,28 @@ public class JoinGameCommandHandler extends GameScopedCommandHandler implements 
             if(!gameNumberResult.success()) {
                 return gameNumberResult.getErrorMessage();
             }
+            int gameNumber = gameNumberResult.getValue();
+            GameData game = displayer.getGameByNumber(gameNumber);
+            if (game == null) {
+                return "No such game.";
+            }
+
             if(!colorResult.success()) {
                 return colorResult.getErrorMessage();
             }
+            ChessGame.TeamColor color = colorResult.getValue();
 
-            String errorMessage;
+            String currentUserName = game.usernameFor(color);
+            if(currentUserName != null) {
+                if(currentUserName.equals(appState.currentUsername())) {
+                    return "You have already joined this game as this player.";
+                } else {
+                    return "You cannot join this game as that player.";
+                }
+            }
 
             try {
-                int gameId = gameNumberResult.getValue();
-                ChessGame.TeamColor color = colorResult.getValue();
-                serverFacade.joinGame(gameId, appState.getSession(), color);
+                serverFacade.joinGame(game.gameID(), appState.getSession(), color);
             } catch(ConnectException e) {
                 logger.log(Level.INFO, "Cannot connect", e);
                 return "Game server cannot be reached.";
@@ -52,8 +63,11 @@ public class JoinGameCommandHandler extends GameScopedCommandHandler implements 
             }
 
             System.out.println("Joined!");
-            System.out.println();
-            displayer.showGamesList();
+            assert appState.userIsLoggedIn();
+            game.setPlayer(color, appState.currentUsername());
+
+            ChessBoardRenderer renderer = new ChessBoardRenderer(ColorScheme.example());
+            renderer.render(game.getGame().getBoard(), color);
 
             return null;
         } else {

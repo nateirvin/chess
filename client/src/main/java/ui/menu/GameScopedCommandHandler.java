@@ -14,10 +14,9 @@ public class GameScopedCommandHandler {
         try
         {
             int gameNumber = Integer.parseInt(rawValue);
-            int gameId = displayer.getGameIdFromNumber(gameNumber);
-            return new UserEntryResult<>(gameId);
+            return new UserEntryResult<>(gameNumber);
         }
-        catch(NumberFormatException | IndexOutOfBoundsException ex)
+        catch(NumberFormatException ex)
         {
             return new UserEntryResult<>("Not a valid game number");
         }
