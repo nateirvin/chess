@@ -2,9 +2,8 @@ package client;
 
 import chess.ChessBoard;
 import chess.ChessGame;
+import model.AuthData;
 import model.GameData;
-import model.SessionData;
-import model.UserData;
 import org.junit.jupiter.api.*;
 import server.Server;
 import ui.HttpFailureException;
@@ -41,11 +40,11 @@ public class ServerFacadeTests {
         String plainTextPassword = UUID.randomUUID().toString();
         String email = "zam@zam.net";
 
-        SessionData actual = classUnderTest.registerUser(username, plainTextPassword, email);
+        AuthData actual = classUnderTest.registerUser(username, plainTextPassword, email);
 
         Assertions.assertFalse(actual.authToken().isEmpty());
-        Assertions.assertNotEquals(0, actual.userData().getId());
-        Assertions.assertEquals(username, actual.userData().getUsername());
+        Assertions.assertNotEquals(0, actual.userId());
+        Assertions.assertEquals(username, actual.username());
     }
 
     @Test
@@ -55,7 +54,7 @@ public class ServerFacadeTests {
         String plainTextPassword = UUID.randomUUID().toString();
         classUnderTest.registerUser(username, plainTextPassword, "");
 
-        SessionData actual = classUnderTest.registerUser(username, plainTextPassword, "");
+        AuthData actual = classUnderTest.registerUser(username, plainTextPassword, "");
 
         Assertions.assertNull(actual);
     }
@@ -67,11 +66,11 @@ public class ServerFacadeTests {
         String plainTextPassword = UUID.randomUUID().toString();
         classUnderTest.registerUser(username, plainTextPassword, null);
 
-        SessionData actual = classUnderTest.loginUser(username, plainTextPassword);
+        AuthData actual = classUnderTest.loginUser(username, plainTextPassword);
 
         Assertions.assertFalse(actual.authToken().isEmpty());
-        Assertions.assertNotEquals(0, actual.userData().getId());
-        Assertions.assertEquals(username, actual.userData().getUsername());
+        Assertions.assertNotEquals(0, actual.userId());
+        Assertions.assertEquals(username, actual.username());
     }
 
     @Test
@@ -81,7 +80,7 @@ public class ServerFacadeTests {
         String plainTextPassword = UUID.randomUUID().toString();
         classUnderTest.registerUser(username, plainTextPassword, null);
 
-        SessionData actual = classUnderTest.loginUser(username, "incorrect");
+        AuthData actual = classUnderTest.loginUser(username, "incorrect");
 
         Assertions.assertNull(actual);
     }
@@ -91,7 +90,7 @@ public class ServerFacadeTests {
     {
         String username = UUID.randomUUID().toString();
         String plainTextPassword = UUID.randomUUID().toString();
-        SessionData session = classUnderTest.registerUser(username, plainTextPassword, "zark@start.com");
+        AuthData session = classUnderTest.registerUser(username, plainTextPassword, "zark@start.com");
 
         classUnderTest.logoutUser(session.authToken());
 
@@ -119,7 +118,7 @@ public class ServerFacadeTests {
     {
         String username = UUID.randomUUID().toString();
         String plainTextPassword = UUID.randomUUID().toString();
-        SessionData session = classUnderTest.registerUser(username, plainTextPassword, "zark@start.com");
+        AuthData session = classUnderTest.registerUser(username, plainTextPassword, "zark@start.com");
         String gameName = UUID.randomUUID().toString();
 
         classUnderTest.createGame(session.authToken(), gameName);
@@ -148,7 +147,7 @@ public class ServerFacadeTests {
     {
         String username = UUID.randomUUID().toString();
         String plainTextPassword = UUID.randomUUID().toString();
-        SessionData session = classUnderTest.registerUser(username, plainTextPassword, "zark@start.com");
+        AuthData session = classUnderTest.registerUser(username, plainTextPassword, "zark@start.com");
         String authToken = session.authToken();
         String gameName1 = UUID.randomUUID().toString();
         classUnderTest.createGame(authToken, gameName1);
@@ -166,7 +165,7 @@ public class ServerFacadeTests {
     {
         String username = UUID.randomUUID().toString();
         String plainTextPassword = UUID.randomUUID().toString();
-        SessionData session = classUnderTest.registerUser(username, plainTextPassword, "zark@start.com");
+        AuthData session = classUnderTest.registerUser(username, plainTextPassword, "zark@start.com");
         String authToken = session.authToken();
         String gameName1 = UUID.randomUUID().toString();
         String gameName2 = UUID.randomUUID().toString();
@@ -196,7 +195,7 @@ public class ServerFacadeTests {
     @Test
     public void joinGameThrowsExceptionIfInputsInvalid() throws IOException, InterruptedException
     {
-        SessionData session = new SessionData("", new UserData("", "", ""));
+        AuthData session = new AuthData("", 0, "");
 
         try {
             classUnderTest.joinGame(0, session, ChessGame.TeamColor.WHITE);
@@ -212,7 +211,7 @@ public class ServerFacadeTests {
     {
         String username = UUID.randomUUID().toString();
         String plainTextPassword = UUID.randomUUID().toString();
-        SessionData session = classUnderTest.registerUser(username, plainTextPassword, "zark@start.com");
+        AuthData session = classUnderTest.registerUser(username, plainTextPassword, "zark@start.com");
         GameData gameData = classUnderTest.createGame(session.authToken(), UUID.randomUUID().toString());
 
         classUnderTest.joinGame(gameData.gameID(), session, ChessGame.TeamColor.BLACK);

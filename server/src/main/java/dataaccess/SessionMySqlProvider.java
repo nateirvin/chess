@@ -52,7 +52,7 @@ public class SessionMySqlProvider implements SessionDataAccess
         }
 
         AuthData authData = getSession(authToken);
-        return new AuthData(authToken, username, authData.userId());
+        return new AuthData(authToken, authData.userId(), username);
     }
 
     @Override
@@ -76,7 +76,7 @@ public class SessionMySqlProvider implements SessionDataAccess
                 {
                     if (rs.next())
                     {
-                        return new AuthData(authToken, rs.getString(2), rs.getInt(1));
+                        return new AuthData(authToken, rs.getInt(1), rs.getString(2));
                     }
                 }
             }

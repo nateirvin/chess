@@ -1,43 +1,43 @@
 package ui;
 
-import model.SessionData;
+import model.AuthData;
 
 public class AppState
 {
     public static final String GUEST_USERNAME = "guest";
 
-    private SessionData currentSession;
+    private AuthData userSession;
 
-    public void setSession(SessionData sessionData) {
-        if(sessionData == null) {
+    public void setSession(AuthData userSession) {
+        if(userSession == null) {
             throw new IllegalArgumentException();
         }
         if(userIsLoggedIn()) {
             throw new IllegalStateException("You must enter the previous session before assigning a new one.");
         }
-        this.currentSession = sessionData;
+        this.userSession = userSession;
     }
 
     public String currentUsername()
     {
         return userIsLoggedIn()
-                ? currentSession.userData().getUsername()
+                ? userSession.username()
                 : GUEST_USERNAME;
     }
 
     public boolean userIsLoggedIn() {
-        return currentSession != null;
+        return userSession != null;
     }
 
     public String getAuthToken() {
-        return currentSession.authToken();
+        return userSession.authToken();
     }
 
-    public SessionData getSession() {
-        return currentSession;
+    public AuthData getSession() {
+        return userSession;
     }
 
     public void endSession() {
-        currentSession = null;
+        userSession = null;
     }
 }

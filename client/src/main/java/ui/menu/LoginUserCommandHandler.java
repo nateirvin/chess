@@ -1,6 +1,6 @@
 package ui.menu;
 
-import model.SessionData;
+import model.AuthData;
 import ui.AppState;
 import ui.ServerFacade;
 
@@ -36,7 +36,7 @@ public class LoginUserCommandHandler implements MenuCommandHandler
             return "Invalid arguments";
         }
 
-        SessionData sessionData;
+        AuthData sessionData;
         try {
             sessionData = serverFacade.loginUser(username, plainTextPassword);
         } catch(ConnectException e) {

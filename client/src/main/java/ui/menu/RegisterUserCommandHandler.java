@@ -1,6 +1,6 @@
 package ui.menu;
 
-import model.SessionData;
+import model.AuthData;
 import ui.AppState;
 import ui.ServerFacade;
 import java.io.IOException;
@@ -36,7 +36,7 @@ public class RegisterUserCommandHandler implements MenuCommandHandler
                 return "This username is reserved and cannot be used.";
             }
 
-            SessionData registrationResult;
+            AuthData registrationResult;
             try {
                 registrationResult = serverFacade.registerUser(userName, plainTextPassword, email);
             } catch(ConnectException e) {
