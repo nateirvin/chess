@@ -45,17 +45,17 @@ public class MenuCommandHandlerFactory
         switch (commandName.toLowerCase()) {
             case "register" -> {
                 if (!isSecured) {
-                    return new RegisterUserCommandHandler(appState, logger, serverFacade);
+                    return new RegisterUserCommandHandler(appState, logger, serverFacade, mainRenderer);
                 }
             }
             case "login" -> {
                 if (!isSecured) {
-                    return new LoginUserCommandHandler(appState, logger, serverFacade);
+                    return new LoginUserCommandHandler(appState, logger, serverFacade, mainRenderer);
                 }
             }
             case "logout" -> {
                 if(isSecured) {
-                    return new LogoutUserCommandHandler(appState, logger, serverFacade);
+                    return new LogoutUserCommandHandler(appState, logger, serverFacade, mainRenderer);
                 }
             }
             case "create" -> {

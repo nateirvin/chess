@@ -36,7 +36,7 @@ public class Main
         catch (Exception e)
         {
             logger.log(Level.SEVERE, "Critical failure", e);
-            System.out.println("A critical error has occurred.");
+            render.error("A critical error has occurred; the app will have to stop.");
         }
     }
 

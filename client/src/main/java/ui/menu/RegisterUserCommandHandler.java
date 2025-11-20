@@ -1,6 +1,7 @@
 package ui.menu;
 
 import model.AuthData;
+import ui.BufferedRenderer;
 import ui.data.AppState;
 import ui.data.ServerFacade;
 import java.io.IOException;
@@ -13,11 +14,15 @@ public class RegisterUserCommandHandler implements MenuCommandHandler
     private final AppState appState;
     private final Logger logger;
     private final ServerFacade serverFacade;
+    private final BufferedRenderer render;
 
-    public RegisterUserCommandHandler(AppState appState, Logger logger, ServerFacade serverFacade) {
+    public RegisterUserCommandHandler(AppState appState, Logger logger, ServerFacade serverFacade,
+                                      BufferedRenderer render)
+    {
         this.appState = appState;
         this.logger = logger;
         this.serverFacade = serverFacade;
+        this.render = render;
     }
 
     @Override
@@ -51,9 +56,7 @@ public class RegisterUserCommandHandler implements MenuCommandHandler
             }
 
             appState.setSession(registrationResult);
-
-            System.out.println("You are registered and logged in!");
-            System.out.println();
+            render.userActionComplete("You are registered and logged in!");
 
             return null;
         }

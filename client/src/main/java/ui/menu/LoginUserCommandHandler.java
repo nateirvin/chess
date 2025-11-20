@@ -1,6 +1,7 @@
 package ui.menu;
 
 import model.AuthData;
+import ui.BufferedRenderer;
 import ui.data.AppState;
 import ui.data.ServerFacade;
 
@@ -14,11 +15,14 @@ public class LoginUserCommandHandler implements MenuCommandHandler
     private final AppState appState;
     private final Logger logger;
     private final ServerFacade serverFacade;
+    private final BufferedRenderer render;
 
-    public LoginUserCommandHandler(AppState appState, Logger logger, ServerFacade serverFacade) {
+    public LoginUserCommandHandler(AppState appState, Logger logger, ServerFacade serverFacade, BufferedRenderer render)
+    {
         this.appState = appState;
         this.logger = logger;
         this.serverFacade = serverFacade;
+        this.render = render;
     }
 
     @Override
@@ -51,9 +55,7 @@ public class LoginUserCommandHandler implements MenuCommandHandler
         }
 
         appState.setSession(sessionData);
-
-        System.out.println("Login successful!");
-        System.out.println();
+        render.userActionComplete("Login successful!");
 
         return null;
     }

@@ -1,8 +1,8 @@
 package ui.menu;
 
+import ui.BufferedRenderer;
 import ui.data.AppState;
 import ui.data.ServerFacade;
-
 import java.io.IOException;
 import java.net.ConnectException;
 import java.util.logging.Level;
@@ -12,11 +12,15 @@ public class LogoutUserCommandHandler implements MenuCommandHandler {
     private final AppState appState;
     private final Logger logger;
     private final ServerFacade serverFacade;
+    private final BufferedRenderer render;
 
-    public LogoutUserCommandHandler(AppState appState, Logger logger, ServerFacade serverFacade) {
+    public LogoutUserCommandHandler(AppState appState, Logger logger, ServerFacade serverFacade,
+                                    BufferedRenderer render)
+    {
         this.appState = appState;
         this.logger = logger;
         this.serverFacade = serverFacade;
+        this.render = render;
     }
 
     @Override
@@ -33,9 +37,7 @@ public class LogoutUserCommandHandler implements MenuCommandHandler {
         }
 
         appState.endSession();
-
-        System.out.println("You have been logged out.");
-        System.out.println();
+        render.userActionComplete("You have been logged out.");
 
         return null;
     }
