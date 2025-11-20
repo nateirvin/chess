@@ -18,6 +18,19 @@ public class BufferedRenderer {
         System.out.println();
     }
 
+    public void helpMenuStart() {
+        System.out.println();
+        System.out.println("Available commands:");
+    }
+
+    public void helpMenuItem(String commandPattern, String explanation) {
+        System.out.printf("  %s : %s%n", commandPattern, explanation);
+    }
+
+    public void helpMenuEnd() {
+        System.out.println();
+    }
+
     public void board(ChessBoard board, ChessGame.TeamColor viewerColor) {
         boardRenderer.render(board, viewerColor);
     }

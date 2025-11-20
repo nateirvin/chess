@@ -79,9 +79,9 @@ public class MenuCommandHandlerFactory
             }
             case "help" -> {
                 if(isSecured) {
-                    return new PostloginHelpCommandHandler();
+                    return new PostloginHelpCommandHandler(mainRenderer);
                 }
-                return new PreloginHelpCommandHandler();
+                return new PreloginHelpCommandHandler(mainRenderer);
             }
             case "quit", "exit" -> {
                 return null;

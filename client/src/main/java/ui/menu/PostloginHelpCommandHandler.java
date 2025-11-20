@@ -1,13 +1,19 @@
 package ui.menu;
 
+import ui.BufferedRenderer;
+
 public class PostloginHelpCommandHandler extends HelpCommandHandler
 {
+    public PostloginHelpCommandHandler(BufferedRenderer render) {
+        super(render);
+    }
+
     @Override
     protected void printCommands() {
-        System.out.println("  create <game_name> : start a new game");
-        System.out.println("  list : list all the games");
-        System.out.println("  observe <game_id> : watch a game");
-        System.out.println("  join <game_id> <white|black> : join a game as a player");
-        System.out.println("  logout : disconnect from game server for now");
+        render.helpMenuItem("create <game_name>", "start a new game");
+        render.helpMenuItem("list", "list all the games");
+        render.helpMenuItem("observe <game_id>", "watch a game");
+        render.helpMenuItem("join <game_id> <white|black>", "join a game as a player");
+        render.helpMenuItem("logout", "disconnect from game server for now");
     }
 }
