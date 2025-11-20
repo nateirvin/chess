@@ -3,14 +3,17 @@ package ui.menu;
 import chess.ChessGame;
 import model.GameData;
 import model.UserEntryResult;
-import ui.ChessBoardRenderer;
-import ui.ColorScheme;
-import ui.GameListRenderer;
+import ui.BufferedRenderer;
+import ui.data.GameListAccessor;
 
 public class ObserveGameCommandHandler extends GameScopedCommandHandler implements MenuCommandHandler
 {
-    public ObserveGameCommandHandler(GameListRenderer displayer) {
-        super(displayer);
+    private final GameListAccessor gameListAccessor;
+    private final BufferedRenderer render;
+
+    public ObserveGameCommandHandler(GameListAccessor gameListAccessor, BufferedRenderer render) {
+        this.gameListAccessor = gameListAccessor;
+        this.render = render;
     }
 
     @Override
@@ -25,13 +28,12 @@ public class ObserveGameCommandHandler extends GameScopedCommandHandler implemen
             return gameNumberResult.getErrorMessage();
         }
 
-        GameData game = displayer.getGameByNumber(gameNumberResult.getValue());
+        GameData game = gameListAccessor.getGameByNumber(gameNumberResult.getValue());
         if(game == null) {
             return "No such game.";
         }
 
-        ChessBoardRenderer renderer = new ChessBoardRenderer(ColorScheme.example());
-        renderer.render(game.getGame().getBoard(), ChessGame.TeamColor.WHITE);
+        render.board(game.getGame().getBoard(), ChessGame.TeamColor.WHITE);
 
         return null;
     }

@@ -70,12 +70,12 @@ public class MenuCommandHandlerFactory
             }
             case "observe" -> {
                 if(isSecured) {
-                    return new ObserveGameCommandHandler(displayer);
+                    return new ObserveGameCommandHandler(displayer, mainRenderer);
                 }
             }
             case "join" -> {
                 if(isSecured) {
-                    return new JoinGameCommandHandler(appState, logger, serverFacade, displayer);
+                    return new JoinGameCommandHandler(appState, logger, serverFacade, displayer, mainRenderer);
                 }
             }
             case "help" -> {
