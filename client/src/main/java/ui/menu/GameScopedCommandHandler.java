@@ -1,12 +1,12 @@
 package ui.menu;
 
 import model.UserEntryResult;
-import ui.GameListDisplay;
+import ui.GameListRenderer;
 
 public class GameScopedCommandHandler {
-    protected final GameListDisplay displayer;
+    protected final GameListRenderer displayer;
 
-    public GameScopedCommandHandler(GameListDisplay displayer) {
+    public GameScopedCommandHandler(GameListRenderer displayer) {
         this.displayer = displayer;
     }
 

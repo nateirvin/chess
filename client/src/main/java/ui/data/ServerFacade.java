@@ -1,8 +1,9 @@
-package ui;
+package ui.data;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
 import model.*;
+
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -183,6 +184,6 @@ public class ServerFacade implements Closeable
     @Override
     public void close() throws IOException {
         httpClient.close();
-        httpClient= null;
+        httpClient = null;
     }
 }

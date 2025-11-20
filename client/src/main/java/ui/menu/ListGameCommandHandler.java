@@ -1,15 +1,15 @@
 package ui.menu;
 
-import ui.GameListDisplay;
+import ui.GameListRenderer;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ListGameCommandHandler implements MenuCommandHandler {
     private final Logger logger;
-    private final GameListDisplay displayer;
+    private final GameListRenderer displayer;
 
-    public ListGameCommandHandler(Logger logger, GameListDisplay displayer) {
+    public ListGameCommandHandler(Logger logger, GameListRenderer displayer) {
         this.logger = logger;
         this.displayer = displayer;
     }

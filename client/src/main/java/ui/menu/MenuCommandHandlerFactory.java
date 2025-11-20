@@ -1,8 +1,8 @@
 package ui.menu;
 
-import ui.AppState;
-import ui.GameListDisplay;
-import ui.ServerFacade;
+import ui.data.AppState;
+import ui.GameListRenderer;
+import ui.data.ServerFacade;
 
 import java.util.logging.Logger;
 
@@ -11,9 +11,9 @@ public class MenuCommandHandlerFactory
     private final AppState appState;
     private final Logger logger;
     private final ServerFacade serverFacade;
-    private final GameListDisplay displayer;
+    private final GameListRenderer displayer;
 
-    public MenuCommandHandlerFactory(AppState appState, Logger logger, ServerFacade serverFacade, GameListDisplay displayer)
+    public MenuCommandHandlerFactory(AppState appState, Logger logger, ServerFacade serverFacade, GameListRenderer displayer)
     {
         this.appState = appState;
         this.logger = logger;

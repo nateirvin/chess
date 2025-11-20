@@ -1,7 +1,7 @@
 package ui.menu;
 
-import ui.AppState;
-import ui.ServerFacade;
+import ui.data.AppState;
+import ui.data.ServerFacade;
 
 import java.io.IOException;
 import java.net.ConnectException;

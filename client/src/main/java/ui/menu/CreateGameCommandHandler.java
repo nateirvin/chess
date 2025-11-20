@@ -1,6 +1,9 @@
 package ui.menu;
 
 import ui.*;
+import ui.data.AppState;
+import ui.data.HttpFailureException;
+import ui.data.ServerFacade;
 
 import java.io.IOException;
 import java.net.ConnectException;
@@ -12,9 +15,9 @@ public class CreateGameCommandHandler implements MenuCommandHandler
     private final AppState appState;
     private final Logger logger;
     private final ServerFacade serverFacade;
-    private final GameListDisplay displayer;
+    private final GameListRenderer displayer;
 
-    public CreateGameCommandHandler(AppState appState, Logger logger, ServerFacade serverFacade, GameListDisplay displayer) {
+    public CreateGameCommandHandler(AppState appState, Logger logger, ServerFacade serverFacade, GameListRenderer displayer) {
         this.appState = appState;
         this.logger = logger;
         this.serverFacade = serverFacade;

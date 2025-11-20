@@ -1,9 +1,12 @@
 package ui;
 
 import model.GameData;
+import ui.data.AppState;
+import ui.data.GameListAccessor;
+import ui.data.ServerFacade;
 
-public class GameListDisplay extends GameListAccessor {
-    public GameListDisplay(AppState appState, ServerFacade serverFacade) {
+public class GameListRenderer extends GameListAccessor {
+    public GameListRenderer(AppState appState, ServerFacade serverFacade) {
         super(appState, serverFacade);
     }
 

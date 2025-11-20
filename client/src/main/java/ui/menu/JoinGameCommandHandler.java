@@ -4,6 +4,8 @@ import chess.ChessGame;
 import model.GameData;
 import model.UserEntryResult;
 import ui.*;
+import ui.data.AppState;
+import ui.data.ServerFacade;
 
 import java.net.ConnectException;
 import java.util.logging.Level;
@@ -15,7 +17,7 @@ public class JoinGameCommandHandler extends GameScopedCommandHandler implements 
     private final Logger logger;
     private final ServerFacade serverFacade;
 
-    public JoinGameCommandHandler(AppState appState, Logger logger, ServerFacade serverFacade, GameListDisplay displayer)
+    public JoinGameCommandHandler(AppState appState, Logger logger, ServerFacade serverFacade, GameListRenderer displayer)
     {
         super(displayer);
         this.appState = appState;

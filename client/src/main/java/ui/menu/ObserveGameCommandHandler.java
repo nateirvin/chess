@@ -5,11 +5,11 @@ import model.GameData;
 import model.UserEntryResult;
 import ui.ChessBoardRenderer;
 import ui.ColorScheme;
-import ui.GameListDisplay;
+import ui.GameListRenderer;
 
 public class ObserveGameCommandHandler extends GameScopedCommandHandler implements MenuCommandHandler
 {
-    public ObserveGameCommandHandler(GameListDisplay displayer) {
+    public ObserveGameCommandHandler(GameListRenderer displayer) {
         super(displayer);
     }
 

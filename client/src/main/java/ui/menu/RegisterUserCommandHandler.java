@@ -1,8 +1,8 @@
 package ui.menu;
 
 import model.AuthData;
-import ui.AppState;
-import ui.ServerFacade;
+import ui.data.AppState;
+import ui.data.ServerFacade;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.util.logging.Level;

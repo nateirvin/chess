@@ -1,4 +1,4 @@
-package ui;
+package ui.data;
 
 import model.AuthData;
 
@@ -13,7 +13,7 @@ public class AppState
             throw new IllegalArgumentException();
         }
         if(userIsLoggedIn()) {
-            throw new IllegalStateException("You must enter the previous session before assigning a new one.");
+            throw new IllegalStateException("You must end the previous session before assigning a new one.");
         }
         this.userSession = userSession;
     }
