@@ -69,10 +69,10 @@ public class JoinGameCommandHandler extends GameScopedCommandHandler implements 
                 return "Failed to join game.";
             }
 
-            System.out.println("Joined!");
             assert appState.userIsLoggedIn();
             game.setPlayer(color, appState.currentUsername());
 
+            render.userActionComplete("Joined!");
             render.board(game.getGame().getBoard(), color);
 
             return null;
