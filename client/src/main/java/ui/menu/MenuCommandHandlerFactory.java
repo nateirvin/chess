@@ -1,5 +1,6 @@
 package ui.menu;
 
+import ui.BufferedRenderer;
 import ui.data.AppState;
 import ui.GameListRenderer;
 import ui.data.ServerFacade;
@@ -12,13 +13,16 @@ public class MenuCommandHandlerFactory
     private final Logger logger;
     private final ServerFacade serverFacade;
     private final GameListRenderer displayer;
+    private final BufferedRenderer mainRenderer;
 
-    public MenuCommandHandlerFactory(AppState appState, Logger logger, ServerFacade serverFacade, GameListRenderer displayer)
+    public MenuCommandHandlerFactory(AppState appState, Logger logger, ServerFacade serverFacade,
+                                     GameListRenderer displayer, BufferedRenderer mainRenderer)
     {
         this.appState = appState;
         this.logger = logger;
         this.serverFacade = serverFacade;
         this.displayer = displayer;
+        this.mainRenderer = mainRenderer;
     }
 
     public MenuCommandHandler getPreLoginCommand(String commandName)
@@ -85,6 +89,6 @@ public class MenuCommandHandlerFactory
             }
         }
 
-        return new InvalidMenuCommandHandler();
+        return new InvalidMenuCommandHandler(mainRenderer);
     }
 }

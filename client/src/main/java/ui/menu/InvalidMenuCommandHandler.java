@@ -1,11 +1,17 @@
 package ui.menu;
 
-import ui.ErrorRenderer;
+import ui.BufferedRenderer;
 
 public class InvalidMenuCommandHandler implements MenuCommandHandler {
+    private final BufferedRenderer render;
+
+    public InvalidMenuCommandHandler(BufferedRenderer render) {
+        this.render = render;
+    }
+
     @Override
     public String execute(String... arguments) {
-        ErrorRenderer.print("Unknown command");
+        render.error("Unknown command");
         return null;
     }
 }
