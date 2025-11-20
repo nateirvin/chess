@@ -2,9 +2,8 @@ package ui.menu;
 
 import ui.BufferedRenderer;
 import ui.data.AppState;
-import ui.GameListRenderer;
+import ui.data.GameListAccessor;
 import ui.data.ServerFacade;
-
 import java.util.logging.Logger;
 
 public class MenuCommandHandlerFactory
@@ -12,16 +11,16 @@ public class MenuCommandHandlerFactory
     private final AppState appState;
     private final Logger logger;
     private final ServerFacade serverFacade;
-    private final GameListRenderer displayer;
+    private final GameListAccessor gameListAccessor;
     private final BufferedRenderer mainRenderer;
 
     public MenuCommandHandlerFactory(AppState appState, Logger logger, ServerFacade serverFacade,
-                                     GameListRenderer displayer, BufferedRenderer mainRenderer)
+                                     GameListAccessor gameListAccessor, BufferedRenderer mainRenderer)
     {
         this.appState = appState;
         this.logger = logger;
         this.serverFacade = serverFacade;
-        this.displayer = displayer;
+        this.gameListAccessor = gameListAccessor;
         this.mainRenderer = mainRenderer;
     }
 
@@ -60,22 +59,22 @@ public class MenuCommandHandlerFactory
             }
             case "create" -> {
                 if(isSecured) {
-                    return new CreateGameCommandHandler(appState, logger, serverFacade, displayer);
+                    return new CreateGameCommandHandler(appState, logger, serverFacade, mainRenderer);
                 }
             }
             case "list" -> {
                 if(isSecured) {
-                    return new ListGameCommandHandler(logger, displayer);
+                    return new ListGameCommandHandler(logger, mainRenderer);
                 }
             }
             case "observe" -> {
                 if(isSecured) {
-                    return new ObserveGameCommandHandler(displayer, mainRenderer);
+                    return new ObserveGameCommandHandler(gameListAccessor, mainRenderer);
                 }
             }
             case "join" -> {
                 if(isSecured) {
-                    return new JoinGameCommandHandler(appState, logger, serverFacade, displayer, mainRenderer);
+                    return new JoinGameCommandHandler(appState, logger, serverFacade, gameListAccessor, mainRenderer);
                 }
             }
             case "help" -> {

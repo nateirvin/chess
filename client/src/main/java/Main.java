@@ -1,5 +1,6 @@
 import ui.*;
 import ui.data.AppState;
+import ui.data.GameListAccessor;
 import ui.data.ServerFacade;
 import ui.menu.MenuCommandHandler;
 import ui.menu.MenuCommandHandlerFactory;
@@ -25,8 +26,9 @@ public class Main
         try (ServerFacade serverFacade = new ServerFacade(new SerializerFactory().getGson());
              ConsoleReader consoleReader = new ConsoleReader())
         {
-            GameListRenderer gameListRenderer = new GameListRenderer(appState, serverFacade);
-            menuCommandFactory = new MenuCommandHandlerFactory(appState, logger, serverFacade, gameListRenderer, render);
+            GameListAccessor gameListAccessor = new GameListAccessor(appState, serverFacade);
+            render.using(gameListAccessor);
+            menuCommandFactory = new MenuCommandHandlerFactory(appState, logger, serverFacade, gameListAccessor, render);
 
             logger.addHandler(new FileHandler("chess-app.log", true));
             serverFacade.bindTo("localhost", 8080);

@@ -1,13 +1,14 @@
 package ui;
 
 import model.GameData;
-import ui.data.AppState;
 import ui.data.GameListAccessor;
-import ui.data.ServerFacade;
+import java.util.ArrayList;
 
-public class GameListRenderer extends GameListAccessor {
-    public GameListRenderer(AppState appState, ServerFacade serverFacade) {
-        super(appState, serverFacade);
+public class GameListRenderer {
+    private final GameListAccessor accessor;
+
+    public GameListRenderer(GameListAccessor accessor) {
+        this.accessor = accessor;
     }
 
     public void showGamesList()
@@ -16,7 +17,7 @@ public class GameListRenderer extends GameListAccessor {
     }
 
     public void showGamesListWithAlternateText(String altText) {
-        var games = loadGames();
+        ArrayList<GameData> games = accessor.loadGames();
 
         if(!games.isEmpty()) {
             System.out.println("Games:");
