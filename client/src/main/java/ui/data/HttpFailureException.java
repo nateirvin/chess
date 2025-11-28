@@ -1,4 +1,4 @@
-package ui;
+package ui.data;
 
 public class HttpFailureException extends Exception {
     private final int statusCode;

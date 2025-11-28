@@ -1,9 +1,15 @@
 package ui.menu;
 
+import ui.BufferedRenderer;
+
 public class PreloginHelpCommandHandler extends HelpCommandHandler {
+    public PreloginHelpCommandHandler(BufferedRenderer render) {
+        super(render);
+    }
+
     @Override
     protected void printCommands() {
-        System.out.println("  register <username> <password> <email> : required to play");
-        System.out.println("  login <username> <password> : start playing games");
+        render.helpMenuItem("register <username> <password> <email>","required to play");
+        render.helpMenuItem("login <username> <password>", "start playing games");
     }
 }

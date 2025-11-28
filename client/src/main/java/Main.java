@@ -1,4 +1,7 @@
 import ui.*;
+import ui.data.AppState;
+import ui.data.GameListAccessor;
+import ui.data.ServerFacade;
 import ui.menu.MenuCommandHandler;
 import ui.menu.MenuCommandHandlerFactory;
 import util.SerializerFactory;
@@ -8,12 +11,14 @@ public class Main
 {
     private static AppState appState;
     private static MenuCommandHandlerFactory menuCommandFactory;
+    private static BufferedRenderer render;
 
     public static void main(String[] args)
     {
         System.out.println("Welcome to the Chess app!");
 
         appState = new AppState();
+        render = new BufferedRenderer();
 
         LogManager.getLogManager().reset();
         Logger logger = Logger.getLogger("default");
@@ -21,8 +26,9 @@ public class Main
         try (ServerFacade serverFacade = new ServerFacade(new SerializerFactory().getGson());
              ConsoleReader consoleReader = new ConsoleReader())
         {
-            GameListDisplay gameListDisplay = new GameListDisplay(appState, serverFacade);
-            menuCommandFactory = new MenuCommandHandlerFactory(appState, logger, serverFacade, gameListDisplay);
+            GameListAccessor gameListAccessor = new GameListAccessor(appState, serverFacade);
+            render.using(gameListAccessor);
+            menuCommandFactory = new MenuCommandHandlerFactory(appState, logger, serverFacade, gameListAccessor, render);
 
             logger.addHandler(new FileHandler("chess-app.log", true));
             serverFacade.bindTo("localhost", 8080);
@@ -32,7 +38,7 @@ public class Main
         catch (Exception e)
         {
             logger.log(Level.SEVERE, "Critical failure", e);
-            System.out.println("A critical error has occurred.");
+            render.error("A critical error has occurred; the app will have to stop.");
         }
     }
 
@@ -58,7 +64,7 @@ public class Main
             String errorMessage = command.execute(consoleReader.allButFirstToken());
 
             if (errorMessage != null) {
-                ErrorRenderer.print(errorMessage);
+                render.error(errorMessage);
             }
         }
     }

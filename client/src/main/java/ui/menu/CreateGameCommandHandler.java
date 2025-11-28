@@ -1,7 +1,9 @@
 package ui.menu;
 
 import ui.*;
-
+import ui.data.AppState;
+import ui.data.HttpFailureException;
+import ui.data.ServerFacade;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.util.logging.Level;
@@ -12,13 +14,15 @@ public class CreateGameCommandHandler implements MenuCommandHandler
     private final AppState appState;
     private final Logger logger;
     private final ServerFacade serverFacade;
-    private final GameListDisplay displayer;
+    private final BufferedRenderer render;
 
-    public CreateGameCommandHandler(AppState appState, Logger logger, ServerFacade serverFacade, GameListDisplay displayer) {
+    public CreateGameCommandHandler(AppState appState, Logger logger, ServerFacade serverFacade,
+                                    BufferedRenderer render)
+    {
         this.appState = appState;
         this.logger = logger;
         this.serverFacade = serverFacade;
-        this.displayer = displayer;
+        this.render = render;
     }
 
     @Override
@@ -36,9 +40,8 @@ public class CreateGameCommandHandler implements MenuCommandHandler
                 return "Game creation failed";
             }
 
-            System.out.println("This game has been created!");
-            System.out.println();
-            displayer.showGamesList();
+            render.userActionComplete("This game has been created!");
+            render.gamesList();
 
             return null;
         } else {

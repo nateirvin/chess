@@ -1,4 +1,4 @@
-package ui;
+package ui.data;
 
 import model.GameData;
 
@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 
-public class GameListAccessor {
+public final class GameListAccessor {
     private final AppState appState;
     private final ServerFacade serverFacade;
 
@@ -24,7 +24,7 @@ public class GameListAccessor {
         return null;
     }
 
-    protected ArrayList<GameData> loadGames() {
+    public ArrayList<GameData> loadGames() {
         try {
             ArrayList<GameData> games = serverFacade.getAllGames(appState.getAuthToken());
             games.sort(Comparator.comparing(GameData::gameName));

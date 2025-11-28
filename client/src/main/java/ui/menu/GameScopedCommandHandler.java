@@ -1,15 +1,8 @@
 package ui.menu;
 
 import model.UserEntryResult;
-import ui.GameListDisplay;
 
 public class GameScopedCommandHandler {
-    protected final GameListDisplay displayer;
-
-    public GameScopedCommandHandler(GameListDisplay displayer) {
-        this.displayer = displayer;
-    }
-
     protected UserEntryResult<Integer> getGameNumber(String rawValue) {
         try
         {
