@@ -12,7 +12,7 @@ public class SessionMemoryProvider implements SessionDataAccess
     @Override
     public AuthData insertSession(String authToken, String username)
     {
-        AuthData authData = new AuthData(authToken, username, 0);
+        AuthData authData = new AuthData(authToken, 0, username);
         SESSIONS.put(authToken, authData);
         return authData;
     }

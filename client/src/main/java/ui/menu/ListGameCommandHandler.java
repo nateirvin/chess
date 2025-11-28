@@ -1,17 +1,17 @@
 package ui.menu;
 
-import ui.GameListDisplay;
+import ui.BufferedRenderer;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ListGameCommandHandler implements MenuCommandHandler {
     private final Logger logger;
-    private final GameListDisplay displayer;
+    private final BufferedRenderer render;
 
-    public ListGameCommandHandler(Logger logger, GameListDisplay displayer) {
+    public ListGameCommandHandler(Logger logger, BufferedRenderer render) {
         this.logger = logger;
-        this.displayer = displayer;
+        this.render = render;
     }
 
     @Override
@@ -21,8 +21,7 @@ public class ListGameCommandHandler implements MenuCommandHandler {
         }
 
         try {
-            displayer.showGamesListWithAlternateText("No games yet; use the 'create' command to start one!");
-            System.out.println();
+            render.gamesListWithAltText();
         } catch(Exception e) {
             logger.log(Level.SEVERE, "Game listing failure", e);
             return "Could not get games list";

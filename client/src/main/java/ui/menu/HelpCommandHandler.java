@@ -1,7 +1,15 @@
 package ui.menu;
 
+import ui.BufferedRenderer;
+
 public abstract class HelpCommandHandler implements MenuCommandHandler
 {
+    protected final BufferedRenderer render;
+
+    public HelpCommandHandler(BufferedRenderer render) {
+        this.render = render;
+    }
+
     @Override
     public String execute(String... arguments) {
         printHelp();
@@ -10,12 +18,11 @@ public abstract class HelpCommandHandler implements MenuCommandHandler
 
     private void printHelp()
     {
-        System.out.println();
-        System.out.println("Available commands:");
-        System.out.println("  help : show this menu");
+        render.helpMenuStart();
+        render.helpMenuItem("help", "show this menu");
         printCommands();
-        System.out.println("  quit : exit the app");
-        System.out.println();
+        render.helpMenuItem("quit", "exit the app");
+        render.helpMenuEnd();
     }
     
     protected abstract void printCommands();

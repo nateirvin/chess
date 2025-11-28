@@ -34,8 +34,6 @@ public class ChessBoardRenderer
             colStart = 8;
         }
 
-        System.out.println();
-
         setFontWeight();
 
         printColumnGuide(colStart, rowIncrement);
@@ -66,8 +64,6 @@ public class ChessBoardRenderer
 
         resetDisplayColors();
         resetFontWeight();
-
-        System.out.println();
     }
 
     private void setFontWeight() {

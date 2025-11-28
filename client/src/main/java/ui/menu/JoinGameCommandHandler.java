@@ -4,6 +4,9 @@ import chess.ChessGame;
 import model.GameData;
 import model.UserEntryResult;
 import ui.*;
+import ui.data.AppState;
+import ui.data.GameListAccessor;
+import ui.data.ServerFacade;
 
 import java.net.ConnectException;
 import java.util.logging.Level;
@@ -14,13 +17,17 @@ public class JoinGameCommandHandler extends GameScopedCommandHandler implements 
     private final AppState appState;
     private final Logger logger;
     private final ServerFacade serverFacade;
+    private final GameListAccessor gameListAccessor;
+    private final BufferedRenderer render;
 
-    public JoinGameCommandHandler(AppState appState, Logger logger, ServerFacade serverFacade, GameListDisplay displayer)
+    public JoinGameCommandHandler(AppState appState, Logger logger, ServerFacade serverFacade,
+                                  GameListAccessor gameListAccessor, BufferedRenderer render)
     {
-        super(displayer);
         this.appState = appState;
         this.logger = logger;
         this.serverFacade = serverFacade;
+        this.gameListAccessor = gameListAccessor;
+        this.render = render;
     }
 
     @Override
@@ -33,7 +40,7 @@ public class JoinGameCommandHandler extends GameScopedCommandHandler implements 
                 return gameNumberResult.getErrorMessage();
             }
             int gameNumber = gameNumberResult.getValue();
-            GameData game = displayer.getGameByNumber(gameNumber);
+            GameData game = gameListAccessor.getGameByNumber(gameNumber);
             if (game == null) {
                 return "No such game.";
             }
@@ -62,12 +69,11 @@ public class JoinGameCommandHandler extends GameScopedCommandHandler implements 
                 return "Failed to join game.";
             }
 
-            System.out.println("Joined!");
             assert appState.userIsLoggedIn();
             game.setPlayer(color, appState.currentUsername());
 
-            ChessBoardRenderer renderer = new ChessBoardRenderer(ColorScheme.example());
-            renderer.render(game.getGame().getBoard(), color);
+            render.userActionComplete("Joined!");
+            render.board(game.getGame().getBoard(), color);
 
             return null;
         } else {

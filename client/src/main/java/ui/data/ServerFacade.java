@@ -1,8 +1,9 @@
-package ui;
+package ui.data;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
 import model.*;
+
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -31,7 +32,7 @@ public class ServerFacade implements Closeable
         this.port = port;
     }
 
-    public SessionData registerUser(String userName, String plainTextPassword, String email)
+    public AuthData registerUser(String userName, String plainTextPassword, String email)
                             throws IOException, InterruptedException
     {
         RegisterRequest request = new RegisterRequest(userName, plainTextPassword, email);
@@ -41,12 +42,10 @@ public class ServerFacade implements Closeable
             return null;
         }
 
-        UserData userData = new UserData(loginResult.username(), plainTextPassword, email);
-        userData.setId(loginResult.userId());
-        return new SessionData(loginResult.authToken(), userData);
+        return new AuthData(loginResult.authToken(), loginResult.userId(), loginResult.username());
     }
 
-    public SessionData loginUser(String username, String plainTextPassword) throws IOException, InterruptedException
+    public AuthData loginUser(String username, String plainTextPassword) throws IOException, InterruptedException
     {
         LoginRequest request = new LoginRequest(username, plainTextPassword);
 
@@ -55,9 +54,7 @@ public class ServerFacade implements Closeable
             return null;
         }
 
-        UserData userData = new UserData(loginResult.username(), plainTextPassword, "");
-        userData.setId(loginResult.userId());
-        return new SessionData(loginResult.authToken(), userData);
+        return new AuthData(loginResult.authToken(), loginResult.userId(), loginResult.username());
     }
 
     private <T> LoginResult sendUserRequest(String path, T request, int handleableCode)
@@ -130,7 +127,7 @@ public class ServerFacade implements Closeable
         return reply.games();
     }
 
-    public void joinGame(int gameId, SessionData sessionData, ChessGame.TeamColor color)
+    public void joinGame(int gameId, AuthData authData, ChessGame.TeamColor color)
             throws HttpFailureException, IOException, InterruptedException
     {
         JoinGameRequest request = new JoinGameRequest(gameId, color.toString());
@@ -138,7 +135,7 @@ public class ServerFacade implements Closeable
         HttpRequest httpRequest =
             HttpRequest.newBuilder()
                         .uri(getUri("game"))
-                        .header("authorization", sessionData.authToken())
+                        .header("authorization", authData.authToken())
                         .PUT(toRequestBody(request))
                         .build();
 
@@ -187,6 +184,6 @@ public class ServerFacade implements Closeable
     @Override
     public void close() throws IOException {
         httpClient.close();
-        httpClient= null;
+        httpClient = null;
     }
 }
