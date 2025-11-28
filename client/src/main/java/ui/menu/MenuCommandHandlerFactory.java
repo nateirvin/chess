@@ -4,6 +4,8 @@ import ui.BufferedRenderer;
 import ui.data.AppState;
 import ui.data.GameListAccessor;
 import ui.data.ServerFacade;
+import ui.menu.game.*;
+import ui.menu.help.*;
 import java.util.logging.Logger;
 
 public class MenuCommandHandlerFactory
@@ -74,6 +76,40 @@ public class MenuCommandHandlerFactory
             }
             case "help" -> {
                 return new PostloginHelpCommandHandler(mainRenderer);
+            }
+            case "quit", "exit" -> {
+                return null;
+            }
+        }
+
+        return new InvalidMenuCommandHandler(mainRenderer);
+    }
+
+    public MenuCommandHandler getGameplayCommand(String commandName)
+    {
+        if(commandName == null)
+        {
+            commandName = "";
+        }
+
+        switch (commandName.toLowerCase()) {
+            case "redraw" -> {
+                return new RedrawCommandHandler(mainRenderer);
+            }
+            case "leave" -> {
+                return new LeaveGameCommandHandler();
+            }
+            case "moves" -> {
+                return new HighlightMovesCommandHandler();
+            }
+            case "move" -> {
+                return new MakeMoveCommandHandler();
+            }
+            case "resign" -> {
+                return new ResignCommandHandler();
+            }
+            case "help" -> {
+                return new GameplayHelpCommandHandler(mainRenderer);
             }
             case "quit", "exit" -> {
                 return null;

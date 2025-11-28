@@ -1,4 +1,4 @@
-package ui.menu;
+package ui.menu.help;
 
 import ui.BufferedRenderer;
 
