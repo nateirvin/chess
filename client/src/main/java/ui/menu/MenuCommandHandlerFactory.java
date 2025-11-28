@@ -69,7 +69,7 @@ public class MenuCommandHandlerFactory
                 return new ListGameCommandHandler(logger, mainRenderer);
             }
             case "observe" -> {
-                return new ObserveGameCommandHandler(gameListAccessor, mainRenderer);
+                return new ObserveGameCommandHandler(appState, gameListAccessor, mainRenderer);
             }
             case "join" -> {
                 return new JoinGameCommandHandler(appState, logger, serverFacade, gameListAccessor, mainRenderer);
@@ -94,10 +94,10 @@ public class MenuCommandHandlerFactory
 
         switch (commandName.toLowerCase()) {
             case "redraw" -> {
-                return new RedrawCommandHandler(mainRenderer);
+                return new RedrawCommandHandler(appState, mainRenderer);
             }
             case "leave" -> {
-                return new LeaveGameCommandHandler();
+                return new LeaveGameCommandHandler(appState, mainRenderer);
             }
             case "moves" -> {
                 return new HighlightMovesCommandHandler();

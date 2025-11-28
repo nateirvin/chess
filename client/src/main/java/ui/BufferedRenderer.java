@@ -13,6 +13,10 @@ public class BufferedRenderer {
         this.gameListRenderer = new GameListRenderer(gameListAccessor);
     }
 
+    public void prompt(String context) {
+        System.out.printf("CHESS [%s] $ ", context);
+    }
+
     public void userActionComplete(String message) {
         System.out.println(message);
         System.out.println();

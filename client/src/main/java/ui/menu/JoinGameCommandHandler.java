@@ -71,6 +71,7 @@ public class JoinGameCommandHandler extends GameScopedCommandHandler implements 
 
             assert appState.userIsLoggedIn();
             game.setPlayer(color, appState.currentUsername());
+            appState.setGame(game, color);
 
             render.userActionComplete("Joined!");
             render.board(game.getGame().getBoard(), color);

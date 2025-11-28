@@ -44,14 +44,25 @@ public class Main
 
     private static void runUsing(ConsoleReader consoleReader) {
         while (true) {
-            System.out.print("CHESS [" + appState.currentUsername() + "] $ ");
+            String context = appState.currentUsername();
+            if(appState.inGameplayMode()) {
+                if(appState.isObserving()) {
+                    context += " watching ";
+                } else {
+                    context += " playing ";
+                }
+                context += appState.gameName();
+            }
+            render.prompt(context);
             consoleReader.read();
 
             MenuCommandHandler command;
             if (!appState.userIsLoggedIn()) {
                 command = menuCommandFactory.getPreLoginCommand(consoleReader.firstToken());
-            } else {
+            } else if(!appState.inGameplayMode()) {
                 command = menuCommandFactory.getPostLoginCommand(consoleReader.firstToken());
+            } else {
+                command = menuCommandFactory.getGameplayCommand(consoleReader.firstToken());
             }
 
             if (command == null)   //user selected to quit
