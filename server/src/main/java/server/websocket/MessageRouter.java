@@ -66,7 +66,18 @@ public class MessageRouter implements WsMessageHandler {
                     NotificationMessage message = new NotificationMessage(session.username() + " has joined " + gameData.gameName());
                     sendToGameUsersExceptCaller(message, callerMessage);
                 }
-                else if (callerMessage.getCommandType() == UserGameCommand.CommandType.MAKE_MOVE)
+                else if (callerMessage.getCommandType() == UserGameCommand.CommandType.LEAVE)
+                {
+                    if(clients.containsKey(gameData.gameID())) {
+                        ArrayList<GamePlayContext> c = clients.get(gameData.gameID());
+                        c.removeIf(x -> x.loginInfo().authToken().equals(callerMessage.getAuthToken()));
+                        clients.put(gameData.gameID(), c);
+                    }
+
+                    NotificationMessage message = new NotificationMessage(session.username() + " has left " + gameData.gameName());
+                    sendToGameUsersExceptCaller(message, callerMessage);
+                }
+                else
                 {
                     if(!gameData.isPlayer(session.username())) {
                         sendToClient(callerContext, new ServerErrorMessage("Observers cannot make moves."));
@@ -78,26 +89,23 @@ public class MessageRouter implements WsMessageHandler {
                         return;
                     }
 
-                    UserMoveCommand specificMessage = gson.fromJson(callerContext.message(), UserMoveCommand.class);
+                    if (callerMessage.getCommandType() == UserGameCommand.CommandType.MAKE_MOVE)
+                    {
+                        UserMoveCommand specificMessage = gson.fromJson(callerContext.message(), UserMoveCommand.class);
 
-                    gameData.getGame().makeMove(specificMessage.getMove());
-                    this.gameDataAccess.updateGame(gameData);
+                        gameData.getGame().makeMove(specificMessage.getMove());
+                        this.gameDataAccess.updateGame(gameData);
 
-                    NotificationMessage message = new NotificationMessage(session.username() + " moved");  //TODO: more detail
-                    sendToGameUsersExceptCaller(message, callerMessage);
+                        NotificationMessage message = new NotificationMessage(session.username() + " moved");  //TODO: more detail
+                        sendToGameUsersExceptCaller(message, callerMessage);
 
-                    sendForGameUsers(gameData.gameID(), new GameLoadServerMessage(gameData));
-                }
-                else if (callerMessage.getCommandType() == UserGameCommand.CommandType.LEAVE)
-                {
-                    if(clients.containsKey(gameData.gameID())) {
-                        ArrayList<GamePlayContext> c = clients.get(gameData.gameID());
-                        c.removeIf(x -> x.loginInfo().authToken().equals(callerMessage.getAuthToken()));
-                        clients.put(gameData.gameID(), c);
+                        sendForGameUsers(gameData.gameID(), new GameLoadServerMessage(gameData));
                     }
-
-                    NotificationMessage message = new NotificationMessage(session.username() + " has left " + gameData.gameName());
-                    sendToGameUsersExceptCaller(message, callerMessage);
+                    else if (callerMessage.getCommandType() == UserGameCommand.CommandType.RESIGN)
+                    {
+                        this.gameDataAccess.concedeGame(callerMessage.getGameID(), session.userId());
+                        sendToGameUsersExceptCaller(new NotificationMessage(session.username() + " has resigned."), callerMessage);
+                    }
                 }
             }
             else

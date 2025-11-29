@@ -14,5 +14,6 @@ public interface GameDataAccess
     boolean setWhiteTeam(int gamedID, String username);
     boolean setBlackTeam(int gamedID, String username);
     void updateGame(GameData gameData);
+    void concedeGame(int gameID, int userId);
     void deleteAllGames();
 }

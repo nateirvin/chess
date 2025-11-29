@@ -8,6 +8,7 @@ public class GameData
     private final String gameName;
     private String whiteUsername;
     private String blackUsername;
+    private String resignedUsername;
     private ChessGame game;
 
     public GameData(int gameID, String gameName)
@@ -49,6 +50,10 @@ public class GameData
 
     public ChessGame getGame() { return game; }
     public void setGame(ChessGame game) { this.game = game; }
+
+    public void concededBy(String resignedUsername) {
+        this.resignedUsername = resignedUsername;
+    }
 
     public String usernameFor(ChessGame.TeamColor teamColor) {
         if(teamColor == ChessGame.TeamColor.WHITE) {

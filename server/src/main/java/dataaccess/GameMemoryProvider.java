@@ -4,7 +4,6 @@ import chess.ChessGame;
 import model.GameData;
 import model.UpsertGameResult;
 import service.AlreadyTakenException;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -70,6 +69,11 @@ public class GameMemoryProvider implements GameDataAccess
     @Override
     public void updateGame(GameData gameData) {
         GAMES.put(gameData.gameName(), gameData);
+    }
+
+    @Override
+    public void concedeGame(int gameID, int userId) {
+        throw new UnsupportedOperationException("No reason, just don't want to bother.");
     }
 
     @Override
