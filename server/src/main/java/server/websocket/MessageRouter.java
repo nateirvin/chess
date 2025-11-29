@@ -9,6 +9,7 @@ import model.AuthData;
 import model.GameData;
 import org.jetbrains.annotations.NotNull;
 import server.TypeFactory;
+import service.GameService;
 import service.SessionService;
 import websocket.commands.UserGameCommand;
 import websocket.commands.UserMoveCommand;
@@ -26,6 +27,7 @@ public class MessageRouter implements WsMessageHandler {
     private final Gson gson;
     private final SessionService sessionService;
     private final GameDataAccess gameDataAccess;
+    private final GameService gameService;
 
     private final HashMap<Integer, ArrayList<GamePlayContext>> clients;
 
@@ -33,6 +35,7 @@ public class MessageRouter implements WsMessageHandler {
         this.gson = factory.getGson();
         this.sessionService = factory.getSessionService();
         this.gameDataAccess = factory.getGameDataAccess();
+        this.gameService = factory.getGameService();
 
         clients = new HashMap<>();
     }
@@ -68,6 +71,8 @@ public class MessageRouter implements WsMessageHandler {
                 }
                 else if (callerMessage.getCommandType() == UserGameCommand.CommandType.LEAVE)
                 {
+                    gameService.leaveGame(game.gameID(), game.getColorForUser(session.username()));
+
                     if(clients.containsKey(game.gameID())) {
                         ArrayList<GamePlayContext> c = clients.get(game.gameID());
                         c.removeIf(x -> x.loginInfo().authToken().equals(callerMessage.getAuthToken()));

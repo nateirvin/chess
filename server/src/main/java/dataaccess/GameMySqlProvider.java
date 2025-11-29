@@ -151,6 +151,8 @@ public class GameMySqlProvider implements GameDataAccess
                             white_user_id IS NULL
                             OR
                             white_user_id = (SELECT user_id FROM users WHERE username = ?)
+                            OR
+                            ? = ''
                         )
                     """;
 
@@ -169,6 +171,8 @@ public class GameMySqlProvider implements GameDataAccess
                             black_user_id IS NULL
                             OR
                             black_user_id = (SELECT user_id FROM users WHERE username = ?)
+                            OR
+                            ? = ''
                         )
                     """;
 
@@ -243,6 +247,7 @@ public class GameMySqlProvider implements GameDataAccess
                 ps.setInt(2, gamedID);
                 ps.setString(1, username);
                 ps.setString(3, username);
+                ps.setString(4, username);
 
                 int rowsAffected = ps.executeUpdate();
 

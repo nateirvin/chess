@@ -60,6 +60,10 @@ public class TypeFactory
         return this.gameDataAccess;
     }
 
+    public GameService getGameService() {
+        return this.gameService;
+    }
+
     public SessionService getSessionService() {
         return this.sessionService;
     }

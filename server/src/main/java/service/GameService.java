@@ -40,10 +40,24 @@ public class GameService
 
     public boolean joinGame(int gamedID, ChessGame.TeamColor color, String username)
     {
+        if(username == null || username.isEmpty()) {
+            throw new IllegalArgumentException();
+        }
+
+        return setPlayer(gamedID, color, username);
+    }
+
+    public void leaveGame(int gameID, ChessGame.TeamColor color) {
+        setPlayer(gameID, color, "");
+    }
+
+    private boolean setPlayer(int gamedID, ChessGame.TeamColor color, String username)
+    {
         if(color == ChessGame.TeamColor.WHITE)
         {
             return dataAccess.setWhiteTeam(gamedID, username);
         }
+        else
         {
             return dataAccess.setBlackTeam(gamedID, username);
         }
