@@ -4,6 +4,7 @@ import dataaccess.GameDataAccess;
 import model.GameData;
 import websocket.commands.UserGameCommand;
 import websocket.messages.GameLoadServerMessage;
+import websocket.messages.ServerErrorMessage;
 import websocket.messages.ServerMessage;
 
 public class LoadGameMessageHandler implements MessageHandler
@@ -21,6 +22,10 @@ public class LoadGameMessageHandler implements MessageHandler
 
         int gameID = clientMessage.getGameID();
         GameData gameData = dataAccess.getGameById(gameID);
+
+        if(gameData == null) {
+            return new ServerErrorMessage("Invalid Game ID");
+        }
 
         return new GameLoadServerMessage(gameData);
     }

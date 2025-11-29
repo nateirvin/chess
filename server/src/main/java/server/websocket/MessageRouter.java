@@ -6,8 +6,8 @@ import io.javalin.websocket.WsMessageHandler;
 import org.jetbrains.annotations.NotNull;
 import server.TypeFactory;
 import websocket.commands.UserGameCommand;
+import websocket.messages.ServerErrorMessage;
 import websocket.messages.ServerMessage;
-import websocket.messages.SimpleServerMessage;
 
 public class MessageRouter implements WsMessageHandler
 {
@@ -30,7 +30,7 @@ public class MessageRouter implements WsMessageHandler
         if (handler != null) {
             message = handler.handle(clientMessage);
         } else {
-            message = new SimpleServerMessage(ServerMessage.ServerMessageType.ERROR, "Invalid Command");
+            message = new ServerErrorMessage("Invalid Command");
         }
 
         String json = gson.toJson(message);
