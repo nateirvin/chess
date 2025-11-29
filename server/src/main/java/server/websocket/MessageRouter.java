@@ -68,6 +68,16 @@ public class MessageRouter implements WsMessageHandler {
                 }
                 else if (callerMessage.getCommandType() == UserGameCommand.CommandType.MAKE_MOVE)
                 {
+                    if(!gameData.isPlayer(session.username())) {
+                        sendToClient(callerContext, new ServerErrorMessage("Observers cannot make moves."));
+                        return;
+                    }
+
+                    if(!gameData.isThisPlayersTurn(session.username())) {
+                        sendToClient(callerContext, new ServerErrorMessage("It is not your turn."));
+                        return;
+                    }
+
                     UserMoveCommand specificMessage = gson.fromJson(callerContext.message(), UserMoveCommand.class);
 
                     gameData.getGame().makeMove(specificMessage.getMove());
@@ -119,12 +129,10 @@ public class MessageRouter implements WsMessageHandler {
         return context.loginInfo().authToken().equals(caller.getAuthToken());
     }
 
-    private void sendToGameUsers(Integer gameID, ServerMessage message, Predicate<GamePlayContext> userFilter) {
+    private void sendToGameUsers(int gameID, ServerMessage message, Predicate<GamePlayContext> userFilter) {
         ArrayList<GamePlayContext> clientContexts = clients.get(gameID);
-        for (GamePlayContext clientContext : clientContexts)
-        {
-            try
-            {
+        for (GamePlayContext clientContext : clientContexts) {
+            try {
                 if(userFilter.test(clientContext)) {
                     if(clientContext.client().session.isOpen()) {
                         sendToClient(clientContext.client(), message);

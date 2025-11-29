@@ -68,4 +68,21 @@ public class GameData
             throw new UnsupportedOperationException();
         }
     }
+
+    public boolean isPlayer(String username) {
+        return whiteUsername != null && whiteUsername.equals(username)
+               ||
+               blackUsername != null && blackUsername.equals(username);
+    }
+
+    public boolean isThisPlayersTurn(String username) {
+        ChessGame.TeamColor whoseTurn = getGame().getTeamTurn();
+        if(whoseTurn == ChessGame.TeamColor.WHITE) {
+            return whiteUsername != null && whiteUsername.equals(username);
+        }
+        if(whoseTurn == ChessGame.TeamColor.BLACK) {
+            return blackUsername != null && blackUsername.equals(username);
+        }
+        return false;
+    }
 }
