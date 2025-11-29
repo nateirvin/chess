@@ -29,6 +29,11 @@ public class GameMemoryProvider implements GameDataAccess
     }
 
     @Override
+    public GameData getGameById(int gameID) {
+        return getAllGames().stream().filter(g -> g.gameID() == gameID).findFirst().orElse(null);
+    }
+
+    @Override
     public ArrayList<GameData> getAllGames()
     {
         return new ArrayList<>(GAMES.values());

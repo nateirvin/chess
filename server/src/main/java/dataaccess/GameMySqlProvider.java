@@ -69,6 +69,11 @@ public class GameMySqlProvider implements GameDataAccess
     }
 
     @Override
+    public GameData getGameById(int gameID) {
+        return getAllGames().stream().filter(g -> g.gameID() == gameID).findFirst().orElse(null);
+    }
+
+    @Override
     public ArrayList<GameData> getAllGames()
     {
         ArrayList<GameData> list = new ArrayList<>();

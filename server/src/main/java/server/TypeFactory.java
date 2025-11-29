@@ -6,8 +6,9 @@ import service.GameService;
 import service.SessionService;
 import service.UserService;
 import util.SerializerFactory;
+import websocket.commands.UserGameCommand;
 
-class EndpointHandlerFactory
+class TypeFactory
 {
     private final Gson gson;
     private SessionDataAccess sessionDataAccess;
@@ -17,9 +18,9 @@ class EndpointHandlerFactory
     private SessionService sessionService;
     private GameService gameService;
 
-    public EndpointHandlerFactory(SerializerFactory serializerFactory)
+    public TypeFactory()
     {
-        this.gson = serializerFactory.getGson();
+        this.gson = new SerializerFactory().getGson();
     }
 
     public void useDatabase()
@@ -52,8 +53,12 @@ class EndpointHandlerFactory
         }
     }
 
+    public Gson getGson() {
+        return this.gson;
+    }
+
     @SuppressWarnings("unchecked")
-    public <T extends JsonEndpointHandler> T getHandler(Class<T> clazz)
+    public <T extends JsonEndpointHandler> T getEndpointHandler(Class<T> clazz)
     {
         if(clazz == ResetServerEndpointHandler.class)
         {
@@ -85,5 +90,12 @@ class EndpointHandlerFactory
         }
 
         return (T) new JsonEndpointHandler(gson, userService, sessionService, gameService);
+    }
+
+    public MessageHandler getMessageHandler(UserGameCommand.CommandType commandType) {
+        if(commandType == UserGameCommand.CommandType.CONNECT) {
+            return new LoadGameMessageHandler(gameDataAccess);
+        }
+        return null;
     }
 }
