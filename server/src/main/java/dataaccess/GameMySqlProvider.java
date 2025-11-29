@@ -29,7 +29,10 @@ public class GameMySqlProvider implements GameDataAccess
                   `resign_user_id` int unsigned DEFAULT NULL,
                   `game_data` json NOT NULL,
                   PRIMARY KEY (`game_id`),
-                  UNIQUE KEY `games_unique` (`game_name`)
+                  UNIQUE KEY `games_unique` (`game_name`),
+                  CONSTRAINT `games_white_user_FK` FOREIGN KEY (`white_user_id`) REFERENCES `users` (`user_id`),
+                  CONSTRAINT `games_black_user_FK` FOREIGN KEY (`black_user_id`) REFERENCES `users` (`user_id`),
+                  CONSTRAINT `games_resign_user_FK` FOREIGN KEY (`resign_user_id`) REFERENCES `users` (`user_id`)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
                 """;
 
