@@ -1,5 +1,6 @@
 package model;
 
+import chess.ChessBoard;
 import chess.ChessGame;
 
 public class GameData
@@ -74,7 +75,7 @@ public class GameData
         }
     }
 
-    public boolean isPlayer(String username) {
+    public boolean hasPlayer(String username) {
         return whiteUsername != null && whiteUsername.equals(username)
                ||
                blackUsername != null && blackUsername.equals(username);
@@ -88,6 +89,23 @@ public class GameData
         if(whoseTurn == ChessGame.TeamColor.BLACK) {
             return blackUsername != null && blackUsername.equals(username);
         }
+        return false;
+    }
+
+    public boolean isOver() {
+        if(resignedUsername != null) {
+            return true;
+        }
+
+        ChessBoard board = getGame().getBoard();
+        if(board.isInCheckmate(ChessGame.TeamColor.WHITE) ||
+           board.isInCheckmate(ChessGame.TeamColor.BLACK) ||
+           board.isInStalemate(ChessGame.TeamColor.WHITE) ||
+           board.isInStalemate(ChessGame.TeamColor.BLACK))
+        {
+            return true;
+        }
+
         return false;
     }
 }
