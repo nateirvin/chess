@@ -22,24 +22,33 @@ class ClientManager
     }
 
     void register(int gameID, AuthData session, WsContext callerContext) {
-        ArrayList<GamePlayContext> gameClients;
-
-        if(!clients.containsKey(gameID)) {
-            gameClients = new ArrayList<>();
-        } else {
-            gameClients = clients.get(gameID);
+        synchronized (clients) {
+            ArrayList<GamePlayContext> gameClients = getClientsFor(gameID);
+            gameClients.add(new GamePlayContext(session, callerContext));
+            clients.put(gameID, gameClients);
         }
+    }
 
-        gameClients.add(new GamePlayContext(session, callerContext));
-        clients.put(gameID, gameClients);
+    private ArrayList<GamePlayContext> getClientsFor(int gameID) {
+        if(!clients.containsKey(gameID)) {
+            return new ArrayList<>();
+        } else {
+            return clients.get(gameID);
+        }
     }
 
     void unregister(int gameID, String authToken) {
-        if(clients.containsKey(gameID)) {
-            ArrayList<GamePlayContext> gameClients = clients.get(gameID);
-            gameClients.removeIf(c -> c.loginInfo().authToken().equals(authToken));
-            clients.put(gameID, gameClients);
+        synchronized (clients) {
+            if(clients.containsKey(gameID)) {
+                removeClient(gameID, authToken);
+            }
         }
+    }
+
+    private void removeClient(int gameID, String authToken) {
+        ArrayList<GamePlayContext> gameClients = clients.get(gameID);
+        gameClients.removeIf(ctx -> ctx.loginInfo().authToken().equals(authToken));
+        clients.put(gameID, gameClients);
     }
 
     void sendToGameUsers(int gameID, ServerMessage serverMessage) {
@@ -55,17 +64,23 @@ class ClientManager
     }
 
     private void sendToGameUsers(int gameID, ServerMessage message, Predicate<GamePlayContext> userFilter) {
-        ArrayList<GamePlayContext> clientContexts = clients.get(gameID);
-        for (GamePlayContext clientContext : clientContexts) {
-            try {
-                if(userFilter.test(clientContext)) {
-                    if(clientContext.client().session.isOpen()) {
-                        sendToClient(clientContext.client(), message);
+        synchronized (clients) {
+            ArrayList<GamePlayContext> clientContexts = clients.get(gameID);
+            for (GamePlayContext clientContext : clientContexts) {
+                try {
+                    if(userFilter.test(clientContext)) {
+                        sendToClient(clientContext, message);
                     }
+                } catch (Exception exception) {
+                    logError(exception.getMessage());
                 }
-            } catch (Exception exception) {
-                logError(exception.getMessage());
             }
+        }
+    }
+
+    private void sendToClient(GamePlayContext clientContext, ServerMessage message) {
+        if(clientContext.client().session.isOpen()) {
+            sendToClient(clientContext.client(), message);
         }
     }
 
