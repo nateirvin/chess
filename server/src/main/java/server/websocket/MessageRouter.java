@@ -71,7 +71,7 @@ public class MessageRouter implements WsMessageHandler {
                     UserMoveCommand specificMessage = gson.fromJson(callerContext.message(), UserMoveCommand.class);
 
                     gameData.getGame().makeMove(specificMessage.getMove());
-                    //TODO: save game
+                    this.gameDataAccess.updateGame(gameData);
 
                     NotificationMessage message = new NotificationMessage(session.username() + " moved");  //TODO: more detail
                     sendToGameUsersExceptCaller(message, callerMessage);

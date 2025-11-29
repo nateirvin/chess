@@ -13,5 +13,6 @@ public interface GameDataAccess
     ArrayList<GameData> getAllGames();
     boolean setWhiteTeam(int gamedID, String username);
     boolean setBlackTeam(int gamedID, String username);
+    void updateGame(GameData gameData);
     void deleteAllGames();
 }

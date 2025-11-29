@@ -68,6 +68,11 @@ public class GameMemoryProvider implements GameDataAccess
     }
 
     @Override
+    public void updateGame(GameData gameData) {
+        GAMES.put(gameData.gameName(), gameData);
+    }
+
+    @Override
     public void deleteAllGames()
     {
         GAMES.clear();

@@ -166,6 +166,27 @@ public class GameMySqlProvider implements GameDataAccess
         return setPlayer(gamedID, username, commandText);
     }
 
+    @Override
+    public void updateGame(GameData gameData)
+    {
+        try (Connection conn = DatabaseManager.getConnection())
+        {
+            String commandText = "UPDATE games SET game_data = ? WHERE game_id = ?";
+
+            try (PreparedStatement ps = conn.prepareStatement(commandText))
+            {
+                ps.setInt(2, gameData.gameID());
+                ps.setString(1, gson.toJson(gameData.getGame()));
+
+                ps.executeUpdate();
+            }
+        }
+        catch (SQLException | DataAccessException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
     private boolean setPlayer(int gamedID, String username, String commandText)
     {
         try (Connection conn = DatabaseManager.getConnection())
