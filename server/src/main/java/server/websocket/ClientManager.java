@@ -22,22 +22,23 @@ class ClientManager
     }
 
     void register(int gameID, AuthData session, WsContext callerContext) {
+        ArrayList<GamePlayContext> gameClients;
+
         if(!clients.containsKey(gameID)) {
-            ArrayList<GamePlayContext> c = new ArrayList<>();
-            c.add(new GamePlayContext(session, callerContext));
-            clients.put(gameID, c);
+            gameClients = new ArrayList<>();
         } else {
-            ArrayList<GamePlayContext> c = clients.get(gameID);
-            c.add(new GamePlayContext(session, callerContext));
-            clients.put(gameID, c);
+            gameClients = clients.get(gameID);
         }
+
+        gameClients.add(new GamePlayContext(session, callerContext));
+        clients.put(gameID, gameClients);
     }
 
     void unregister(int gameID, String authToken) {
         if(clients.containsKey(gameID)) {
-            ArrayList<GamePlayContext> c = clients.get(gameID);
-            c.removeIf(x -> x.loginInfo().authToken().equals(authToken));
-            clients.put(gameID, c);
+            ArrayList<GamePlayContext> gameClients = clients.get(gameID);
+            gameClients.removeIf(c -> c.loginInfo().authToken().equals(authToken));
+            clients.put(gameID, gameClients);
         }
     }
 
