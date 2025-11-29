@@ -42,25 +42,31 @@ public class MessageRouter implements WsMessageHandler {
             UserGameCommand callerMessage = gson.fromJson(callerContext.message(), UserGameCommand.class);
 
             AuthData session = sessionService.validateSession(callerMessage.getAuthToken());
+            GameData gameData = gameDataAccess.getGameById(callerMessage.getGameID());
 
-            if (callerMessage.getCommandType() == UserGameCommand.CommandType.CONNECT)
+            if (gameData != null)
             {
-                clients.put(session.authToken(), callerContext);
-
-                GameData gameData = gameDataAccess.getGameById(callerMessage.getGameID());
-
-                if (gameData != null)
+                if (callerMessage.getCommandType() == UserGameCommand.CommandType.CONNECT)
                 {
+                    clients.put(session.authToken(), callerContext);
+
                     sendToClient(callerContext, new GameLoadServerMessage(gameData));
 
                     NotificationMessage message = new NotificationMessage(session.username() + " has joined " + gameData.gameName());
                     sendToAllButCaller(message, session.authToken());
                 }
-                else
+                else if (callerMessage.getCommandType() == UserGameCommand.CommandType.LEAVE)
                 {
-                    ServerErrorMessage message = new ServerErrorMessage("Invalid Game ID");
-                    sendToClient(callerContext, message);
+                    clients.remove(callerMessage.getAuthToken());
+
+                    NotificationMessage message = new NotificationMessage(session.username() + " has left " + gameData.gameName());
+                    sendToAllButCaller(message, session.authToken());
                 }
+            }
+            else
+            {
+                ServerErrorMessage message = new ServerErrorMessage("Invalid Game ID");
+                sendToClient(callerContext, message);
             }
         }
         catch (LoginException ex)
