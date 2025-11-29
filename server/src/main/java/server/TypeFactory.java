@@ -59,6 +59,10 @@ public class TypeFactory
         return this.gson;
     }
 
+    public SessionService getSessionService() {
+        return this.sessionService;
+    }
+
     @SuppressWarnings("unchecked")
     public <T extends JsonEndpointHandler> T getEndpointHandler(Class<T> clazz)
     {
