@@ -2,13 +2,10 @@ package server;
 
 import com.google.gson.Gson;
 import dataaccess.*;
-import server.websocket.LoadGameMessageHandler;
-import server.websocket.MessageHandler;
 import service.GameService;
 import service.SessionService;
 import service.UserService;
 import util.SerializerFactory;
-import websocket.commands.UserGameCommand;
 
 public class TypeFactory
 {
@@ -59,6 +56,10 @@ public class TypeFactory
         return this.gson;
     }
 
+    public GameDataAccess getGameDataAccess() {
+        return this.gameDataAccess;
+    }
+
     public SessionService getSessionService() {
         return this.sessionService;
     }
@@ -96,12 +97,5 @@ public class TypeFactory
         }
 
         return (T) new JsonEndpointHandler(gson, userService, sessionService, gameService);
-    }
-
-    public MessageHandler getMessageHandler(UserGameCommand.CommandType commandType) {
-        if(commandType == UserGameCommand.CommandType.CONNECT) {
-            return new LoadGameMessageHandler(gameDataAccess);
-        }
-        return null;
     }
 }
