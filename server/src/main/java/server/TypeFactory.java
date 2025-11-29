@@ -2,13 +2,15 @@ package server;
 
 import com.google.gson.Gson;
 import dataaccess.*;
+import server.websocket.LoadGameMessageHandler;
+import server.websocket.MessageHandler;
 import service.GameService;
 import service.SessionService;
 import service.UserService;
 import util.SerializerFactory;
 import websocket.commands.UserGameCommand;
 
-class TypeFactory
+public class TypeFactory
 {
     private final Gson gson;
     private SessionDataAccess sessionDataAccess;

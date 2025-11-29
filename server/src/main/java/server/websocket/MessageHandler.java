@@ -1,4 +1,4 @@
-package server;
+package server.websocket;
 
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;

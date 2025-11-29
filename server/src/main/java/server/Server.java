@@ -1,11 +1,7 @@
 package server;
 
-import com.google.gson.Gson;
 import io.javalin.*;
-import websocket.commands.UserGameCommand;
-import websocket.messages.ServerMessage;
-import websocket.messages.SimpleServerMessage;
-
+import server.websocket.MessageRouter;
 import javax.security.auth.login.LoginException;
 
 public class Server {
@@ -47,26 +43,7 @@ public class Server {
                 ctx.enableAutomaticPings();
                 System.out.println("Websocket connected");
             });
-            config.onMessage(ctx -> {
-                Gson gson = factory.getGson();
-
-                UserGameCommand clientMessage = gson.fromJson(ctx.message(), UserGameCommand.class);
-
-                var handler = factory.getMessageHandler(clientMessage.getCommandType());
-
-                ServerMessage message;
-                if(handler != null)
-                {
-                    message = handler.handle(clientMessage);
-                }
-                else
-                {
-                    message = new SimpleServerMessage(ServerMessage.ServerMessageType.ERROR, "Invalid Command");
-                }
-
-                String json = gson.toJson(message);
-                ctx.send(json);
-            });
+            config.onMessage(new MessageRouter(factory));
             config.onClose(_ -> System.out.println("Websocket closed"));
         });
     }
