@@ -1,22 +1,31 @@
 package ui.menu;
 
-import chess.ChessGame;
 import model.GameData;
 import model.UserEntryResult;
 import ui.BufferedRenderer;
 import ui.data.AppState;
 import ui.data.GameListAccessor;
+import ui.data.WebSocketClient;
+import websocket.commands.UserGameCommand;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ObserveGameCommandHandler extends GameScopedCommandHandler implements MenuCommandHandler
 {
     private final AppState appState;
+    private final Logger logger;
     private final GameListAccessor gameListAccessor;
     private final BufferedRenderer render;
+    private final WebSocketClient webSocket;
 
-    public ObserveGameCommandHandler(AppState appState, GameListAccessor gameListAccessor, BufferedRenderer render) {
+    public ObserveGameCommandHandler(AppState appState, Logger logger, BufferedRenderer render,
+                                     GameListAccessor gameListAccessor, WebSocketClient webSocket)
+    {
         this.appState = appState;
+        this.logger = logger;
         this.gameListAccessor = gameListAccessor;
         this.render = render;
+        this.webSocket = webSocket;
     }
 
     @Override
@@ -36,8 +45,16 @@ public class ObserveGameCommandHandler extends GameScopedCommandHandler implemen
             return "No such game.";
         }
 
-        appState.setGame(game);
-        render.board(game.getGame().getBoard(), ChessGame.TeamColor.WHITE);
+        try {
+            UserGameCommand userCommand =
+                    new UserGameCommand(UserGameCommand.CommandType.CONNECT, appState.getAuthToken(), game.gameID());
+            webSocket.send(userCommand);
+
+            render.userActionComplete("Observation started.");
+        } catch (Exception exception) {
+            logger.log(Level.SEVERE, "Failed to start observation", exception);
+            return "Failed to connect to this game.";
+        }
 
         return null;
     }

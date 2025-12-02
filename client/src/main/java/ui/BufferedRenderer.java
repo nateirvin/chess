@@ -18,6 +18,13 @@ public class BufferedRenderer {
     }
 
     public void userActionComplete(String message) {
+        System.out.print(EscapeSequences.SET_TEXT_COLOR_GREEN);
+        System.out.println(message);
+        System.out.print(EscapeSequences.RESET_TEXT_COLOR);
+        System.out.println();
+    }
+
+    public void update(String message) {
         System.out.println(message);
         System.out.println();
     }

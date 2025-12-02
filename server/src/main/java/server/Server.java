@@ -41,10 +41,10 @@ public class Server {
         javalin.ws("/ws", config -> {
             config.onConnect(ctx -> {
                 ctx.enableAutomaticPings();
-                System.out.println("Websocket connected");
+                System.out.println("Websocket client connected");
             });
             config.onMessage(new MessageRouter(factory));
-            config.onClose(_ -> System.out.println("Websocket closed"));
+            config.onClose(_ -> System.out.println("Websocket client disconnected"));
         });
     }
 

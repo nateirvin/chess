@@ -1,7 +1,9 @@
+import com.google.gson.Gson;
 import ui.*;
 import ui.data.AppState;
 import ui.data.GameListAccessor;
 import ui.data.ServerFacade;
+import ui.data.WebSocketClient;
 import ui.menu.MenuCommandHandler;
 import ui.menu.MenuCommandHandlerFactory;
 import util.SerializerFactory;
@@ -12,26 +14,31 @@ public class Main
     private static AppState appState;
     private static MenuCommandHandlerFactory menuCommandFactory;
     private static BufferedRenderer render;
+    private static Gson gson;
 
     public static void main(String[] args)
     {
         System.out.println("Welcome to the Chess app!");
 
         appState = new AppState();
+        gson = new SerializerFactory().getGson();
         render = new BufferedRenderer();
 
         LogManager.getLogManager().reset();
         Logger logger = Logger.getLogger("default");
 
-        try (ServerFacade serverFacade = new ServerFacade(new SerializerFactory().getGson());
+        try (ServerFacade serverFacade = new ServerFacade(gson);
+             WebSocketClient webSocketClient = new WebSocketClient(appState, gson, render);
              ConsoleReader consoleReader = new ConsoleReader())
         {
             GameListAccessor gameListAccessor = new GameListAccessor(appState, serverFacade);
             render.using(gameListAccessor);
-            menuCommandFactory = new MenuCommandHandlerFactory(appState, logger, serverFacade, gameListAccessor, render);
+            menuCommandFactory = new MenuCommandHandlerFactory(appState, logger, render,
+                                                               gameListAccessor, serverFacade, webSocketClient);
 
             logger.addHandler(new FileHandler("chess-app.log", true));
             serverFacade.bindTo("localhost", 8080);
+            webSocketClient.connect("localhost", 8080);
 
             runUsing(consoleReader);
         }

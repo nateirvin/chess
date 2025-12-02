@@ -11,7 +11,9 @@ public class Main {
         System.out.println("The Chess Server is running.");
         System.out.println();
 
-        System.out.print("Press any key to shutdown the server...");
+        System.out.println("You can press any key to shutdown the server.");
+        System.out.println();
+
         try {
             System.in.read();
         } catch (IOException e) {

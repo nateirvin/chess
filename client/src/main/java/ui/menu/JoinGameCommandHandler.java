@@ -1,12 +1,15 @@
 package ui.menu;
 
 import chess.ChessGame;
+import model.AuthData;
 import model.GameData;
 import model.UserEntryResult;
 import ui.*;
 import ui.data.AppState;
 import ui.data.GameListAccessor;
 import ui.data.ServerFacade;
+import ui.data.WebSocketClient;
+import websocket.commands.UserGameCommand;
 
 import java.net.ConnectException;
 import java.util.logging.Level;
@@ -19,15 +22,17 @@ public class JoinGameCommandHandler extends GameScopedCommandHandler implements 
     private final ServerFacade serverFacade;
     private final GameListAccessor gameListAccessor;
     private final BufferedRenderer render;
+    private final WebSocketClient webSocket;
 
-    public JoinGameCommandHandler(AppState appState, Logger logger, ServerFacade serverFacade,
-                                  GameListAccessor gameListAccessor, BufferedRenderer render)
+    public JoinGameCommandHandler(AppState appState, BufferedRenderer render, Logger logger, GameListAccessor gameListAccessor, ServerFacade serverFacade,
+                                  WebSocketClient webSocket)
     {
         this.appState = appState;
         this.logger = logger;
         this.serverFacade = serverFacade;
         this.gameListAccessor = gameListAccessor;
         this.render = render;
+        this.webSocket = webSocket;
     }
 
     @Override
@@ -50,9 +55,11 @@ public class JoinGameCommandHandler extends GameScopedCommandHandler implements 
             }
             ChessGame.TeamColor color = colorResult.getValue();
 
+            AuthData session = appState.getSession();
+
             String currentUserName = game.usernameFor(color);
             if(currentUserName != null) {
-                if(currentUserName.equals(appState.currentUsername())) {
+                if(currentUserName.equals(session.username())) {
                     return "You have already joined this game as this player.";
                 } else {
                     return "You cannot join this game as that player.";
@@ -61,6 +68,9 @@ public class JoinGameCommandHandler extends GameScopedCommandHandler implements 
 
             try {
                 serverFacade.joinGame(game.gameID(), appState.getSession(), color);
+                render.userActionComplete("Joined!");
+
+                webSocket.send(new UserGameCommand(UserGameCommand.CommandType.CONNECT, session.authToken(), session.userId()));
             } catch(ConnectException e) {
                 logger.log(Level.INFO, "Cannot connect", e);
                 return "Game server cannot be reached.";
@@ -68,13 +78,6 @@ public class JoinGameCommandHandler extends GameScopedCommandHandler implements 
                 logger.log(Level.SEVERE, "Failure in join game", e);
                 return "Failed to join game.";
             }
-
-            assert appState.userIsLoggedIn();
-            game.setPlayer(color, appState.currentUsername());
-            appState.setGame(game, color);
-
-            render.userActionComplete("Joined!");
-            render.board(game.getGame().getBoard(), color);
 
             return null;
         } else {

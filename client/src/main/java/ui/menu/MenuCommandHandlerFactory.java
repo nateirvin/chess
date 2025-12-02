@@ -4,6 +4,7 @@ import ui.BufferedRenderer;
 import ui.data.AppState;
 import ui.data.GameListAccessor;
 import ui.data.ServerFacade;
+import ui.data.WebSocketClient;
 import ui.menu.game.*;
 import ui.menu.help.*;
 import java.util.logging.Logger;
@@ -15,15 +16,17 @@ public class MenuCommandHandlerFactory
     private final ServerFacade serverFacade;
     private final GameListAccessor gameListAccessor;
     private final BufferedRenderer mainRenderer;
+    private final WebSocketClient webSocketClient;
 
-    public MenuCommandHandlerFactory(AppState appState, Logger logger, ServerFacade serverFacade,
-                                     GameListAccessor gameListAccessor, BufferedRenderer mainRenderer)
+    public MenuCommandHandlerFactory(AppState appState, Logger logger, BufferedRenderer mainRenderer, GameListAccessor gameListAccessor, ServerFacade serverFacade,
+                                     WebSocketClient webSocketClient)
     {
         this.appState = appState;
         this.logger = logger;
         this.serverFacade = serverFacade;
         this.gameListAccessor = gameListAccessor;
         this.mainRenderer = mainRenderer;
+        this.webSocketClient = webSocketClient;
     }
 
     public MenuCommandHandler getPreLoginCommand(String commandName)
@@ -69,10 +72,11 @@ public class MenuCommandHandlerFactory
                 return new ListGameCommandHandler(logger, mainRenderer);
             }
             case "observe" -> {
-                return new ObserveGameCommandHandler(appState, gameListAccessor, mainRenderer);
+                return new ObserveGameCommandHandler(appState, logger, mainRenderer, gameListAccessor, webSocketClient);
             }
             case "join" -> {
-                return new JoinGameCommandHandler(appState, logger, serverFacade, gameListAccessor, mainRenderer);
+                return new JoinGameCommandHandler(appState, mainRenderer, logger,
+                                                  gameListAccessor, serverFacade, webSocketClient);
             }
             case "help" -> {
                 return new PostloginHelpCommandHandler(mainRenderer);
