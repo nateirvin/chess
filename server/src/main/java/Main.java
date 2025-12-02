@@ -21,5 +21,6 @@ public class Main {
         }
 
         server.stop();
+        System.exit(0);
     }
 }
