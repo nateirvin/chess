@@ -17,10 +17,13 @@ import java.net.URISyntaxException;
 
 public class WebSocketClient extends Endpoint implements Closeable
 {
+    private String host;
+    private int port;
+    private Session session;
+
     private final AppState appState;
     private final Gson gson;
     private final BufferedRenderer render;
-    private Session session;
 
     public WebSocketClient(AppState appState, Gson gson, BufferedRenderer renderer) {
         this.appState = appState;
@@ -28,10 +31,18 @@ public class WebSocketClient extends Endpoint implements Closeable
         this.render = renderer;
     }
 
-    public void connect(String host, int port) throws URISyntaxException, DeploymentException, IOException
-    {
+    public void bindTo(String host, int port)  {
         if(session != null) {
             throw new IllegalStateException();
+        }
+
+        this.host = host;
+        this.port = port;
+    }
+
+    private void ensureConnection() throws URISyntaxException, DeploymentException, IOException {
+        if(session != null) {
+            return;
         }
 
         URI uri = new URI("ws://%s:%d/ws".formatted(host, port));
@@ -60,13 +71,13 @@ public class WebSocketClient extends Endpoint implements Closeable
         });
     }
 
-    public void send(UserGameCommand command) throws IOException {
+    public void send(UserGameCommand command) throws IOException, DeploymentException, URISyntaxException {
         if(command == null) {
             throw new IllegalArgumentException();
         }
-        if(session == null) {
-            throw new IllegalStateException();
-        }
+
+        ensureConnection();
+
         String message = gson.toJson(command);
         session.getBasicRemote().sendText(message);
     }

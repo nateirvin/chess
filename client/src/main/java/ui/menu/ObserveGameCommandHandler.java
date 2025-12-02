@@ -1,5 +1,6 @@
 package ui.menu;
 
+import jakarta.websocket.DeploymentException;
 import model.GameData;
 import model.UserEntryResult;
 import ui.BufferedRenderer;
@@ -51,6 +52,9 @@ public class ObserveGameCommandHandler extends GameScopedCommandHandler implemen
             webSocket.send(userCommand);
 
             render.userActionComplete("Observation started.");
+        } catch(DeploymentException e) {
+            logger.log(Level.INFO, "Cannot connect", e);
+            return "Game server cannot be reached.";
         } catch (Exception exception) {
             logger.log(Level.SEVERE, "Failed to start observation", exception);
             return "Failed to connect to this game.";

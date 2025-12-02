@@ -1,6 +1,7 @@
 package ui.menu;
 
 import chess.ChessGame;
+import jakarta.websocket.DeploymentException;
 import model.AuthData;
 import model.GameData;
 import model.UserEntryResult;
@@ -71,7 +72,7 @@ public class JoinGameCommandHandler extends GameScopedCommandHandler implements 
                 render.userActionComplete("Joined!");
 
                 webSocket.send(new UserGameCommand(UserGameCommand.CommandType.CONNECT, session.authToken(), session.userId()));
-            } catch(ConnectException e) {
+            } catch(ConnectException | DeploymentException e) {
                 logger.log(Level.INFO, "Cannot connect", e);
                 return "Game server cannot be reached.";
             } catch (Exception e) {

@@ -38,7 +38,7 @@ public class Main
 
             logger.addHandler(new FileHandler("chess-app.log", true));
             serverFacade.bindTo("localhost", 8080);
-            webSocketClient.connect("localhost", 8080);
+            webSocketClient.bindTo("localhost", 8080);
 
             runUsing(consoleReader);
         }
