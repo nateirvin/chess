@@ -59,7 +59,7 @@ public class WebSocketClient extends Endpoint implements Closeable
                     ChessGame.TeamColor color = game.getColorForUser(appState.currentUsername());
 
                     appState.setGame(game, color);
-                    render.board(game.getGame().getBoard(), color);
+                    render.updateBoard(game.getGame().getBoard(), color);
                 } else if(serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION) {
                     NotificationMessage specificMessage = gson.fromJson(message, NotificationMessage.class);
                     render.update(specificMessage.getMessage());

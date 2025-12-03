@@ -11,6 +11,8 @@ public class BufferedRenderer implements Closeable {
     private ChessBoardRenderer boardRenderer;
     private GameListRenderer gameListRenderer;
 
+    private GameUpdate gameUpdate;
+
     public BufferedRenderer() {
         reader = new ConsoleReader();
     }
@@ -58,6 +60,34 @@ public class BufferedRenderer implements Closeable {
         System.out.println();
     }
 
+    public void waitForBoard() {
+        System.out.print("PLease wait...");
+        while(gameUpdate == null) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                //TODO: log
+            }
+            System.out.print(".");
+        }
+
+        if(gameUpdate == null) {
+            error("Board could not be loaded");
+        } else {
+            System.out.println();
+            System.out.println();
+
+            boardRenderer.render(gameUpdate.board, gameUpdate.color);
+            gameUpdate = null;
+
+            System.out.println();
+        }
+    }
+
+    public void updateBoard(ChessBoard board, ChessGame.TeamColor viewerColor) {
+        gameUpdate = new GameUpdate(board, viewerColor);
+    }
+
     public void board(ChessBoard board, ChessGame.TeamColor viewerColor) {
         boardRenderer.render(board, viewerColor);
     }
@@ -81,5 +111,8 @@ public class BufferedRenderer implements Closeable {
     @Override
     public void close() throws IOException {
         reader.close();
+    }
+
+    private record GameUpdate(ChessBoard board, ChessGame.TeamColor color) {
     }
 }

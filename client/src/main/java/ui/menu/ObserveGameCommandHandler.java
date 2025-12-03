@@ -51,6 +51,8 @@ public class ObserveGameCommandHandler extends GameScopedCommandHandler implemen
                     new UserGameCommand(UserGameCommand.CommandType.CONNECT, appState.getAuthToken(), game.gameID());
             webSocket.send(userCommand);
 
+            render.waitForBoard();
+
             render.userActionComplete("Observation started.");
         } catch(DeploymentException e) {
             logger.log(Level.INFO, "Cannot connect", e);
