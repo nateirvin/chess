@@ -5,14 +5,21 @@ import chess.ChessGame;
 import ui.data.GameListAccessor;
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.Queue;
+import java.util.concurrent.SynchronousQueue;
 
 public class BufferedRenderer implements Closeable {
     private final ConsoleReader reader;
     private ChessBoardRenderer boardRenderer;
     private GameListRenderer gameListRenderer;
 
+    private boolean inPrompt;
+    private GameInfo pendingBoard;
+    private final Queue<ScreenMessage> pendingMessages;
+
     public BufferedRenderer() {
         reader = new ConsoleReader();
+        pendingMessages = new SynchronousQueue<>();
     }
 
     public void using(GameListAccessor gameListAccessor) {
@@ -20,9 +27,28 @@ public class BufferedRenderer implements Closeable {
         this.gameListRenderer = new GameListRenderer(gameListAccessor);
     }
 
-    public void promptAndWait(String context) {
+    public void promptAndWait(String context)
+    {
+        inPrompt = true;
+
         System.out.printf("CHESS [%s] $ ", context);
         reader.read();
+
+        while (!pendingMessages.isEmpty()) {
+            ScreenMessage message = pendingMessages.poll();
+            if(message.isError) {
+                printErrorMessage(message.text);
+            } else {
+                printNotification(message.text);
+            }
+        }
+
+        if(pendingBoard != null) {
+            boardRenderer.render(pendingBoard.data, pendingBoard.color);
+            pendingBoard = null;
+        }
+
+        inPrompt = false;
     }
 
     public String firstWordEntered() {
@@ -41,7 +67,15 @@ public class BufferedRenderer implements Closeable {
     }
 
     public void update(String message) {
-        System.out.println(message);
+        if(inPrompt) {
+            pendingMessages.add(new ScreenMessage(message, false));
+        } else {
+            printNotification(message);
+        }
+    }
+
+    private static void printNotification(String text) {
+        System.out.println(text);
         System.out.println();
     }
 
@@ -59,7 +93,11 @@ public class BufferedRenderer implements Closeable {
     }
 
     public void board(ChessBoard board, ChessGame.TeamColor viewerColor) {
-        boardRenderer.render(board, viewerColor);
+        if(inPrompt) {
+            this.pendingBoard = new GameInfo(board, viewerColor);
+        } else {
+            boardRenderer.render(board, viewerColor);
+        }
     }
 
     public void gamesList() {
@@ -71,9 +109,17 @@ public class BufferedRenderer implements Closeable {
         System.out.println();
     }
 
-    public void error(String message) {
+    public void error(String text) {
+        if(inPrompt) {
+            pendingMessages.add(new ScreenMessage(text, true));
+        } else {
+            printErrorMessage(text);
+        }
+    }
+
+    private static void printErrorMessage(String text) {
         System.out.print(EscapeSequences.SET_TEXT_COLOR_RED);
-        System.out.printf(">>> %s%n", message);
+        System.out.printf(">>> %s%n", text);
         System.out.println();
         System.out.print(EscapeSequences.RESET_TEXT_COLOR);
     }
@@ -81,5 +127,11 @@ public class BufferedRenderer implements Closeable {
     @Override
     public void close() throws IOException {
         reader.close();
+    }
+
+    private record ScreenMessage(String text, boolean isError) {
+    }
+
+    private record GameInfo(ChessBoard data, ChessGame.TeamColor color) {
     }
 }
