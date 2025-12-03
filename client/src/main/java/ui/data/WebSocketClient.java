@@ -88,7 +88,10 @@ public class WebSocketClient extends Endpoint implements Closeable
 
     @Override
     public void close() throws IOException {
-        session.close();
+        if(session != null) {
+            session.close();
+        }
+
         session = null;
     }
 }

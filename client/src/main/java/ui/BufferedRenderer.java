@@ -3,18 +3,34 @@ package ui;
 import chess.ChessBoard;
 import chess.ChessGame;
 import ui.data.GameListAccessor;
+import java.io.Closeable;
+import java.io.IOException;
 
-public class BufferedRenderer {
+public class BufferedRenderer implements Closeable {
+    private final ConsoleReader reader;
     private ChessBoardRenderer boardRenderer;
     private GameListRenderer gameListRenderer;
+
+    public BufferedRenderer() {
+        reader = new ConsoleReader();
+    }
 
     public void using(GameListAccessor gameListAccessor) {
         this.boardRenderer = new ChessBoardRenderer(ColorScheme.example());
         this.gameListRenderer = new GameListRenderer(gameListAccessor);
     }
 
-    public void prompt(String context) {
+    public void promptAndWait(String context) {
         System.out.printf("CHESS [%s] $ ", context);
+        reader.read();
+    }
+
+    public String firstWordEntered() {
+        return reader.firstToken();
+    }
+
+    public String[] allButFirstEnteredWord() {
+        return reader.allButFirstToken();
     }
 
     public void userActionComplete(String message) {
@@ -60,5 +76,10 @@ public class BufferedRenderer {
         System.out.printf(">>> %s%n", message);
         System.out.println();
         System.out.print(EscapeSequences.RESET_TEXT_COLOR);
+    }
+
+    @Override
+    public void close() throws IOException {
+        reader.close();
     }
 }

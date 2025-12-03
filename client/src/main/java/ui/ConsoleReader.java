@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Scanner;
 
-public class ConsoleReader implements Closeable
+class ConsoleReader implements Closeable
 {
     private final Scanner inputReader;
     private String[] captures;

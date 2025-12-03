@@ -12,9 +12,8 @@ import java.util.logging.*;
 public class Main
 {
     private static AppState appState;
-    private static MenuCommandHandlerFactory menuCommandFactory;
-    private static BufferedRenderer render;
     private static Gson gson;
+    private static MenuCommandHandlerFactory menuCommandFactory;
 
     public static void main(String[] args)
     {
@@ -22,14 +21,13 @@ public class Main
 
         appState = new AppState();
         gson = new SerializerFactory().getGson();
-        render = new BufferedRenderer();
 
         LogManager.getLogManager().reset();
         Logger logger = Logger.getLogger("default");
 
-        try (ServerFacade serverFacade = new ServerFacade(gson);
-             WebSocketClient webSocketClient = new WebSocketClient(appState, gson, render);
-             ConsoleReader consoleReader = new ConsoleReader())
+        try (BufferedRenderer render = new BufferedRenderer();
+             ServerFacade serverFacade = new ServerFacade(gson);
+             WebSocketClient webSocketClient = new WebSocketClient(appState, gson, render))
         {
             GameListAccessor gameListAccessor = new GameListAccessor(appState, serverFacade);
             render.using(gameListAccessor);
@@ -40,16 +38,16 @@ public class Main
             serverFacade.bindTo("localhost", 8080);
             webSocketClient.bindTo("localhost", 8080);
 
-            runUsing(consoleReader);
+            runUsing(render);
         }
         catch (Exception e)
         {
             logger.log(Level.SEVERE, "Critical failure", e);
-            render.error("A critical error has occurred; the app will have to stop.");
+            System.out.println("A critical error has occurred; the app will have to stop.");
         }
     }
 
-    private static void runUsing(ConsoleReader consoleReader) {
+    private static void runUsing(BufferedRenderer screen) {
         while (true) {
             String context = appState.currentUsername();
             if(appState.inGameplayMode()) {
@@ -60,16 +58,15 @@ public class Main
                 }
                 context += appState.gameName();
             }
-            render.prompt(context);
-            consoleReader.read();
+            screen.promptAndWait(context);
 
             MenuCommandHandler command;
             if (!appState.userIsLoggedIn()) {
-                command = menuCommandFactory.getPreLoginCommand(consoleReader.firstToken());
+                command = menuCommandFactory.getPreLoginCommand(screen.firstWordEntered());
             } else if(!appState.inGameplayMode()) {
-                command = menuCommandFactory.getPostLoginCommand(consoleReader.firstToken());
+                command = menuCommandFactory.getPostLoginCommand(screen.firstWordEntered());
             } else {
-                command = menuCommandFactory.getGameplayCommand(consoleReader.firstToken());
+                command = menuCommandFactory.getGameplayCommand(screen.firstWordEntered());
             }
 
             if (command == null)   //user selected to quit
@@ -79,10 +76,10 @@ public class Main
                 return;
             }
 
-            String errorMessage = command.execute(consoleReader.allButFirstToken());
+            String errorMessage = command.execute(screen.allButFirstEnteredWord());
 
             if (errorMessage != null) {
-                render.error(errorMessage);
+                screen.error(errorMessage);
             }
         }
     }
