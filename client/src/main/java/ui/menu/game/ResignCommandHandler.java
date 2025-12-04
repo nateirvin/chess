@@ -27,6 +27,7 @@ public class ResignCommandHandler extends GameScopedCommandHandler implements Me
         }
 
         try {
+            //no callback, notifies every user
             UserGameCommand userCommand =
                     new UserGameCommand(UserGameCommand.CommandType.RESIGN,
                                         appState.getAuthToken(),
@@ -40,7 +41,7 @@ public class ResignCommandHandler extends GameScopedCommandHandler implements Me
             return "Failure to communicate";
         }
 
-        render.waitForBoard();
+        appState.getCurrentGame().concededBy(appState.currentUsername());
 
         renderGameOverIfDone();
         return null;

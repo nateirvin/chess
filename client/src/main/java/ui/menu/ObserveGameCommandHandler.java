@@ -44,12 +44,11 @@ public class ObserveGameCommandHandler extends GameScopedCommandHandler implemen
         GameData game = gameFetchResult.getValue();
 
         try {
+            //calls back with Game state
+            //notifies other users game has been joined
             UserGameCommand userCommand =
                     new UserGameCommand(UserGameCommand.CommandType.CONNECT, appState.getAuthToken(), game.gameID());
             webSocket.send(userCommand);
-
-            render.waitForBoard();
-            renderGameOverIfDone();
         } catch(DeploymentException e) {
             logger.log(Level.INFO, "Cannot connect", e);
             return "Game server cannot be reached.";
@@ -57,6 +56,9 @@ public class ObserveGameCommandHandler extends GameScopedCommandHandler implemen
             logger.log(Level.SEVERE, "Failed to start observation", exception);
             return "Failed to connect to this game.";
         }
+
+        render.waitForBoard();
+        renderGameOverIfDone();
 
         return null;
     }

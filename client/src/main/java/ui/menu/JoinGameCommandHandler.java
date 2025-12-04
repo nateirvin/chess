@@ -64,10 +64,12 @@ public class JoinGameCommandHandler extends GameScopedCommandHandler implements 
                 serverFacade.joinGame(game.gameID(), appState.getSession(), color);
                 render.userActionComplete("Joined!");
 
+                //calls back with Game state
+                //notifies other users game has been joined
                 UserGameCommand userCommand =
                         new UserGameCommand(UserGameCommand.CommandType.CONNECT,
                                             session.authToken(),
-                                            session.userId());
+                                            game.gameID());
                 webSocket.send(userCommand);
             } catch(ConnectException | DeploymentException e) {
                 logger.log(Level.INFO, "Cannot connect", e);
@@ -76,6 +78,8 @@ public class JoinGameCommandHandler extends GameScopedCommandHandler implements 
                 logger.log(Level.SEVERE, "Failure in join game", e);
                 return "Failed to join game.";
             }
+
+            render.waitForBoard();
 
             return null;
         } else {

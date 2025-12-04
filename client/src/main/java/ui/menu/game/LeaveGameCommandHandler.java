@@ -32,6 +32,7 @@ public class LeaveGameCommandHandler implements MenuCommandHandler {
                                     appState.getCurrentGame().gameID());
 
         try {
+            //no callback, informs other users
             webSocketClient.send(command);
         } catch (DeploymentException e) {
             logger.log(Level.SEVERE, "Failure to exit game", e);

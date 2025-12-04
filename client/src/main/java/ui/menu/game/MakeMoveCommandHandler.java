@@ -46,6 +46,8 @@ public class MakeMoveCommandHandler extends GameScopedCommandHandler implements 
         }
 
         try {
+            //calls back with game state
+            //informs other users
             webSocketClient.send(new UserMoveCommand(appState.getAuthToken(), appState.getCurrentGame().gameID(), move));
         } catch (DeploymentException ex) {
             logger.log(Level.SEVERE, "Make Move Failed.", ex);
