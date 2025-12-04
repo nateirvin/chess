@@ -71,7 +71,7 @@ public class WebSocketClient extends Endpoint implements Closeable
                         }
                     }
 
-                    render.update(specificMessage.getMessage());
+                    render.asyncUpdate(specificMessage.getMessage());
                 } else if(serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.ERROR) {
                     ServerErrorMessage specificMessage = gson.fromJson(message, ServerErrorMessage.class);
                     render.callbackError(specificMessage.getErrorMessage());

@@ -7,6 +7,8 @@ import ui.data.GameListAccessor;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Queue;
+import java.util.concurrent.SynchronousQueue;
 
 public class BufferedRenderer implements Closeable {
     private final ConsoleReader reader;
@@ -14,9 +16,11 @@ public class BufferedRenderer implements Closeable {
     private GameListRenderer gameListRenderer;
 
     private GameUpdate gameUpdate;
+    private final Queue<String> asyncMessages;
 
     public BufferedRenderer() {
         reader = new ConsoleReader();
+        asyncMessages = new SynchronousQueue<>();
     }
 
     public void using(GameListAccessor gameListAccessor) {
@@ -25,8 +29,12 @@ public class BufferedRenderer implements Closeable {
     }
 
     public void promptAndWait(String context) {
+        asyncNotices();
+
         System.out.printf("CHESS [%s] $ ", context);
         reader.read();
+
+        asyncNotices();
     }
 
     public String firstWordEntered() {
@@ -44,9 +52,24 @@ public class BufferedRenderer implements Closeable {
         System.out.println();
     }
 
-    public void update(String message) {
+    public void notice(String message) {
         System.out.println(message);
         System.out.println();
+    }
+
+    public void asyncUpdate(String message) {
+        synchronized (asyncMessages) {
+            asyncMessages.add(message);
+        }
+    }
+
+    private void asyncNotices() {
+        synchronized (asyncMessages) {
+            while (!asyncMessages.isEmpty()) {
+                String message = asyncMessages.poll();
+                System.out.println("* " + message);
+            }
+        }
     }
 
     public void helpMenuStart() {
@@ -79,7 +102,7 @@ public class BufferedRenderer implements Closeable {
         } else {
             if(gameUpdate.errorMessage != null) {
                 error(gameUpdate.errorMessage);
-                this.gameUpdate = null;
+                gameUpdate = null;
                 return;
             }
 
