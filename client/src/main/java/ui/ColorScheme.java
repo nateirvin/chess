@@ -13,6 +13,10 @@ public class ColorScheme {
     private String player2TextColorName;
     private String aggressorText;
     private String aggressorBackground;
+    private boolean needsExplanation;
+
+    private ColorScheme() {
+    }
 
     public static ColorScheme example() {
         ColorScheme colorScheme = new ColorScheme();
@@ -28,6 +32,7 @@ public class ColorScheme {
         colorScheme.aggressorBackground = EscapeSequences.SET_BG_COLOR_YELLOW;
         colorScheme.lightHighlightSquareBackground = EscapeSequences.SET_BG_COLOR_GREEN;
         colorScheme.darkHighlightSquareBackground = EscapeSequences.SET_BG_COLOR_DARK_GREEN;
+        colorScheme.needsExplanation = true;
         return colorScheme;
     }
 
@@ -45,6 +50,25 @@ public class ColorScheme {
         colorScheme.aggressorBackground = EscapeSequences.SET_BG_COLOR_YELLOW;
         colorScheme.lightHighlightSquareBackground = EscapeSequences.SET_BG_COLOR_GREEN;
         colorScheme.darkHighlightSquareBackground = EscapeSequences.SET_BG_COLOR_DARK_GREEN;
+        colorScheme.needsExplanation = true;
+        return colorScheme;
+    }
+
+    public static ColorScheme trueColor() {
+        ColorScheme colorScheme = new ColorScheme();
+        colorScheme.borderBackground = EscapeSequences.SET_BG_COLOR_WHITE;
+        colorScheme.borderText = EscapeSequences.SET_TEXT_COLOR_GREEN;
+        colorScheme.player1Text = EscapeSequences.SET_TEXT_COLOR_WHITE;
+        colorScheme.player1TextColorName = "white";
+        colorScheme.player2Text = EscapeSequences.SET_TEXT_COLOR_BLACK;
+        colorScheme.player2TextColorName = "black";
+        colorScheme.lightSquareBackground = EscapeSequences.SET_BG_COLOR_LIGHT_GREY;
+        colorScheme.darkSquareBackground = EscapeSequences.SET_BG_COLOR_RED;
+        colorScheme.aggressorText = EscapeSequences.SET_TEXT_COLOR_DARK_GREY;
+        colorScheme.aggressorBackground = EscapeSequences.SET_BG_COLOR_YELLOW;
+        colorScheme.lightHighlightSquareBackground = EscapeSequences.SET_BG_COLOR_GREEN;
+        colorScheme.darkHighlightSquareBackground = EscapeSequences.SET_BG_COLOR_DARK_GREEN;
+        colorScheme.needsExplanation = false;
         return colorScheme;
     }
 
@@ -94,5 +118,9 @@ public class ColorScheme {
 
     public String forDarkHighlightSquare() {
         return darkHighlightSquareBackground;
+    }
+
+    public boolean areSelfExplanatory() {
+        return !needsExplanation;
     }
 }

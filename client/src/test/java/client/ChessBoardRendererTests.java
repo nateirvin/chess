@@ -33,6 +33,20 @@ public class ChessBoardRendererTests
     }
 
     @Test
+    public void smokeTestTrueColor() {
+        ChessBoard board = new ChessBoard();
+        board.resetBoard();
+        var classUnderTest = new ChessBoardRenderer(ColorScheme.trueColor());
+
+        ArrayList<ChessPosition> highlights = new ArrayList<>();
+        highlights.add(new ChessPosition(2, 1));
+        highlights.add(new ChessPosition(3, 1));
+        highlights.add(new ChessPosition(4, 1));
+
+        classUnderTest.render(board, ChessGame.TeamColor.WHITE, highlights);
+    }
+
+    @Test
     public void isHighlightedPieceReturnsTrue()
     {
         ChessPosition currentPosition = new ChessPosition(7, 8);

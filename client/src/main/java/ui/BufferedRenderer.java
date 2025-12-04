@@ -12,7 +12,7 @@ import java.util.concurrent.SynchronousQueue;
 
 public class BufferedRenderer implements Closeable {
     private final ConsoleReader reader;
-    private ChessBoardRenderer boardRenderer;
+    private final ChessBoardRenderer boardRenderer;
     private GameListRenderer gameListRenderer;
 
     private GameUpdate gameUpdate;
@@ -21,10 +21,10 @@ public class BufferedRenderer implements Closeable {
     public BufferedRenderer() {
         reader = new ConsoleReader();
         asyncMessages = new SynchronousQueue<>();
+        boardRenderer = new ChessBoardRenderer(ColorScheme.trueColor());
     }
 
     public void using(GameListAccessor gameListAccessor) {
-        this.boardRenderer = new ChessBoardRenderer(ColorScheme.example());
         this.gameListRenderer = new GameListRenderer(gameListAccessor);
     }
 
@@ -124,13 +124,16 @@ public class BufferedRenderer implements Closeable {
 
         boardRenderer.render(board, viewerColor, highlights);
 
-        System.out.println();
-        System.out.print(EscapeSequences.SET_TEXT_ITALIC);
         ColorScheme colors = boardRenderer.getColorScheme();
-        System.out.printf("%s = white team, %s = black team%n",
-                          colors.player1TextColorName(),
-                          colors.player2TextColorName());
-        System.out.print(EscapeSequences.RESET_TEXT_ITALIC);
+        if(!colors.areSelfExplanatory()) {
+            System.out.println();
+            System.out.print(EscapeSequences.SET_TEXT_ITALIC);
+
+            System.out.printf("%s = white team, %s = black team%n",
+                    colors.player1TextColorName(),
+                    colors.player2TextColorName());
+            System.out.print(EscapeSequences.RESET_TEXT_ITALIC);
+        }
 
         System.out.println();
     }
