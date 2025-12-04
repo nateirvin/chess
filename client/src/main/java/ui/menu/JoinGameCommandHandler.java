@@ -51,19 +51,19 @@ public class JoinGameCommandHandler extends GameScopedCommandHandler implements 
 
             AuthData session = appState.getSession();
 
-            String currentUserName = game.usernameFor(color);
-            if(currentUserName != null) {
-                if(currentUserName.equals(session.username())) {
-                    return "You have already joined this game as this player.";
-                } else {
-                    return "You cannot join this game as that player.";
-                }
-            }
-
             try {
                 serverFacade.joinGame(game.gameID(), appState.getSession(), color);
-                render.userActionComplete("Joined!");
+            } catch(ConnectException ex) {
+                logger.log(Level.INFO, "Cannot connect", ex);
+                return "Game server cannot be reached.";
+            } catch (Exception ex) {
+                logger.log(Level.SEVERE, "Failure in join game", ex);
+                return "Failed to join game.";
+            }
+            appState.setPlayer(color);
+            render.userActionComplete("Joined!");
 
+            try {
                 //calls back with Game state
                 //notifies other users game has been joined
                 UserGameCommand userCommand =
@@ -71,12 +71,12 @@ public class JoinGameCommandHandler extends GameScopedCommandHandler implements 
                                             session.authToken(),
                                             game.gameID());
                 webSocket.send(userCommand);
-            } catch(ConnectException | DeploymentException e) {
-                logger.log(Level.INFO, "Cannot connect", e);
-                return "Game server cannot be reached.";
-            } catch (Exception e) {
-                logger.log(Level.SEVERE, "Failure in join game", e);
-                return "Failed to join game.";
+            } catch(DeploymentException ex) {
+                logger.log(Level.INFO, "Cannot connect", ex);
+                return "Game server did not receive all updates.";
+            } catch (Exception ex) {
+                logger.log(Level.SEVERE, "Failure in join game", ex);
+                return "Failed to start game.";
             }
 
             render.waitForBoard();
