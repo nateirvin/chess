@@ -7,8 +7,6 @@ import ui.data.WebSocketClient;
 import ui.menu.GameScopedCommandHandler;
 import ui.menu.MenuCommandHandler;
 import websocket.commands.UserGameCommand;
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -34,12 +32,12 @@ public class ResignCommandHandler extends GameScopedCommandHandler implements Me
                                         appState.getAuthToken(),
                                         appState.getCurrentGame().gameID());
             webSocket.send(userCommand);
-        } catch (URISyntaxException | IOException e) {
-            logger.log(Level.SEVERE, "Failed to resign", e);
-            return "Failure to communicate";
-        } catch (DeploymentException e) {
-            logger.log(Level.SEVERE, "Failed to resign", e);
+        } catch (DeploymentException ex) {
+            logger.log(Level.SEVERE, "Failed to resign", ex);
             return "Game server cannot be reached";
+        } catch (Exception ex) {
+            logger.log(Level.SEVERE, "Failed to resign", ex);
+            return "Failure to communicate";
         }
 
         render.waitForBoard();

@@ -10,8 +10,6 @@ import ui.data.WebSocketClient;
 import ui.menu.GameScopedCommandHandler;
 import ui.menu.MenuCommandHandler;
 import websocket.commands.UserMoveCommand;
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -49,12 +47,12 @@ public class MakeMoveCommandHandler extends GameScopedCommandHandler implements 
 
         try {
             webSocketClient.send(new UserMoveCommand(appState.getAuthToken(), appState.getCurrentGame().gameID(), move));
-        } catch (IOException | URISyntaxException ex) {
-            logger.log(Level.SEVERE, "Make Move Failed.", ex);
-            return "Could not communicate the move.";
         } catch (DeploymentException ex) {
             logger.log(Level.SEVERE, "Make Move Failed.", ex);
             return "Cannot contact game server.";
+        } catch (Exception ex) {
+            logger.log(Level.SEVERE, "Make Move Failed.", ex);
+            return "Could not communicate the move.";
         }
 
         render.waitForBoard();

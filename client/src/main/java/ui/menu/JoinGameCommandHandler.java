@@ -71,7 +71,11 @@ public class JoinGameCommandHandler extends GameScopedCommandHandler implements 
                 serverFacade.joinGame(game.gameID(), appState.getSession(), color);
                 render.userActionComplete("Joined!");
 
-                webSocket.send(new UserGameCommand(UserGameCommand.CommandType.CONNECT, session.authToken(), session.userId()));
+                UserGameCommand userCommand =
+                        new UserGameCommand(UserGameCommand.CommandType.CONNECT,
+                                            session.authToken(),
+                                            session.userId());
+                webSocket.send(userCommand);
             } catch(ConnectException | DeploymentException e) {
                 logger.log(Level.INFO, "Cannot connect", e);
                 return "Game server cannot be reached.";

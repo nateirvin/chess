@@ -39,12 +39,18 @@ public class WebSocketClient extends Endpoint implements Closeable
         this.port = port;
     }
 
-    private void ensureConnection() throws URISyntaxException, DeploymentException, IOException {
+    private void ensureConnection() throws DeploymentException, IOException {
         if(session != null) {
             return;
         }
 
-        URI uri = new URI("ws://%s:%d/ws".formatted(host, port));
+        URI uri;
+        try {
+            uri = new URI("ws://%s:%d/ws".formatted(host, port));
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
         this.session = container.connectToServer(this, uri);
 
@@ -68,7 +74,7 @@ public class WebSocketClient extends Endpoint implements Closeable
         });
     }
 
-    public void send(UserGameCommand command) throws IOException, DeploymentException, URISyntaxException {
+    public void send(UserGameCommand command) throws IOException, DeploymentException {
         if(command == null) {
             throw new IllegalArgumentException();
         }
