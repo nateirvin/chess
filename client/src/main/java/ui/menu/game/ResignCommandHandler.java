@@ -43,7 +43,7 @@ public class ResignCommandHandler extends GameScopedCommandHandler implements Me
 
         appState.getCurrentGame().concededBy(appState.currentUsername());
 
-        renderGameOverIfDone();
+        displayGameOver();
         return null;
     }
 }

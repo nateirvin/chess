@@ -94,6 +94,10 @@ public class GameData
                blackUsername != null && blackUsername.equals(username);
     }
 
+    public String usernameForCurrentTurn() {
+        return usernameFor(getGame().getTeamTurn());
+    }
+
     public boolean isThisPlayersTurn(String username) {
         ChessGame.TeamColor whoseTurn = getGame().getTeamTurn();
         if(whoseTurn == ChessGame.TeamColor.WHITE) {

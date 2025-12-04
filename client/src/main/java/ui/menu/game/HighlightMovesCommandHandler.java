@@ -41,6 +41,9 @@ public class HighlightMovesCommandHandler extends GameScopedCommandHandler imple
         highlights.addAll(destinations);
 
         render.board(appState.getCurrentGame().getGame().getBoard(), appState.getPlayer(), highlights);
+
+        displayTurnPlayer();
+
         return null;
     }
 }

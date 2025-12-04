@@ -108,6 +108,20 @@ public class BufferedRenderer implements Closeable {
         System.out.println();
     }
 
+    public void myTurn() {
+        System.out.print("It is ");
+        System.out.print(EscapeSequences.SET_TEXT_BOLD);
+        System.out.print("your");
+        System.out.print(EscapeSequences.RESET_TEXT_BOLD_FAINT);
+        System.out.println(" turn");
+        System.out.println();
+    }
+
+    public void waitingOnOpponent(String username) {
+        System.out.printf("Waiting on %s's move...%n", username);
+        System.out.println();
+    }
+
     public void gamesList() {
         gameListRenderer.showGamesList();
     }
