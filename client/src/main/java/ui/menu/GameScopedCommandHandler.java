@@ -1,18 +1,22 @@
 package ui.menu;
 
 import chess.ChessPosition;
+import model.GameData;
 import model.UserEntryResult;
 import ui.BufferedRenderer;
 import ui.data.AppState;
 import ui.data.BoardColumn;
+import ui.data.GameListAccessor;
 
 public abstract class GameScopedCommandHandler {
     protected final AppState appState;
     protected final BufferedRenderer render;
+    private final GameListAccessor gameListAccessor;
 
-    public GameScopedCommandHandler(AppState appState, BufferedRenderer render) {
+    public GameScopedCommandHandler(AppState appState, BufferedRenderer render, GameListAccessor gameListAccessor) {
         this.appState = appState;
         this.render = render;
+        this.gameListAccessor = gameListAccessor;
     }
 
     protected UserEntryResult<Integer> getGameNumber(String rawValue) {
@@ -49,6 +53,26 @@ public abstract class GameScopedCommandHandler {
         {
             return new UserEntryResult<>("Not a valid " + entityName);
         }
+    }
+
+    protected UserEntryResult<GameData> fetchGame(String gameNumberRaw) {
+        UserEntryResult<Integer> gameNumberResult = getGameNumber(gameNumberRaw);
+        if(!gameNumberResult.success()) {
+            return new UserEntryResult<>(gameNumberResult.getErrorMessage());
+        }
+        int gameNumber = gameNumberResult.getValue();
+
+        UserEntryResult<GameData> gameQuery = gameListAccessor.getGameByNumber(gameNumber);
+        if (!gameQuery.success()) {
+            return new UserEntryResult<>("You must list the games before you can select one.");
+        }
+
+        GameData game = gameQuery.getValue();
+        if (game == null) {
+            return new UserEntryResult<>("No such game.");
+        }
+
+        return new UserEntryResult<>(game);
     }
 
     protected void renderGameOverIfDone() {

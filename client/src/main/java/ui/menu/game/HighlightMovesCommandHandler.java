@@ -12,7 +12,7 @@ import java.util.List;
 
 public class HighlightMovesCommandHandler extends GameScopedCommandHandler implements MenuCommandHandler {
     public HighlightMovesCommandHandler(AppState appState, BufferedRenderer render) {
-        super(appState, render);
+        super(appState, render, null);
     }
 
     @Override

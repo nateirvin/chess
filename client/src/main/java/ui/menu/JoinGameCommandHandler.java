@@ -19,7 +19,6 @@ public class JoinGameCommandHandler extends GameScopedCommandHandler implements 
 {
     private final Logger logger;
     private final ServerFacade serverFacade;
-    private final GameListAccessor gameListAccessor;
     private final WebSocketClient webSocket;
 
     public JoinGameCommandHandler(AppState appState,
@@ -29,28 +28,22 @@ public class JoinGameCommandHandler extends GameScopedCommandHandler implements 
                                   ServerFacade serverFacade,
                                   WebSocketClient webSocket)
     {
-        super(appState, render);
+        super(appState, render, gameListAccessor);
         this.logger = logger;
         this.serverFacade = serverFacade;
-        this.gameListAccessor = gameListAccessor;
         this.webSocket = webSocket;
     }
 
     @Override
     public String execute(String... arguments) {
         if(arguments.length == 2) {
-            UserEntryResult<Integer> gameNumberResult = getGameNumber(arguments[0]);
+            UserEntryResult<GameData> gameFetchResult = fetchGame(arguments[0]);
+            if(!gameFetchResult.success()) {
+                return gameFetchResult.getErrorMessage();
+            }
+            GameData game = gameFetchResult.getValue();
+
             UserEntryResult<ChessGame.TeamColor> colorResult = getTeamColor(arguments[1]);
-
-            if(!gameNumberResult.success()) {
-                return gameNumberResult.getErrorMessage();
-            }
-            int gameNumber = gameNumberResult.getValue();
-            GameData game = gameListAccessor.getGameByNumber(gameNumber);
-            if (game == null) {
-                return "No such game.";
-            }
-
             if(!colorResult.success()) {
                 return colorResult.getErrorMessage();
             }

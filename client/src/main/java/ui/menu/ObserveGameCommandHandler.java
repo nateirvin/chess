@@ -14,15 +14,14 @@ import java.util.logging.Logger;
 public class ObserveGameCommandHandler extends GameScopedCommandHandler implements MenuCommandHandler
 {
     private final Logger logger;
-    private final GameListAccessor gameListAccessor;
+
     private final WebSocketClient webSocket;
 
     public ObserveGameCommandHandler(AppState appState, Logger logger, BufferedRenderer render,
                                      GameListAccessor gameListAccessor, WebSocketClient webSocket)
     {
-        super(appState, render);
+        super(appState, render, gameListAccessor);
         this.logger = logger;
-        this.gameListAccessor = gameListAccessor;
         this.webSocket = webSocket;
     }
 
@@ -38,10 +37,11 @@ public class ObserveGameCommandHandler extends GameScopedCommandHandler implemen
             return gameNumberResult.getErrorMessage();
         }
 
-        GameData game = gameListAccessor.getGameByNumber(gameNumberResult.getValue());
-        if(game == null) {
-            return "No such game.";
+        UserEntryResult<GameData> gameFetchResult = fetchGame(arguments[0]);
+        if(!gameFetchResult.success()) {
+            return gameFetchResult.getErrorMessage();
         }
+        GameData game = gameFetchResult.getValue();
 
         try {
             UserGameCommand userCommand =

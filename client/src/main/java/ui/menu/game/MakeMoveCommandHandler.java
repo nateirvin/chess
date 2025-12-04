@@ -18,7 +18,7 @@ public class MakeMoveCommandHandler extends GameScopedCommandHandler implements 
     private final WebSocketClient webSocketClient;
 
     public MakeMoveCommandHandler(AppState appState, Logger logger, BufferedRenderer renderer, WebSocketClient webSocketClient) {
-        super(appState, renderer);
+        super(appState, renderer, null);
         this.logger = logger;
         this.webSocketClient = webSocketClient;
     }

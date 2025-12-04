@@ -15,7 +15,7 @@ public class ResignCommandHandler extends GameScopedCommandHandler implements Me
     private final WebSocketClient webSocket;
 
     public ResignCommandHandler(AppState appState, Logger logger, BufferedRenderer render, WebSocketClient webSocket) {
-        super(appState, render);
+        super(appState, render, null);
         this.logger = logger;
         this.webSocket = webSocket;
     }
