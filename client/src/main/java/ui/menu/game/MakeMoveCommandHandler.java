@@ -43,6 +43,10 @@ public class MakeMoveCommandHandler extends GameScopedCommandHandler implements 
         //TODO: implement the promo piece logic
         ChessMove move = new ChessMove(fromResult.getValue(), toResult.getValue(), null);
 
+        if(appState.isObserving()) {
+            return "You cannot make moves while observing.";
+        }
+
         try {
             webSocketClient.send(new UserMoveCommand(appState.getAuthToken(), appState.getCurrentGame().gameID(), move));
         } catch (IOException | URISyntaxException ex) {
