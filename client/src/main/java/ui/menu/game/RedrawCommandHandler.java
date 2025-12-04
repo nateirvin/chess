@@ -16,7 +16,7 @@ public class RedrawCommandHandler implements MenuCommandHandler
 
     @Override
     public String execute(String... arguments) {
-        render.board(appState.getBoard(), appState.getPlayer());
+        render.board(appState.getCurrentGame().getGame().getBoard(), appState.getPlayer());
         return null;
     }
 }

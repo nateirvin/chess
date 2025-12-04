@@ -1,6 +1,5 @@
 package ui.data;
 
-import chess.ChessBoard;
 import chess.ChessGame;
 import model.AuthData;
 import model.GameData;
@@ -11,7 +10,7 @@ public class AppState
 
     private AuthData userSession;
     private GameData game;
-    private ChessGame.TeamColor player;
+    private ChessGame.TeamColor player = null;
 
     public void setSession(AuthData userSession) {
         if(userSession == null) {
@@ -23,19 +22,15 @@ public class AppState
         this.userSession = userSession;
     }
 
-    public void setGame(GameData game) {
-        setGame(game, null);
-    }
-
-    public void setGame(GameData game, ChessGame.TeamColor playerColor) {
+    public void updateGame(GameData game) {
         if(game == null) {
             throw new IllegalArgumentException();
         }
-        if(this.game != null) {
-            throw new IllegalStateException("You must leave the current game before moving to a new one.");
-        }
         this.game = game;
-        this.player = playerColor;
+    }
+
+    public void setPlayer(ChessGame.TeamColor color) {
+        this.player = color;
     }
 
     public String currentUsername()
@@ -74,9 +69,9 @@ public class AppState
         return userSession;
     }
 
-    public ChessBoard getBoard() {
+    public GameData getCurrentGame() {
         if(inGameplayMode()) {
-            return game.getGame().getBoard();
+            return game;
         }
         return null;
     }

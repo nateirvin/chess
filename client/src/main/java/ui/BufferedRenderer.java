@@ -2,9 +2,11 @@ package ui;
 
 import chess.ChessBoard;
 import chess.ChessGame;
+import chess.ChessPosition;
 import ui.data.GameListAccessor;
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class BufferedRenderer implements Closeable {
     private final ConsoleReader reader;
@@ -89,7 +91,15 @@ public class BufferedRenderer implements Closeable {
     }
 
     public void board(ChessBoard board, ChessGame.TeamColor viewerColor) {
+        System.out.println();
         boardRenderer.render(board, viewerColor);
+        System.out.println();
+    }
+
+    public void board(ChessBoard board, ChessGame.TeamColor viewerColor, ArrayList<ChessPosition> highlights) {
+        System.out.println();
+        boardRenderer.render(board, viewerColor, highlights);
+        System.out.println();
     }
 
     public void gamesList() {

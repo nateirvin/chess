@@ -1,6 +1,5 @@
 package ui.data;
 
-import chess.ChessGame;
 import com.google.gson.Gson;
 import jakarta.websocket.*;
 import model.GameData;
@@ -54,12 +53,10 @@ public class WebSocketClient extends Endpoint implements Closeable
                 ServerMessage serverMessage = gson.fromJson(message, ServerMessage.class);
                 if(serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
                     GameLoadServerMessage specificMessage = gson.fromJson(message, GameLoadServerMessage.class);
-
                     GameData game = specificMessage.getGame();
-                    ChessGame.TeamColor color = game.getColorForUser(appState.currentUsername());
 
-                    appState.setGame(game, color);
-                    render.updateBoard(game.getGame().getBoard(), color);
+                    appState.updateGame(game);
+                    render.updateBoard(game.getGame().getBoard(), appState.getPlayer());
                 } else if(serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION) {
                     NotificationMessage specificMessage = gson.fromJson(message, NotificationMessage.class);
                     render.update(specificMessage.getMessage());

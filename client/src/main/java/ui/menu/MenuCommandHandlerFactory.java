@@ -104,10 +104,10 @@ public class MenuCommandHandlerFactory
                 return new LeaveGameCommandHandler(appState, mainRenderer);
             }
             case "moves" -> {
-                return new HighlightMovesCommandHandler();
+                return new HighlightMovesCommandHandler(appState, mainRenderer);
             }
             case "move" -> {
-                return new MakeMoveCommandHandler();
+                return new MakeMoveCommandHandler(appState, logger, mainRenderer, webSocketClient);
             }
             case "resign" -> {
                 return new ResignCommandHandler();

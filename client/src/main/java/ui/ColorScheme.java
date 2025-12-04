@@ -5,8 +5,12 @@ public class ColorScheme {
     private String borderText;
     private String lightSquareBackground;
     private String darkSquareBackground;
+    private String lightHighlightSquareBackground;
+    private String darkHighlightSquareBackground;
     private String player1Text;
     private String player2Text;
+    private String aggressorText;
+    private String aggressorBackground;
 
     public static ColorScheme example() {
         ColorScheme colorScheme = new ColorScheme();
@@ -16,6 +20,10 @@ public class ColorScheme {
         colorScheme.darkSquareBackground = EscapeSequences.SET_BG_COLOR_DARK_GREY;
         colorScheme.player1Text = EscapeSequences.SET_TEXT_COLOR_RED;
         colorScheme.player2Text = EscapeSequences.SET_TEXT_COLOR_BLUE;
+        colorScheme.aggressorText = EscapeSequences.SET_TEXT_COLOR_BLACK;
+        colorScheme.aggressorBackground = EscapeSequences.SET_BG_COLOR_YELLOW;
+        colorScheme.lightHighlightSquareBackground = EscapeSequences.SET_BG_COLOR_GREEN;
+        colorScheme.darkHighlightSquareBackground = EscapeSequences.SET_BG_COLOR_DARK_GREEN;
         return colorScheme;
     }
 
@@ -27,6 +35,10 @@ public class ColorScheme {
         colorScheme.darkSquareBackground = EscapeSequences.SET_BG_COLOR_DARK_GREY;
         colorScheme.player1Text = EscapeSequences.SET_TEXT_COLOR_RED;
         colorScheme.player2Text = EscapeSequences.SET_TEXT_COLOR_BLUE;
+        colorScheme.aggressorText = EscapeSequences.SET_TEXT_COLOR_BLACK;
+        colorScheme.aggressorBackground = EscapeSequences.SET_BG_COLOR_YELLOW;
+        colorScheme.lightHighlightSquareBackground = EscapeSequences.SET_BG_COLOR_GREEN;
+        colorScheme.darkHighlightSquareBackground = EscapeSequences.SET_BG_COLOR_DARK_GREEN;
         return colorScheme;
     }
 
@@ -52,5 +64,21 @@ public class ColorScheme {
 
     public String forPlayer2Text() {
         return player2Text;
+    }
+
+    public String forAggressorText() {
+        return aggressorText;
+    }
+
+    public String forAggressorBackground() {
+        return aggressorBackground;
+    }
+
+    public String forLightHighlightSquare() {
+        return lightHighlightSquareBackground;
+    }
+
+    public String forDarkHighlightSquare() {
+        return darkHighlightSquareBackground;
     }
 }
