@@ -113,7 +113,7 @@ public class MenuCommandHandlerFactory
                 return new ResignCommandHandler();
             }
             case "help" -> {
-                return new GameplayHelpCommandHandler(mainRenderer);
+                return new GameplayHelpCommandHandler(appState, mainRenderer);
             }
             case "quit", "exit" -> {
                 return null;

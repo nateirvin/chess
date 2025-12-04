@@ -13,19 +13,16 @@ import java.util.logging.Logger;
 
 public class ObserveGameCommandHandler extends GameScopedCommandHandler implements MenuCommandHandler
 {
-    private final AppState appState;
     private final Logger logger;
     private final GameListAccessor gameListAccessor;
-    private final BufferedRenderer render;
     private final WebSocketClient webSocket;
 
     public ObserveGameCommandHandler(AppState appState, Logger logger, BufferedRenderer render,
                                      GameListAccessor gameListAccessor, WebSocketClient webSocket)
     {
-        this.appState = appState;
+        super(appState, render);
         this.logger = logger;
         this.gameListAccessor = gameListAccessor;
-        this.render = render;
         this.webSocket = webSocket;
     }
 
@@ -52,8 +49,7 @@ public class ObserveGameCommandHandler extends GameScopedCommandHandler implemen
             webSocket.send(userCommand);
 
             render.waitForBoard();
-
-            render.userActionComplete("Observation started.");
+            renderGameOverIfDone();
         } catch(DeploymentException e) {
             logger.log(Level.INFO, "Cannot connect", e);
             return "Game server cannot be reached.";

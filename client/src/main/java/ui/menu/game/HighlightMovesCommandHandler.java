@@ -11,12 +11,8 @@ import java.util.Collection;
 import java.util.List;
 
 public class HighlightMovesCommandHandler extends GameScopedCommandHandler implements MenuCommandHandler {
-    private final AppState appState;
-    private final BufferedRenderer render;
-
     public HighlightMovesCommandHandler(AppState appState, BufferedRenderer render) {
-        this.appState = appState;
-        this.render = render;
+        super(appState, render);
     }
 
     @Override

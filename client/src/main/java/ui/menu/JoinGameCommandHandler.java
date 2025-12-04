@@ -11,28 +11,28 @@ import ui.data.GameListAccessor;
 import ui.data.ServerFacade;
 import ui.data.WebSocketClient;
 import websocket.commands.UserGameCommand;
-
 import java.net.ConnectException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class JoinGameCommandHandler extends GameScopedCommandHandler implements MenuCommandHandler
 {
-    private final AppState appState;
     private final Logger logger;
     private final ServerFacade serverFacade;
     private final GameListAccessor gameListAccessor;
-    private final BufferedRenderer render;
     private final WebSocketClient webSocket;
 
-    public JoinGameCommandHandler(AppState appState, BufferedRenderer render, Logger logger, GameListAccessor gameListAccessor, ServerFacade serverFacade,
+    public JoinGameCommandHandler(AppState appState,
+                                  BufferedRenderer render,
+                                  Logger logger,
+                                  GameListAccessor gameListAccessor,
+                                  ServerFacade serverFacade,
                                   WebSocketClient webSocket)
     {
-        this.appState = appState;
+        super(appState, render);
         this.logger = logger;
         this.serverFacade = serverFacade;
         this.gameListAccessor = gameListAccessor;
-        this.render = render;
         this.webSocket = webSocket;
     }
 

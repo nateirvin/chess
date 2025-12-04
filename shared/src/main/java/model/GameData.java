@@ -111,14 +111,31 @@ public class GameData
         }
 
         ChessBoard board = getGame().getBoard();
-        if(board.isInCheckmate(ChessGame.TeamColor.WHITE) ||
-           board.isInCheckmate(ChessGame.TeamColor.BLACK) ||
-           board.isInStalemate(ChessGame.TeamColor.WHITE) ||
-           board.isInStalemate(ChessGame.TeamColor.BLACK))
+        if(board.isInCheckmateOrStalemate(ChessGame.TeamColor.WHITE) ||
+           board.isInCheckmateOrStalemate(ChessGame.TeamColor.BLACK))
         {
             return true;
         }
 
         return false;
+    }
+
+    public String getWinnerUsername() {
+        if(resignedUsername != null) {
+            if(resignedUsername.equals(whiteUsername)) {
+                return blackUsername;
+            } else if(resignedUsername.equals(blackUsername)) {
+                return whiteUsername;
+            }
+        } else {
+            ChessBoard board = getGame().getBoard();
+            if(board.isInCheckmateOrStalemate(ChessGame.TeamColor.WHITE)) {
+                return blackUsername;
+            } else if(board.isInCheckmateOrStalemate(ChessGame.TeamColor.BLACK)) {
+                return whiteUsername;
+            }
+        }
+
+        return null;
     }
 }

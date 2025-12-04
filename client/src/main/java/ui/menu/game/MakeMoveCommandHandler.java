@@ -16,15 +16,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class MakeMoveCommandHandler extends GameScopedCommandHandler implements MenuCommandHandler {
-    private final AppState appState;
     private final Logger logger;
-    private final BufferedRenderer renderer;
     private final WebSocketClient webSocketClient;
 
     public MakeMoveCommandHandler(AppState appState, Logger logger, BufferedRenderer renderer, WebSocketClient webSocketClient) {
-        this.appState = appState;
+        super(appState, renderer);
         this.logger = logger;
-        this.renderer = renderer;
         this.webSocketClient = webSocketClient;
     }
 
@@ -56,7 +53,9 @@ public class MakeMoveCommandHandler extends GameScopedCommandHandler implements 
             return "Cannot contact game server.";
         }
 
-        renderer.waitForBoard();
+        render.waitForBoard();
+
+        renderGameOverIfDone();
         return null;
     }
 }

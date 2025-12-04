@@ -71,6 +71,10 @@ public class ChessBoard {
                 .toList();
     }
 
+    public boolean isInCheckmateOrStalemate(ChessGame.TeamColor color) {
+        return isInCheckmate(color) || isInStalemate(color);
+    }
+
     public boolean isInCheck(ChessGame.TeamColor teamColor)
     {
         ChessSquare kingSquare = kingFor(teamColor);
