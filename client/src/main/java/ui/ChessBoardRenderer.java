@@ -21,6 +21,10 @@ public class ChessBoardRenderer
         DARK
     }
 
+    public ColorScheme getColorScheme() {
+        return colors;
+    }
+
     public void render(ChessBoard board, ChessGame.TeamColor perspective, ArrayList<ChessPosition> highlights)
     {
         int rowStart;

@@ -120,14 +120,21 @@ public class BufferedRenderer implements Closeable {
     }
 
     public void board(ChessBoard board, ChessGame.TeamColor viewerColor) {
-        System.out.println();
-        boardRenderer.render(board, viewerColor);
-        System.out.println();
+        board(board, viewerColor, null);
     }
 
     public void board(ChessBoard board, ChessGame.TeamColor viewerColor, ArrayList<ChessPosition> highlights) {
         System.out.println();
+
         boardRenderer.render(board, viewerColor, highlights);
+
+        System.out.print(EscapeSequences.RESET_TEXT_ITALIC);
+        ColorScheme colors = boardRenderer.getColorScheme();
+        System.out.printf("%s = white team, %s = black team%n",
+                          colors.player1TextColorName(),
+                          colors.player2TextColorName());
+        System.out.print(EscapeSequences.RESET_TEXT_ITALIC);
+
         System.out.println();
     }
 
@@ -141,7 +148,12 @@ public class BufferedRenderer implements Closeable {
     }
 
     public void waitingOnPlayer(String username) {
-        System.out.printf("Waiting on %s's move...%n", username);
+        if(username != null && !username.isEmpty()) {
+            System.out.printf("Waiting on %s's move...%n", username);
+        } else {
+            System.out.println("Waiting for another player to join");
+        }
+
         System.out.println();
     }
 

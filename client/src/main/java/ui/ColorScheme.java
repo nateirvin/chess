@@ -8,7 +8,9 @@ public class ColorScheme {
     private String lightHighlightSquareBackground;
     private String darkHighlightSquareBackground;
     private String player1Text;
+    private String player1TextColorName;
     private String player2Text;
+    private String player2TextColorName;
     private String aggressorText;
     private String aggressorBackground;
 
@@ -19,7 +21,9 @@ public class ColorScheme {
         colorScheme.lightSquareBackground = EscapeSequences.SET_BG_COLOR_WHITE;
         colorScheme.darkSquareBackground = EscapeSequences.SET_BG_COLOR_DARK_GREY;
         colorScheme.player1Text = EscapeSequences.SET_TEXT_COLOR_RED;
+        colorScheme.player1TextColorName = "red";
         colorScheme.player2Text = EscapeSequences.SET_TEXT_COLOR_BLUE;
+        colorScheme.player2TextColorName = "blue";
         colorScheme.aggressorText = EscapeSequences.SET_TEXT_COLOR_BLACK;
         colorScheme.aggressorBackground = EscapeSequences.SET_BG_COLOR_YELLOW;
         colorScheme.lightHighlightSquareBackground = EscapeSequences.SET_BG_COLOR_GREEN;
@@ -34,7 +38,9 @@ public class ColorScheme {
         colorScheme.lightSquareBackground = EscapeSequences.SET_BG_COLOR_WHITE;
         colorScheme.darkSquareBackground = EscapeSequences.SET_BG_COLOR_DARK_GREY;
         colorScheme.player1Text = EscapeSequences.SET_TEXT_COLOR_RED;
+        colorScheme.player1TextColorName = "red";
         colorScheme.player2Text = EscapeSequences.SET_TEXT_COLOR_BLUE;
+        colorScheme.player2TextColorName = "blue";
         colorScheme.aggressorText = EscapeSequences.SET_TEXT_COLOR_BLACK;
         colorScheme.aggressorBackground = EscapeSequences.SET_BG_COLOR_YELLOW;
         colorScheme.lightHighlightSquareBackground = EscapeSequences.SET_BG_COLOR_GREEN;
@@ -62,8 +68,15 @@ public class ColorScheme {
         return player1Text;
     }
 
+    public String player1TextColorName() {
+        return player1TextColorName;
+    }
+
     public String forPlayer2Text() {
         return player2Text;
+    }
+    public String player2TextColorName() {
+        return player2TextColorName;
     }
 
     public String forAggressorText() {
@@ -81,4 +94,6 @@ public class ColorScheme {
     public String forDarkHighlightSquare() {
         return darkHighlightSquareBackground;
     }
+
+
 }

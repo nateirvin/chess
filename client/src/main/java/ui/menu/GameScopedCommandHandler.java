@@ -77,7 +77,7 @@ public abstract class GameScopedCommandHandler {
 
     protected void displayTurnPlayer() {
         String activePlayerUsername = appState.getCurrentGame().usernameForCurrentTurn();
-        if(activePlayerUsername.equals(appState.currentUsername())) {
+        if(appState.currentUsername().equals(activePlayerUsername)) {
             render.myTurn();
         } else {
             render.waitingOnPlayer(activePlayerUsername);
