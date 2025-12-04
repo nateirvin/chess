@@ -11,7 +11,7 @@ public class InvalidMenuCommandHandler implements MenuCommandHandler {
 
     @Override
     public String execute(String... arguments) {
-        render.error("Unknown command");
+        render.error("Unknown or invalid command");
         return null;
     }
 }

@@ -106,12 +106,8 @@ public class BufferedRenderer implements Closeable {
                 return;
             }
 
-            System.out.println();
-
-            boardRenderer.render(gameUpdate.board, gameUpdate.color);
+            board(gameUpdate.board, gameUpdate.color);
             gameUpdate = null;
-
-            System.out.println();
         }
     }
 
@@ -128,7 +124,8 @@ public class BufferedRenderer implements Closeable {
 
         boardRenderer.render(board, viewerColor, highlights);
 
-        System.out.print(EscapeSequences.RESET_TEXT_ITALIC);
+        System.out.println();
+        System.out.print(EscapeSequences.SET_TEXT_ITALIC);
         ColorScheme colors = boardRenderer.getColorScheme();
         System.out.printf("%s = white team, %s = black team%n",
                           colors.player1TextColorName(),

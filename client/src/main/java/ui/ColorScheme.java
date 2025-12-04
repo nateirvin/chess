@@ -75,6 +75,7 @@ public class ColorScheme {
     public String forPlayer2Text() {
         return player2Text;
     }
+
     public String player2TextColorName() {
         return player2TextColorName;
     }
@@ -94,6 +95,4 @@ public class ColorScheme {
     public String forDarkHighlightSquare() {
         return darkHighlightSquareBackground;
     }
-
-
 }
