@@ -80,7 +80,7 @@ public abstract class GameScopedCommandHandler {
         if(activePlayerUsername.equals(appState.currentUsername())) {
             render.myTurn();
         } else {
-            render.waitingOnOpponent(activePlayerUsername);
+            render.waitingOnPlayer(activePlayerUsername);
         }
     }
 

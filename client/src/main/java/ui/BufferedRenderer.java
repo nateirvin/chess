@@ -140,7 +140,7 @@ public class BufferedRenderer implements Closeable {
         System.out.println();
     }
 
-    public void waitingOnOpponent(String username) {
+    public void waitingOnPlayer(String username) {
         System.out.printf("Waiting on %s's move...%n", username);
         System.out.println();
     }

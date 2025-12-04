@@ -255,6 +255,11 @@ public class GameMySqlProvider implements GameDataAccess
                     throw new AlreadyTakenException("username", username);
                 }
             }
+
+            UpsertGameResult updated = getGame(conn, gamedID, null);
+            if(updated != null && updated.getColorForUser(username) == null && !username.equals("")) {
+                throw new IllegalStateException("The user '%s' does not exist.".formatted(username));
+            }
         }
         catch (SQLException | DataAccessException e)
         {
