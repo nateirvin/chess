@@ -28,21 +28,19 @@ public class HighlightMovesCommandHandler extends GameScopedCommandHandler imple
         ChessPosition piecePosition = positionParseResult.getValue();
 
         ChessGame game = appState.getCurrentGame().getGame();
-        ChessBoard board = game.getBoard();
+        ChessPiece piece = game.getBoard().getPiece(piecePosition);
+        Collection<ChessMove> moves = game.validMoves(piecePosition);
 
-        ChessPiece piece = board.getPiece(piecePosition);
         if(piece == null) {
             return "There is no piece at this position.";
         }
-
-        Collection<ChessMove> moves = game.validMoves(piecePosition);
 
         ArrayList<ChessPosition> highlights = new ArrayList<>();
         highlights.add(piecePosition);
         List<ChessPosition> destinations = moves.stream().map(ChessMove::getEndPosition).toList();
         highlights.addAll(destinations);
 
-        render.board(board, appState.getPlayer(), highlights);
+        render.board(appState.getCurrentGame().getGame().getBoard(), appState.getPlayer(), highlights);
         return null;
     }
 }

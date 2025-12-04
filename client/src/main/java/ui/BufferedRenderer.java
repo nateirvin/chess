@@ -72,11 +72,17 @@ public class BufferedRenderer implements Closeable {
             }
             System.out.print(".");
         }
+        System.out.println();
 
         if(gameUpdate == null) {
             error("Board could not be loaded");
         } else {
-            System.out.println();
+            if(gameUpdate.errorMessage != null) {
+                error(gameUpdate.errorMessage);
+                this.gameUpdate = null;
+                return;
+            }
+
             System.out.println();
 
             boardRenderer.render(gameUpdate.board, gameUpdate.color);
@@ -87,7 +93,7 @@ public class BufferedRenderer implements Closeable {
     }
 
     public void updateBoard(ChessBoard board, ChessGame.TeamColor viewerColor) {
-        gameUpdate = new GameUpdate(board, viewerColor);
+        gameUpdate = new GameUpdate(board, viewerColor, null);
     }
 
     public void board(ChessBoard board, ChessGame.TeamColor viewerColor) {
@@ -118,11 +124,15 @@ public class BufferedRenderer implements Closeable {
         System.out.print(EscapeSequences.RESET_TEXT_COLOR);
     }
 
+    public void callbackError(String errorMessage) {
+        this.gameUpdate = new GameUpdate(null, null, errorMessage);
+    }
+
     @Override
     public void close() throws IOException {
         reader.close();
     }
 
-    private record GameUpdate(ChessBoard board, ChessGame.TeamColor color) {
+    private record GameUpdate(ChessBoard board, ChessGame.TeamColor color, String errorMessage) {
     }
 }

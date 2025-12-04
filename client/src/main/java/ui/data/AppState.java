@@ -9,6 +9,7 @@ public class AppState
     public static final String GUEST_USERNAME = "guest";
 
     private AuthData userSession;
+    private final Object gameLock = new Object();
     private GameData game;
     private ChessGame.TeamColor player = null;
 
@@ -26,11 +27,38 @@ public class AppState
         if(game == null) {
             throw new IllegalArgumentException();
         }
-        if(this.game != null && this.game.gameID() != game.gameID()) {
-            throw new IllegalStateException();
+
+        synchronized (gameLock) {
+            if(this.game != null && this.game.gameID() != game.gameID()) {
+                throw new IllegalStateException();
+            }
+
+            this.game = game;
+        }
+    }
+
+    public boolean inGameplayMode() {
+        return this.game != null;
+    }
+
+    public String gameName() {
+        synchronized (gameLock) {
+            return this.game != null ? this.game.gameName() : null;
+        }
+    }
+
+    public GameData getCurrentGame() {
+        synchronized (gameLock) {
+            return game;
+        }
+    }
+
+    public void unsetGame() {
+        synchronized (gameLock) {
+            this.game = null;
         }
 
-        this.game = game;
+        this.player = null;
     }
 
     public void setPlayer(ChessGame.TeamColor color) {
@@ -44,18 +72,8 @@ public class AppState
                 : GUEST_USERNAME;
     }
 
-    public String gameName() {
-        return inGameplayMode()
-                ? this.game.gameName()
-                : null;
-    }
-
     public boolean userIsLoggedIn() {
         return userSession != null;
-    }
-
-    public boolean inGameplayMode() {
-        return this.game != null;
     }
 
     public boolean userIsObserver() {
@@ -73,23 +91,11 @@ public class AppState
         return userSession;
     }
 
-    public GameData getCurrentGame() {
-        if(inGameplayMode()) {
-            return game;
-        }
-        return null;
-    }
-
     public ChessGame.TeamColor getPlayer() {
         if(!inGameplayMode()) {
             throw new IllegalStateException();
         }
         return this.player != null ? this.player : ChessGame.TeamColor.WHITE;
-    }
-
-    public void unsetGame() {
-        this.game = null;
-        this.player = null;
     }
 
     public void endSession() {
