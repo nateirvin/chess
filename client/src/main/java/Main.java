@@ -51,7 +51,7 @@ public class Main
         while (true) {
             String context = appState.currentUsername();
             if(appState.inGameplayMode()) {
-                if(appState.isObserving()) {
+                if(appState.userIsObserver()) {
                     context += " watching ";
                 } else {
                     context += " playing ";

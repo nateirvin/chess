@@ -54,7 +54,7 @@ public class AppState
         return this.game != null;
     }
 
-    public boolean isObserving() {
+    public boolean userIsObserver() {
         if (inGameplayMode()) {
             return this.player == null;
         }

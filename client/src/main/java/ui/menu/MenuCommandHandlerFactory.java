@@ -110,7 +110,7 @@ public class MenuCommandHandlerFactory
                 return new MakeMoveCommandHandler(appState, logger, mainRenderer, webSocketClient);
             }
             case "resign" -> {
-                return new ResignCommandHandler();
+                return new ResignCommandHandler(appState, logger, mainRenderer, webSocketClient);
             }
             case "help" -> {
                 return new GameplayHelpCommandHandler(appState, mainRenderer);

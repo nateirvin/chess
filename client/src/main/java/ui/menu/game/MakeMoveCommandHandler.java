@@ -43,7 +43,7 @@ public class MakeMoveCommandHandler extends GameScopedCommandHandler implements 
         //TODO: implement the promo piece logic
         ChessMove move = new ChessMove(fromResult.getValue(), toResult.getValue(), null);
 
-        if(appState.isObserving()) {
+        if(appState.userIsObserver()) {
             return "You cannot make moves while observing.";
         }
 

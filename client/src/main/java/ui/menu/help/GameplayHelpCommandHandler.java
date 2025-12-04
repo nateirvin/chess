@@ -16,7 +16,7 @@ public class GameplayHelpCommandHandler extends HelpCommandHandler {
     protected void printCommands() {
         render.helpMenuItem("redraw", "Redraw the chess board");
         render.helpMenuItem("moves <piece>", "Highlight the legal moves for the specified piece");
-        if(!appState.isObserving() && !appState.getCurrentGame().isOver()) {
+        if(!appState.userIsObserver() && !appState.getCurrentGame().isOver()) {
             render.helpMenuItem("move <from> <to>", "Make specified move");
             render.helpMenuItem("resign", "Concede defeat");
         }
