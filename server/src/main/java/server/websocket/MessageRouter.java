@@ -16,6 +16,7 @@ import websocket.commands.UserGameCommand;
 import websocket.commands.UserMoveCommand;
 import websocket.messages.GameLoadServerMessage;
 import websocket.messages.NotificationMessage;
+import websocket.messages.ResignMessage;
 import websocket.messages.ServerErrorMessage;
 import javax.security.auth.login.LoginException;
 
@@ -101,7 +102,7 @@ public class MessageRouter implements WsMessageHandler {
                     else if (callerMessage.getCommandType() == UserGameCommand.CommandType.RESIGN)
                     {
                         this.gameDataAccess.concedeGame(callerMessage.getGameID(), session.userId());
-                        clientManager.sendToGameUsers(game.gameID(), new NotificationMessage(session.username() + " has resigned."));
+                        clientManager.sendToGameUsers(game.gameID(), new ResignMessage(session.username()));
                     }
                 }
             }

@@ -5,10 +5,7 @@ import jakarta.websocket.*;
 import model.GameData;
 import ui.BufferedRenderer;
 import websocket.commands.UserGameCommand;
-import websocket.messages.GameLoadServerMessage;
-import websocket.messages.NotificationMessage;
-import websocket.messages.ServerErrorMessage;
-import websocket.messages.ServerMessage;
+import websocket.messages.*;
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.URI;
@@ -65,6 +62,15 @@ public class WebSocketClient extends Endpoint implements Closeable
                     render.updateBoard(game.getGame().getBoard(), appState.getPlayer());
                 } else if(serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION) {
                     NotificationMessage specificMessage = gson.fromJson(message, NotificationMessage.class);
+
+                    //if the resignation was initiated by this user, no need to update anything
+                    if(specificMessage.isResignation()) {
+                        ResignMessage moreSpecificMessage = gson.fromJson(message, ResignMessage.class);
+                        if(appState.currentUsername().equals(moreSpecificMessage.getUsername())) {
+                           return;
+                        }
+                    }
+
                     render.update(specificMessage.getMessage());
                 } else if(serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.ERROR) {
                     ServerErrorMessage specificMessage = gson.fromJson(message, ServerErrorMessage.class);
