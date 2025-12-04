@@ -1,6 +1,7 @@
 package passoff.chess.game;
 
 import chess.ChessGame;
+import model.GameData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -41,8 +42,14 @@ public class GameStatusTests {
         Assertions.assertFalse(game.isInCheckmate(ChessGame.TeamColor.WHITE), INCORRECT_WHITE_CHECKMATE);
         Assertions.assertFalse(game.isInStalemate(ChessGame.TeamColor.BLACK), INCORRECT_BLACK_STALEMATE);
         Assertions.assertFalse(game.isInStalemate(ChessGame.TeamColor.WHITE), INCORRECT_WHITE_STALEMATE);
+        assertGameIsNotOver(game);
     }
 
+    private static void assertGameIsNotOver(ChessGame game) {
+        GameData wrapper = new GameData(0, null);
+        wrapper.setGame(game);
+        Assertions.assertFalse(wrapper.isOver(), "Game Over should be false but was true");
+    }
 
     @Test
     @DisplayName("White in Check")
@@ -103,8 +110,14 @@ public class GameStatusTests {
 
         Assertions.assertTrue(game.isInCheckmate(ChessGame.TeamColor.WHITE), MISSING_WHITE_CHECKMATE);
         Assertions.assertFalse(game.isInCheckmate(ChessGame.TeamColor.BLACK), INCORRECT_BLACK_CHECKMATE);
+        assertGameIsOver(game);
     }
 
+    private static void assertGameIsOver(ChessGame game) {
+        GameData wrapper = new GameData(0, null);
+        wrapper.setGame(game);
+        Assertions.assertTrue(wrapper.isOver(), "Game Over should be true but was false");
+    }
 
     @Test
     @DisplayName("Black in Checkmate by Pawns")
@@ -211,6 +224,9 @@ public class GameStatusTests {
 
         Assertions.assertTrue(game.isInStalemate(ChessGame.TeamColor.WHITE), MISSING_WHITE_STALEMATE);
         Assertions.assertFalse(game.isInStalemate(ChessGame.TeamColor.BLACK), INCORRECT_BLACK_STALEMATE);
+        Assertions.assertTrue(game.getBoard().isInCheckmateOrStalemate(ChessGame.TeamColor.WHITE), MISSING_WHITE_STALEMATE);
+        Assertions.assertFalse(game.getBoard().isInCheckmateOrStalemate(ChessGame.TeamColor.BLACK), INCORRECT_BLACK_STALEMATE);
+        assertGameIsOver(game);
     }
 
     @Test
