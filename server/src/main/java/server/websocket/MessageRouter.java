@@ -1,5 +1,7 @@
 package server.websocket;
 
+import chess.ChessMove;
+import chess.ChessPiece;
 import com.google.gson.Gson;
 import dataaccess.GameDataAccess;
 import io.javalin.websocket.WsMessageContext;
@@ -84,11 +86,14 @@ public class MessageRouter implements WsMessageHandler {
                         }
 
                         UserMoveCommand specificMessage = gson.fromJson(callerContext.message(), UserMoveCommand.class);
+                        ChessMove move = specificMessage.getMove();
 
-                        game.getGame().makeMove(specificMessage.getMove());
+                        ChessPiece piece = game.getGame().getBoard().getPiece(move.getStartPosition());
+                        game.getGame().makeMove(move);
                         this.gameDataAccess.updateGame(game);
 
-                        NotificationMessage message = new NotificationMessage(session.username() + " moved");  //TODO: more detail
+                        String updateMessage = "%s moved %s from %s".formatted(session.username(), piece, move);
+                        NotificationMessage message = new NotificationMessage(updateMessage);
                         clientManager.sendToGameUsersExceptCaller(message, callerMessage);
 
                         clientManager.sendToGameUsers(game.gameID(), new GameLoadServerMessage(game));
@@ -113,7 +118,9 @@ public class MessageRouter implements WsMessageHandler {
         catch (Exception ex)
         {
             ClientManager.logError(ex.getMessage());  //TODO: better encapsulation
-            clientManager.sendToClient(callerContext, new ServerErrorMessage("A fatal error has occurred."));
+            clientManager.sendToClient(callerContext,
+                                       new ServerErrorMessage(
+                                               "There was an unrecoverable error while processing this action."));
         }
     }
 }

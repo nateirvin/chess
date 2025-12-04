@@ -67,8 +67,8 @@ public class BufferedRenderer implements Closeable {
         while(gameUpdate == null) {
             try {
                 Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                //TODO: log
+            } catch (InterruptedException ex) {
+                error(ex.getMessage());
             }
             System.out.print(".");
         }

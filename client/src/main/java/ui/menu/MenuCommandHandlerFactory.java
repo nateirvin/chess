@@ -101,7 +101,7 @@ public class MenuCommandHandlerFactory
                 return new RedrawCommandHandler(appState, mainRenderer);
             }
             case "leave" -> {
-                return new LeaveGameCommandHandler(appState, mainRenderer);
+                return new LeaveGameCommandHandler(appState, logger, mainRenderer, webSocketClient);
             }
             case "moves" -> {
                 return new HighlightMovesCommandHandler(appState, mainRenderer);

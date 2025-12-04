@@ -26,6 +26,10 @@ public class AppState
         if(game == null) {
             throw new IllegalArgumentException();
         }
+        if(this.game != null && this.game.gameID() != game.gameID()) {
+            throw new IllegalStateException();
+        }
+
         this.game = game;
     }
 
