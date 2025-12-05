@@ -15,7 +15,7 @@ public class BufferedRenderer implements Closeable {
     private final ChessBoardRenderer boardRenderer;
     private final GameListRenderer gameListRenderer;
 
-    private GameUpdate gameUpdate;
+    private volatile GameUpdate gameUpdate;
     private final Queue<String> asyncMessages;
 
     public BufferedRenderer() {
@@ -88,28 +88,22 @@ public class BufferedRenderer implements Closeable {
 
     public void waitForBoard() {
         System.out.print("PLease wait...");
+
         while(gameUpdate == null) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException ex) {
-                error(ex.getMessage());
-            }
-            System.out.print(".");
+            Thread.onSpinWait();
         }
         System.out.println();
 
-        if(gameUpdate == null) {
-            error("Board could not be loaded");
-        } else {
-            if(gameUpdate.errorMessage != null) {
-                error(gameUpdate.errorMessage);
-                gameUpdate = null;
-                return;
-            }
+        boardUpdates();
+    }
 
+    private void boardUpdates() {
+        if (gameUpdate.errorMessage == null) {
             board(gameUpdate.board, gameUpdate.color);
-            gameUpdate = null;
+        } else {
+            error(gameUpdate.errorMessage);
         }
+        gameUpdate = null;
     }
 
     public void updateBoard(ChessBoard board, ChessGame.TeamColor viewerColor) {
