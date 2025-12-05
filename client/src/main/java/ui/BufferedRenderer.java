@@ -16,6 +16,7 @@ public class BufferedRenderer implements Closeable {
     private final GameListRenderer gameListRenderer;
     private final DisplaySink writer;
 
+    private String currentPrompt;
     private volatile GameUpdate gameUpdate;
     private final Queue<String> asyncMessages;
 
@@ -32,14 +33,20 @@ public class BufferedRenderer implements Closeable {
         boardUpdates();
 
         if(prompt != null && !prompt.isBlank()) {
-            writer.print(prompt.trim());
-            writer.print(" ");
+            this.currentPrompt = prompt;
+            showPrompt(prompt);
         }
 
         reader.read();
+        this.currentPrompt = null;
 
         asyncNotices();
         boardUpdates();
+    }
+
+    private void showPrompt(String prompt) {
+        writer.print(prompt.trim());
+        writer.print(" ");
     }
 
     public String firstWordEntered() {
@@ -65,7 +72,10 @@ public class BufferedRenderer implements Closeable {
     public void asyncUpdate(String message) {
         synchronized (asyncMessages) {
             if(reader.isWaiting()) {
+                writer.println();
+                writer.println();
                 writer.println("* " + message);
+                showPrompt(currentPrompt);
             } else {
                 asyncMessages.add(message);
             }
