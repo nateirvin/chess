@@ -58,7 +58,7 @@ public class Main
                 }
                 context += appState.gameName();
             }
-            screen.promptAndWait(context);
+            screen.promptAndWait("CHESS [%s] $".formatted(context));
 
             MenuCommandHandler command;
             if (!appState.userIsLoggedIn()) {

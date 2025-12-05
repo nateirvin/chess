@@ -28,10 +28,14 @@ public class BufferedRenderer implements Closeable {
         this.gameListRenderer = new GameListRenderer(gameListAccessor);
     }
 
-    public void promptAndWait(String context) {
+    public void promptAndWait(String prompt) {
         asyncNotices();
 
-        System.out.printf("CHESS [%s] $ ", context);
+        if(prompt != null && !prompt.isBlank()) {
+            System.out.print(prompt.trim());
+            System.out.print(" ");
+        }
+
         reader.read();
 
         asyncNotices();

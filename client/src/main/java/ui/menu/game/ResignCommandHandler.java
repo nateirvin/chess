@@ -26,6 +26,12 @@ public class ResignCommandHandler extends GameScopedCommandHandler implements Me
             return "You cannot resign when you are not a player.";
         }
 
+        render.promptAndWait("Are you sure you want to resign?");
+        String response = render.firstWordEntered();
+        if(!response.trim().toUpperCase().startsWith("Y")) {
+            return null;
+        }
+
         try {
             //no callback, notifies every user
             UserGameCommand userCommand =
