@@ -104,7 +104,7 @@ public class ChessGame {
 
         ChessPiece piece = board.getPiece(move.getStartPosition());
         if(piece == null) {
-            throw new InvalidMoveException("There is no piece at the start position.");
+            throw new InvalidMoveException("There is no piece at the start position %s.".formatted(move.getStartPosition().toString()));
         } else if(piece.getTeamColor() != currentTeam) {
             throw new InvalidMoveException("It is not your turn.");
         }
