@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import ui.ChessBoardRenderer;
 import ui.ColorScheme;
+import ui.ConsoleWriter;
 
 import java.util.ArrayList;
 
@@ -17,7 +18,7 @@ public class ChessBoardRendererTests
     {
         ChessBoard board = new ChessBoard();
         board.resetBoard();
-        var classUnderTest = new ChessBoardRenderer(ColorScheme.example());
+        var classUnderTest = new ChessBoardRenderer(new ConsoleWriter(), ColorScheme.example());
 
         classUnderTest.render(board, ChessGame.TeamColor.WHITE);
     }
@@ -27,7 +28,7 @@ public class ChessBoardRendererTests
     {
         ChessBoard board = new ChessBoard();
         board.resetBoard();
-        var classUnderTest = new ChessBoardRenderer(ColorScheme.lighter());
+        var classUnderTest = new ChessBoardRenderer(new ConsoleWriter(), ColorScheme.lighter());
 
         classUnderTest.render(board, ChessGame.TeamColor.BLACK);
     }
@@ -36,7 +37,7 @@ public class ChessBoardRendererTests
     public void smokeTestTrueColor() {
         ChessBoard board = new ChessBoard();
         board.resetBoard();
-        var classUnderTest = new ChessBoardRenderer(ColorScheme.trueColor());
+        var classUnderTest = new ChessBoardRenderer(new ConsoleWriter(), ColorScheme.trueColor());
 
         ArrayList<ChessPosition> highlights = new ArrayList<>();
         highlights.add(new ChessPosition(2, 1));

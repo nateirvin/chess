@@ -12,7 +12,7 @@ public class Main
         LogManager.getLogManager().reset();
         Logger logger = Logger.getLogger("default");
 
-        try (BufferedRenderer render = new BufferedRenderer();
+        try (BufferedRenderer render = new BufferedRenderer(new ConsoleReader(), new ConsoleWriter());
              Application app = new Application(logger, render))
         {
             String pattern = "client%s.log".formatted(UUID.randomUUID().toString());

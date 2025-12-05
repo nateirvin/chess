@@ -10,9 +10,11 @@ import java.util.ArrayList;
 
 public class ChessBoardRenderer
 {
+    private final DisplaySink writer;
     private final ColorScheme colors;
 
-    public ChessBoardRenderer(ColorScheme colors) {
+    public ChessBoardRenderer(DisplaySink writer, ColorScheme colors) {
+        this.writer = writer;
         this.colors = colors;
     }
 
@@ -79,34 +81,34 @@ public class ChessBoardRenderer
     }
 
     private void setFontWeight() {
-        System.out.print(EscapeSequences.SET_TEXT_BOLD);
+        writer.print(EscapeSequences.SET_TEXT_BOLD);
     }
 
     private void printColumnGuide(int colStart, int rowIncrement)
     {
         startBorder();
-        System.out.print("    ");
+        writer.print("    ");
 
         for(int col = colStart; col >= 1 && col <= 8; col += rowIncrement * -1)
         {
-            System.out.print(BoardColumn.numberToLetter(col));
-            System.out.print("  ");
+            writer.print(BoardColumn.numberToLetter(col));
+            writer.print("  ");
         }
-        System.out.print("  ");
+        writer.print("  ");
 
         endBorder();
         endLine();
     }
 
     private void startBorder() {
-        System.out.print(colors.forBorderBackground());
-        System.out.print(colors.forBorderText());
+        writer.print(colors.forBorderBackground());
+        writer.print(colors.forBorderText());
     }
 
-    private static void printRowNumber(int row) {
-        System.out.print(" ");
-        System.out.print(row);
-        System.out.print(" ");
+    private void printRowNumber(int row) {
+        writer.print(" ");
+        writer.print(row);
+        writer.print(" ");
     }
 
     private void printSquare(ChessBoard board, Positions positions, SquareColor squareColor)
@@ -130,9 +132,9 @@ public class ChessBoardRenderer
             }
         }
 
-        System.out.print(backgroundColor);
+        writer.print(backgroundColor);
 
-        System.out.print(" ");
+        writer.print(" ");
 
         ChessPiece piece = board.getPiece(positions.drawPosition);
         if(piece != null) {
@@ -150,14 +152,14 @@ public class ChessBoardRenderer
                 }
             }
 
-            System.out.print(textColor);
+            writer.print(textColor);
 
-            System.out.print(piece.shortCode().toUpperCase());
+            writer.print(piece.shortCode().toUpperCase());
         } else {
-            System.out.print(" ");
+            writer.print(" ");
         }
 
-        System.out.print(" ");
+        writer.print(" ");
         endSquare();
     }
 
@@ -169,17 +171,17 @@ public class ChessBoardRenderer
         resetDisplayColors();
     }
 
-    private static void endLine() {
-        System.out.println();
+    private void endLine() {
+        writer.println();
     }
 
     private void resetDisplayColors() {
-        System.out.print(EscapeSequences.RESET_BG_COLOR);
-        System.out.print(EscapeSequences.RESET_TEXT_COLOR);
+        writer.print(EscapeSequences.RESET_BG_COLOR);
+        writer.print(EscapeSequences.RESET_TEXT_COLOR);
     }
 
     private void resetFontWeight() {
-        System.out.print(EscapeSequences.RESET_TEXT_BOLD_FAINT);
+        writer.print(EscapeSequences.RESET_TEXT_BOLD_FAINT);
     }
 
     public record Positions(ChessPosition drawPosition, ArrayList<ChessPosition> highlightPositions) {

@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import jakarta.websocket.*;
 import model.GameData;
 import ui.BufferedRenderer;
+import ui.menu.GameScopedCommandHandler;
 import websocket.commands.UserGameCommand;
 import websocket.messages.*;
 import java.io.Closeable;
@@ -60,6 +61,8 @@ public class WebSocketClient extends Endpoint implements Closeable
 
                     appState.updateGame(game);
                     render.updateBoard(game.getGame().getBoard(), appState.getPlayer());
+
+                    GameScopedCommandHandler.displayTurnPlayer(appState, render);
                 } else if(serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION) {
                     NotificationMessage specificMessage = gson.fromJson(message, NotificationMessage.class);
 

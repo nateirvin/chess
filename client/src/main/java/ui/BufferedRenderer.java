@@ -14,15 +14,17 @@ public class BufferedRenderer implements Closeable {
     private final ConsoleReader reader;
     private final ChessBoardRenderer boardRenderer;
     private final GameListRenderer gameListRenderer;
+    private final DisplaySink writer;
 
     private volatile GameUpdate gameUpdate;
     private final Queue<String> asyncMessages;
 
-    public BufferedRenderer() {
-        reader = new ConsoleReader();
+    public BufferedRenderer(ConsoleReader reader, DisplaySink writer) {
+        this.reader = reader;
+        this.writer = writer;
         asyncMessages = new SynchronousQueue<>();
-        gameListRenderer = new GameListRenderer();
-        boardRenderer = new ChessBoardRenderer(ColorScheme.trueColor());
+        gameListRenderer = new GameListRenderer(writer);
+        boardRenderer = new ChessBoardRenderer(writer, ColorScheme.trueColor());
     }
 
     public void promptAndWait(String prompt) {
@@ -30,8 +32,8 @@ public class BufferedRenderer implements Closeable {
         boardUpdates();
 
         if(prompt != null && !prompt.isBlank()) {
-            System.out.print(prompt.trim());
-            System.out.print(" ");
+            writer.print(prompt.trim());
+            writer.print(" ");
         }
 
         reader.read();
@@ -49,20 +51,24 @@ public class BufferedRenderer implements Closeable {
     }
 
     public void userActionComplete(String message) {
-        System.out.print(EscapeSequences.SET_TEXT_COLOR_GREEN);
-        System.out.println(message);
-        System.out.print(EscapeSequences.RESET_TEXT_COLOR);
-        System.out.println();
+        writer.print(EscapeSequences.SET_TEXT_COLOR_GREEN);
+        writer.println(message);
+        writer.print(EscapeSequences.RESET_TEXT_COLOR);
+        writer.println();
     }
 
     public void notice(String message) {
-        System.out.println(message);
-        System.out.println();
+        writer.println(message);
+        writer.println();
     }
 
     public void asyncUpdate(String message) {
         synchronized (asyncMessages) {
-            asyncMessages.add(message);
+            if(reader.isWaiting()) {
+                writer.println("* " + message);
+            } else {
+                asyncMessages.add(message);
+            }
         }
     }
 
@@ -70,31 +76,31 @@ public class BufferedRenderer implements Closeable {
         synchronized (asyncMessages) {
             while (!asyncMessages.isEmpty()) {
                 String message = asyncMessages.poll();
-                System.out.println("* " + message);
+                writer.println("* " + message);
             }
         }
     }
 
     public void helpMenuStart() {
-        System.out.println();
-        System.out.println("Available commands:");
+        writer.println();
+        writer.println("Available commands:");
     }
 
     public void helpMenuItem(String commandPattern, String explanation) {
-        System.out.printf("  %s : %s%n", commandPattern, explanation);
+        writer.printf("  %s : %s%n", commandPattern, explanation);
     }
 
     public void helpMenuEnd() {
-        System.out.println();
+        writer.println();
     }
 
     public void waitForBoard() {
-        System.out.print("PLease wait...");
+        writer.print("PLease wait...");
 
         while(gameUpdate == null) {
             Thread.onSpinWait();
         }
-        System.out.println();
+        writer.println();
 
         boardUpdates();
     }
@@ -113,6 +119,11 @@ public class BufferedRenderer implements Closeable {
 
     public void updateBoard(ChessBoard board, ChessGame.TeamColor viewerColor) {
         gameUpdate = new GameUpdate(board, viewerColor, null);
+
+        if(reader.isWaiting()) {
+            asyncNotices();
+            boardUpdates();
+        }
     }
 
     public void board(ChessBoard board, ChessGame.TeamColor viewerColor) {
@@ -120,41 +131,41 @@ public class BufferedRenderer implements Closeable {
     }
 
     public void board(ChessBoard board, ChessGame.TeamColor viewerColor, ArrayList<ChessPosition> highlights) {
-        System.out.println();
+        writer.println();
 
         boardRenderer.render(board, viewerColor, highlights);
 
         ColorScheme colors = boardRenderer.getColorScheme();
         if(!colors.areSelfExplanatory()) {
-            System.out.println();
-            System.out.print(EscapeSequences.SET_TEXT_ITALIC);
+            writer.println();
+            writer.print(EscapeSequences.SET_TEXT_ITALIC);
 
-            System.out.printf("%s = white team, %s = black team%n",
+            writer.printf("%s = white team, %s = black team%n",
                     colors.player1TextColorName(),
                     colors.player2TextColorName());
-            System.out.print(EscapeSequences.RESET_TEXT_ITALIC);
+            writer.print(EscapeSequences.RESET_TEXT_ITALIC);
         }
 
-        System.out.println();
+        writer.println();
     }
 
     public void myTurn() {
-        System.out.print("It is ");
-        System.out.print(EscapeSequences.SET_TEXT_BOLD);
-        System.out.print("your");
-        System.out.print(EscapeSequences.RESET_TEXT_BOLD_FAINT);
-        System.out.println(" turn");
-        System.out.println();
+        writer.print("It is ");
+        writer.print(EscapeSequences.SET_TEXT_BOLD);
+        writer.print("your");
+        writer.print(EscapeSequences.RESET_TEXT_BOLD_FAINT);
+        writer.println(" turn");
+        writer.println();
     }
 
     public void waitingOnPlayer(String username) {
         if(username != null && !username.isEmpty()) {
-            System.out.printf("Waiting on %s's move...%n", username);
+            writer.printf("Waiting for %s's move...%n", username);
         } else {
-            System.out.println("Waiting for another player to join");
+            writer.printf("Waiting for another player to join", "\n");
         }
 
-        System.out.println();
+        writer.println();
     }
 
     public void gamesList(ArrayList<GameData> games) {
@@ -163,14 +174,14 @@ public class BufferedRenderer implements Closeable {
 
     public void gamesListWithAltText(ArrayList<GameData> games) {
         gameListRenderer.showGamesListWithAlternateText(games,"No games yet; use the 'create' command to start one!");
-        System.out.println();
+        writer.println();
     }
 
     public void error(String message) {
-        System.out.print(EscapeSequences.SET_TEXT_COLOR_RED);
-        System.out.printf(">>> %s%n", message);
-        System.out.println();
-        System.out.print(EscapeSequences.RESET_TEXT_COLOR);
+        writer.print(EscapeSequences.SET_TEXT_COLOR_RED);
+        writer.printf(">>> %s%n", message);
+        writer.println();
+        writer.print(EscapeSequences.RESET_TEXT_COLOR);
     }
 
     public void callbackError(String errorMessage) {

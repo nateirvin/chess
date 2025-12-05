@@ -12,6 +12,7 @@ public class NotificationMessage extends ServerMessage {
         }
 
         this.message = message;
+        this.isResignationNotice = false;
     }
 
     public String getMessage() {

@@ -1,20 +1,22 @@
 package client;
 
 import chess.ChessBoard;
-import chess.ChessGame;
 import chess.ChessPiece;
 import dataaccess.DataAccessException;
 import dataaccess.TestHelper;
 import org.junit.jupiter.api.*;
 import org.mockito.InOrder;
+import org.mockito.Mockito;
 import server.Server;
 import ui.Application;
 import ui.BufferedRenderer;
+import ui.ConsoleReader;
+import ui.DisplaySink;
 import java.io.IOException;
 import java.util.UUID;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 public class MultiplayerTests
@@ -24,9 +26,11 @@ public class MultiplayerTests
 
     private Application app1;
     private Application app2;
-    private BufferedRenderer mockRender1;
-    private BufferedRenderer mockRender2;
     private InOrder inOrder;
+    private ConsoleReader mockReader1;
+    private DisplaySink mockWriter1;
+    private DisplaySink mockWriter2;
+    private ConsoleReader mockReader2;
 
     @BeforeAll
     public static void init() throws DataAccessException
@@ -47,23 +51,17 @@ public class MultiplayerTests
     public void setupClients() throws DataAccessException {
         TestHelper.ensureDatabaseSetup();
 
-        mockRender1 = createRenderMock();
-        mockRender2 = createRenderMock();
-
-        inOrder = inOrder(mockRender1, mockRender2);
-
-        app1 = new Application(mock(Logger.class), mockRender1);
+        mockReader1 = Mockito.mock(ConsoleReader.class);
+        mockWriter1 = Mockito.mock(DisplaySink.class);
+        app1 = new Application(mock(Logger.class), new BufferedRenderer(mockReader1, mockWriter1));
         app1.bindToHost("localhost", port);
 
-        app2 = new Application(mock(Logger.class), mockRender2);
+        mockWriter2 = Mockito.mock(DisplaySink.class);
+        mockReader2 = Mockito.mock(ConsoleReader.class);
+        app2 = new Application(mock(Logger.class), new BufferedRenderer(mockReader2, mockWriter2));
         app2.bindToHost("localhost", port);
-    }
 
-    private static BufferedRenderer createRenderMock() {
-        var mockRender = mock(BufferedRenderer.class);
-        doCallRealMethod().when(mockRender).waitForBoard();
-        doCallRealMethod().when(mockRender).updateBoard(any(ChessBoard.class), any(ChessGame.TeamColor.class));
-        return mockRender;
+        this.inOrder = inOrder(mockReader1, mockWriter1, mockReader2, mockWriter2);
     }
 
     @AfterEach
@@ -76,26 +74,90 @@ public class MultiplayerTests
     @DisplayName("Two Users join game")
     public void basicSetup()
     {
-        app1.getCommand("register").execute("user1", "user1");
-        app2.getCommand("register").execute("user2", "user2");
+        setupGame();
 
-        app1.getCommand("create").execute(UUID.randomUUID().toString());
-        app1.getCommand("list").execute();
-        app1.getCommand("join").execute("1", "white");
-
-        app2.getCommand("list").execute();
-        app2.getCommand("join").execute("1", "black");
-
-        verify(mockRender1).myTurn();
-        verify(mockRender1, never()).waitingOnPlayer(anyString());
-        verify(mockRender2, never()).myTurn();
-        verify(mockRender2).waitingOnPlayer("user1");
+        verifyPrintedMyTurn(mockWriter1);
+        verifyPrintedWaitingOnPlayer(mockWriter2);
     }
 
     @Test
     @DisplayName("First move synced")
     public void firstMove()
     {
+        setupGame();
+        when(mockReader2.isWaiting()).thenReturn(true);
+
+        app1.getCommand("move").execute("a2", "a4");
+
+        Stream.of(app1, app2).forEach(app -> {
+            assertNull(getPiece(app, 2, 1));
+            assertEquals(ChessPiece.PieceType.PAWN, getPiece(app, 4, 1).getPieceType());
+        });
+
+        //before the move
+        verifyPrintedMyTurn(mockWriter1);
+        verifyPrintedWaitingOnPlayer(mockWriter2);
+
+        //after the move
+        verifyPrintedWaitingOnPlayer(mockWriter1);
+        verify(mockWriter2).println(startsWith("* user1 moved "));
+        verifyPrintedMyTurn(mockWriter2);
+    }
+
+    @Test
+    @Disabled
+    public void pawnPromotionTest()
+    {
+        setupGame();
+        when(mockReader1.firstToken()).thenReturn("Q");
+
+        app1.getCommand("move").execute("b2", "b4");
+        System.out.println(getBoardFor(app1).toString());
+
+        app2.getCommand("move").execute("c7", "c5");
+        System.out.println(getBoardFor(app2).toString());
+
+        app1.getCommand("move").execute("b4", "b5");
+        System.out.println(getBoardFor(app1).toString());
+
+        app2.getCommand("move").execute("d8", "c7");
+        System.out.println(getBoardFor(app2).toString());
+
+        app1.getCommand("move").execute("b5", "b6");
+        System.out.println(getBoardFor(app1).toString());
+
+        app2.getCommand("move").execute("d7", "d6");
+        System.out.println(getBoardFor(app2).toString());
+
+        app1.getCommand("move").execute("b6", "c7");
+        System.out.println(getBoardFor(app1).toString());
+
+        app2.getCommand("move").execute("g8", "h6");
+        System.out.println(getBoardFor(app2).toString());
+
+        app1.getCommand("move").execute("c7", "b8");
+        System.out.println(getBoardFor(app1).toString());
+
+        verify(mockWriter1).print("Do you want to promote to (Q)ueen, (K)night (B)ishop, or (R)ook?");
+
+        Stream.of(app1, app2).forEach(app -> {
+            assertEquals(ChessPiece.PieceType.QUEEN, getPiece(app, 8, 2).getPieceType());
+
+            //noinspection TrailingWhitespacesInTextBlock
+            assertEquals("""
+                         rPb kn r
+                         pp  pppp
+                            p   n
+                           p     
+                                 
+                                 
+                         P PPPPPP
+                         RNBQKBNR               
+                         """, getBoardFor(app).toString());
+        });
+    }
+
+    private void setupGame() {
         app1.getCommand("register").execute("user1", "user1");
         app2.getCommand("register").execute("user2", "user2");
 
@@ -105,20 +167,23 @@ public class MultiplayerTests
 
         app2.getCommand("list").execute();
         app2.getCommand("join").execute("1", "black");
-
-        app1.getCommand("move").execute("a2", "a4");
-
-        assertNull(getPiece(app1, 2, 1));
-        assertEquals(ChessPiece.PieceType.PAWN, getPiece(app1, 4, 1).getPieceType());
-        assertNull(getPiece(app2, 2, 1));
-        assertEquals(ChessPiece.PieceType.PAWN, getPiece(app2, 4, 1).getPieceType());
-
-        inOrder.verify(mockRender1).myTurn();
-        inOrder.verify(mockRender2).waitingOnPlayer("user1");
-        inOrder.verify(mockRender1).waitingOnPlayer("user2");
     }
 
-    private ChessPiece getPiece(Application app, int row, int col) {
-        return app.getStateManager().getCurrentGame().getGame().getBoard().getPiece(row, col);
+    private static ChessPiece getPiece(Application app, int row, int col) {
+        return getBoardFor(app).getPiece(row, col);
+    }
+
+    private static ChessBoard getBoardFor(Application app) {
+        return app.getStateManager().getCurrentGame().getGame().getBoard();
+    }
+
+    private void verifyPrintedMyTurn(DisplaySink mockWriter) {
+        inOrder.verify(mockWriter).print("It is ");
+        inOrder.verify(mockWriter).print("your");
+        inOrder.verify(mockWriter).println(" turn");
+    }
+
+    private void verifyPrintedWaitingOnPlayer(DisplaySink mockWriter) {
+        inOrder.verify(mockWriter).printf(startsWith("Waiting for "), any());
     }
 }
