@@ -1,5 +1,6 @@
 import ui.*;
 import ui.menu.MenuCommandHandler;
+import java.util.UUID;
 import java.util.logging.*;
 
 public class Main
@@ -14,7 +15,8 @@ public class Main
         try (BufferedRenderer render = new BufferedRenderer();
              Application app = new Application(logger, render))
         {
-            logger.addHandler(new FileHandler("chess-app.log", true));
+            String pattern = "client%s.log".formatted(UUID.randomUUID().toString());
+            logger.addHandler(new FileHandler(pattern, true));
 
             app.bindToHost("localhost", 8080);
 

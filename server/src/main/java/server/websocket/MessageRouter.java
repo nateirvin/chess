@@ -119,7 +119,7 @@ public class MessageRouter implements WsMessageHandler {
         }
         catch (Exception ex)
         {
-            ClientManager.logError(ex.getMessage());  //TODO: better encapsulation
+            System.out.println(ex);
             clientManager.sendToClient(callerContext,
                                        new ServerErrorMessage(
                                                "There was an unrecoverable error while processing this action."));

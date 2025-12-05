@@ -72,7 +72,7 @@ class ClientManager
                         sendToClient(clientContext, message);
                     }
                 } catch (Exception exception) {
-                    logError(exception.getMessage());
+                    System.out.println(exception);
                 }
             }
         }
@@ -86,10 +86,5 @@ class ClientManager
 
     void sendToClient(@NotNull WsContext client, ServerMessage message) {
         client.send(gson.toJson(message));
-    }
-
-    static void logError(String message) {
-        //TODO: better logging
-        System.out.println(message);
     }
 }
