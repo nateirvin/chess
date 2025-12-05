@@ -81,7 +81,7 @@ public class MakeMoveCommandHandler extends GameScopedCommandHandler implements 
             while(true)
             {
                 //noinspection SpellCheckingInspection
-                render.promptAndWait("Do you want to promote to (Q)ueen, (K)night (B)ishop, or (R)ook?");
+                render.promptAndWait("Do you want to promote to (q)ueen, K(n)ight (b)ishop, or (r)ook?");
 
                 String promoPieceEntry = render.firstWordEntered();
                 if(promoPieceEntry != null) {

@@ -138,7 +138,7 @@ public class MultiplayerTests
         app1.getCommand("move").execute("c7", "b8");
         System.out.println(getBoardFor(app1).toString());
 
-        verify(mockWriter1).print("Do you want to promote to (Q)ueen, (K)night (B)ishop, or (R)ook?");
+        verify(mockWriter1).print("Do you want to promote to (q)ueen, K(n)ight (b)ishop, or (r)ook?");
 
         Stream.of(app1, app2).forEach(app -> {
             assertEquals(ChessPiece.PieceType.QUEEN, getPiece(app, 8, 2).getPieceType());
