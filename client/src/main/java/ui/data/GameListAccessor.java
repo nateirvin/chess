@@ -26,7 +26,7 @@ public final class GameListAccessor {
             GameData gameData = games.get(number - 1);
             return new UserEntryResult<>(gameData);
         }
-        return new UserEntryResult<>(null);
+        return new UserEntryResult<>("Invalid game number.");
     }
 
     public ArrayList<GameData> loadGames() {

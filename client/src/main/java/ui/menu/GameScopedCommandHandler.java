@@ -19,7 +19,7 @@ public abstract class GameScopedCommandHandler {
         this.gameListAccessor = gameListAccessor;
     }
 
-    protected UserEntryResult<Integer> getGameNumber(String rawValue) {
+    public static UserEntryResult<Integer> getGameNumber(String rawValue) {
         return getNumber(rawValue, "game number");
     }
 
@@ -43,7 +43,8 @@ public abstract class GameScopedCommandHandler {
         return new UserEntryResult<>(new ChessPosition(rowNumberResult.getValue(), columnNumber));
     }
 
-    protected static UserEntryResult<Integer> getNumber(String rawValue, String entityName) {
+    protected static UserEntryResult<Integer> getNumber(String rawValue, String entityName)
+    {
         try
         {
             int number = Integer.parseInt(rawValue);
@@ -90,7 +91,7 @@ public abstract class GameScopedCommandHandler {
 
     protected boolean displayGameOver() {
         if(appState.getCurrentGame().isOver()) {
-            render.notice("Game over: %s wins!".formatted(appState.getCurrentGame().getWinner()));
+            render.userActionComplete("Game over: %s wins!".formatted(appState.getCurrentGame().getWinner()));
             return true;
         }
         return false;
