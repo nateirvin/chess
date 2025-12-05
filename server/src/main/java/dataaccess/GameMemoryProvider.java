@@ -4,7 +4,6 @@ import chess.ChessGame;
 import model.GameData;
 import model.UpsertGameResult;
 import service.AlreadyTakenException;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -26,6 +25,11 @@ public class GameMemoryProvider implements GameDataAccess
             GAMES.put(name, gameData);
             return new UpsertGameResult(gameData, true);
         }
+    }
+
+    @Override
+    public GameData getGameById(int gameID) {
+        return getAllGames().stream().filter(g -> g.gameID() == gameID).findFirst().orElse(null);
     }
 
     @Override
@@ -60,6 +64,11 @@ public class GameMemoryProvider implements GameDataAccess
             }
         }
         return false;
+    }
+
+    @Override
+    public void updateGame(GameData gameData) {
+        GAMES.put(gameData.gameName(), gameData);
     }
 
     @Override

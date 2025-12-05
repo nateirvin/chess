@@ -1,6 +1,7 @@
 package ui.data;
 
 import model.GameData;
+import model.UserEntryResult;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -17,11 +18,15 @@ public final class GameListAccessor {
     
     private ArrayList<GameData> games;
 
-    public GameData getGameByNumber(int number) {
-        if(number >= 1 && number <= games.size()) {
-            return getGames().get(number - 1);
+    public UserEntryResult<GameData> getGameByNumber(int number) {
+        if(games == null) {
+            return new UserEntryResult<>("Games not loaded.");
         }
-        return null;
+        if(number >= 1 && number <= games.size()) {
+            GameData gameData = games.get(number - 1);
+            return new UserEntryResult<>(gameData);
+        }
+        return new UserEntryResult<>("Invalid game number.");
     }
 
     public ArrayList<GameData> loadGames() {
@@ -33,12 +38,5 @@ public final class GameListAccessor {
         } catch (HttpFailureException | IOException | InterruptedException e) {
             throw new RuntimeException("Failed to get games list", e);
         }
-    }
-
-    private ArrayList<GameData> getGames() {
-        if(this.games == null) {
-            throw new IllegalStateException("You must list the games in order to know the game numbers.");
-        }
-        return this.games;
     }
 }

@@ -1,6 +1,7 @@
-package ui.menu;
+package ui.menu.help;
 
 import ui.BufferedRenderer;
+import ui.menu.MenuCommandHandler;
 
 public abstract class HelpCommandHandler implements MenuCommandHandler
 {

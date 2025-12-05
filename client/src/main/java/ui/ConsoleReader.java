@@ -7,6 +7,7 @@ import java.util.Scanner;
 
 public class ConsoleReader implements Closeable
 {
+    private volatile boolean waitingForInput;
     private final Scanner inputReader;
     private String[] captures;
 
@@ -15,11 +16,17 @@ public class ConsoleReader implements Closeable
         this.inputReader = new Scanner(System.in);
     }
 
-    public boolean read() {
+    public boolean isWaiting() {
+        return waitingForInput;
+    }
+
+    public void read() {
+        waitingForInput = true;
         String input = inputReader.nextLine();
+        waitingForInput = false;
+
         String fullText = input != null ? input.trim() : "";
         this.captures = Arrays.stream(fullText.split(" ")).map(String::trim).toArray(String[]::new);
-        return true;
     }
 
     public String firstToken() {

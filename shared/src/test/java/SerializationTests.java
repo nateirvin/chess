@@ -148,4 +148,17 @@ public class SerializationTests
                         "\"whiteUsername\":\"hamilton\",\"blackUsername\":\"burr\"," +
                         "\"game\":{\"currentTeam\":\"WHITE\",\"board\":"));
     }
+
+    @Test
+    public void jsonFullCycleTestPopulatedBoard()
+    {
+        ChessGame game = new ChessGame();
+
+        String rep = gson.toJson(game);
+        System.out.println(rep);
+        ChessGame recycled = gson.fromJson(rep, ChessGame.class);
+
+        Assertions.assertEquals(16,
+                recycled.getBoard().teamPieces(ChessGame.TeamColor.WHITE).stream().count());
+    }
 }

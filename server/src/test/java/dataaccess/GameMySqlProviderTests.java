@@ -9,6 +9,8 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.*;
 import service.AlreadyTakenException;
+import util.SerializerFactory;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.UUID;
@@ -22,7 +24,7 @@ public class GameMySqlProviderTests
     @BeforeEach
     public void setup() throws DataAccessException
     {
-        this.classUnderTest = new GameMySqlProvider(new Gson());
+        this.classUnderTest = new GameMySqlProvider(new SerializerFactory().getGson());
         TestHelper.ensureDatabaseSetup();
     }
 
@@ -126,6 +128,21 @@ public class GameMySqlProviderTests
         classUnderTest.deleteAllGames();
 
         Assertions.assertEquals(0, classUnderTest.getAllGames().size());
+    }
+
+    @Test
+    public void setWhiteTeamThrowsExceptionIfNoSuchUserExists() throws SQLException, DataAccessException
+    {
+        String fakeUserName = UUID.randomUUID().toString();
+        int gameId = insertGame(UUID.randomUUID().toString(), null, null);
+
+        try {
+            classUnderTest.setWhiteTeam(gameId, fakeUserName);
+            Assertions.fail("should have thrown an exception");
+        } catch (IllegalStateException actualException) {
+            Assertions.assertEquals("The user '%s' does not exist.".formatted(fakeUserName),
+                                    actualException.getMessage());
+        }
     }
 
     @ParameterizedTest
@@ -284,11 +301,31 @@ public class GameMySqlProviderTests
         Assertions.assertEquals(userA, actualGame.blackUsername());
     }
 
+    @Test
+    public void updateGameSetsPlayerTurn() throws SQLException, DataAccessException
+    {
+        String gameName = UUID.randomUUID().toString();
+        String blackUserName = UUID.randomUUID().toString();
+        String whiteUserName = UUID.randomUUID().toString();
+        int blackUserId = TestHelper.insertTestUser(blackUserName);
+        int whiteUserId = TestHelper.insertTestUser(whiteUserName);
+        int gameId = insertGame(gameName, whiteUserId, blackUserId);
+        GameData gameData = new GameData(gameId, gameName, whiteUserName, blackUserName);
+        ChessGame gameBefore = new ChessGame();
+        gameBefore.setTeamTurn(ChessGame.TeamColor.BLACK);
+        gameData.setGame(gameBefore);
+
+        classUnderTest.updateGame(gameData);
+
+        GameData actualGame = getGame(gameId);
+        Assertions.assertEquals(ChessGame.TeamColor.BLACK, actualGame.getGame().getTeamTurn());
+    }
+
     @NotNull
     private GameData getGame(int gameId) {
         return classUnderTest.getAllGames().stream()
-                            .filter(g -> g.gameID() == gameId)
-                            .findFirst().get();
+                             .filter(g -> g.gameID() == gameId)
+                             .findFirst().get();
     }
 
     private static int insertGame(String gameName) throws SQLException, DataAccessException {

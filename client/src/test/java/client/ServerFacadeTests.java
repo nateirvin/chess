@@ -21,7 +21,7 @@ public class ServerFacadeTests {
     @BeforeAll
     public static void init() {
         server = new Server();
-        var port = server.run(0); //alows Javalin to select its own port
+        var port = server.run(0); //allows Javalin to select its own port
         System.out.println("Started test HTTP server on " + port);
 
         classUnderTest = new ServerFacade(new SerializerFactory().getGson());

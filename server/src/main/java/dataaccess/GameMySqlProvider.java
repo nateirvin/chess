@@ -7,7 +7,6 @@ import model.UpsertGameResult;
 import service.AlreadyTakenException;
 import java.sql.*;
 import java.util.ArrayList;
-
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
 
 public class GameMySqlProvider implements GameDataAccess
@@ -28,7 +27,9 @@ public class GameMySqlProvider implements GameDataAccess
                   `black_user_id` int unsigned DEFAULT NULL,
                   `game_data` json NOT NULL,
                   PRIMARY KEY (`game_id`),
-                  UNIQUE KEY `games_unique` (`game_name`)
+                  UNIQUE KEY `games_unique` (`game_name`),
+                  CONSTRAINT `games_white_user_FK` FOREIGN KEY (`white_user_id`) REFERENCES `users` (`user_id`),
+                  CONSTRAINT `games_black_user_FK` FOREIGN KEY (`black_user_id`) REFERENCES `users` (`user_id`)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
                 """;
 
@@ -66,6 +67,11 @@ public class GameMySqlProvider implements GameDataAccess
         {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public GameData getGameById(int gameID) {
+        return getAllGames().stream().filter(g -> g.gameID() == gameID).findFirst().orElse(null);
     }
 
     @Override
@@ -137,6 +143,8 @@ public class GameMySqlProvider implements GameDataAccess
                             white_user_id IS NULL
                             OR
                             white_user_id = (SELECT user_id FROM users WHERE username = ?)
+                            OR
+                            ? = ''
                         )
                     """;
 
@@ -155,10 +163,33 @@ public class GameMySqlProvider implements GameDataAccess
                             black_user_id IS NULL
                             OR
                             black_user_id = (SELECT user_id FROM users WHERE username = ?)
+                            OR
+                            ? = ''
                         )
                     """;
 
         return setPlayer(gamedID, username, commandText);
+    }
+
+    @Override
+    public void updateGame(GameData gameData)
+    {
+        try (Connection conn = DatabaseManager.getConnection())
+        {
+            String commandText = "UPDATE games SET game_data = ? WHERE game_id = ?";
+
+            try (PreparedStatement ps = conn.prepareStatement(commandText))
+            {
+                ps.setInt(2, gameData.gameID());
+                ps.setString(1, gson.toJson(gameData.getGame()));
+
+                ps.executeUpdate();
+            }
+        }
+        catch (SQLException | DataAccessException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
     private boolean setPlayer(int gamedID, String username, String commandText)
@@ -174,12 +205,18 @@ public class GameMySqlProvider implements GameDataAccess
                 ps.setInt(2, gamedID);
                 ps.setString(1, username);
                 ps.setString(3, username);
+                ps.setString(4, username);
 
                 int rowsAffected = ps.executeUpdate();
 
                 if(rowsAffected == 0) {
                     throw new AlreadyTakenException("username", username);
                 }
+            }
+
+            UpsertGameResult updated = getGame(conn, gamedID, null);
+            if(updated != null && updated.getColorForUser(username) == null && !username.isEmpty()) {
+                throw new IllegalStateException("The user '%s' does not exist.".formatted(username));
             }
         }
         catch (SQLException | DataAccessException e)

@@ -4,6 +4,9 @@ import ui.BufferedRenderer;
 import ui.data.AppState;
 import ui.data.GameListAccessor;
 import ui.data.ServerFacade;
+import ui.data.WebSocketClient;
+import ui.menu.game.*;
+import ui.menu.help.*;
 import java.util.logging.Logger;
 
 public class MenuCommandHandlerFactory
@@ -13,15 +16,17 @@ public class MenuCommandHandlerFactory
     private final ServerFacade serverFacade;
     private final GameListAccessor gameListAccessor;
     private final BufferedRenderer mainRenderer;
+    private final WebSocketClient webSocketClient;
 
-    public MenuCommandHandlerFactory(AppState appState, Logger logger, ServerFacade serverFacade,
-                                     GameListAccessor gameListAccessor, BufferedRenderer mainRenderer)
+    public MenuCommandHandlerFactory(AppState appState, Logger logger, BufferedRenderer mainRenderer, GameListAccessor gameListAccessor, ServerFacade serverFacade,
+                                     WebSocketClient webSocketClient)
     {
         this.appState = appState;
         this.logger = logger;
         this.serverFacade = serverFacade;
         this.gameListAccessor = gameListAccessor;
         this.mainRenderer = mainRenderer;
+        this.webSocketClient = webSocketClient;
     }
 
     public MenuCommandHandler getPreLoginCommand(String commandName)
@@ -63,17 +68,52 @@ public class MenuCommandHandlerFactory
             case "create" -> {
                 return new CreateGameCommandHandler(appState, logger, serverFacade, mainRenderer);
             }
-            case "list" -> {
-                return new ListGameCommandHandler(logger, mainRenderer);
+            case "list", "ls", "games" -> {
+                return new ListGameCommandHandler(logger, mainRenderer, gameListAccessor);
             }
             case "observe" -> {
-                return new ObserveGameCommandHandler(gameListAccessor, mainRenderer);
+                return new ObserveGameCommandHandler(appState, logger, mainRenderer, gameListAccessor, webSocketClient);
             }
             case "join" -> {
-                return new JoinGameCommandHandler(appState, logger, serverFacade, gameListAccessor, mainRenderer);
+                return new JoinGameCommandHandler(appState, mainRenderer, logger,
+                                                  gameListAccessor, serverFacade, webSocketClient);
             }
             case "help" -> {
                 return new PostloginHelpCommandHandler(mainRenderer);
+            }
+            case "quit", "exit" -> {
+                return null;
+            }
+        }
+
+        return new InvalidMenuCommandHandler(mainRenderer);
+    }
+
+    public MenuCommandHandler getGameplayCommand(String commandName)
+    {
+        if(commandName == null)
+        {
+            commandName = "";
+        }
+
+        switch (commandName.toLowerCase()) {
+            case "redraw" -> {
+                return new RedrawCommandHandler(appState, mainRenderer);
+            }
+            case "leave" -> {
+                return new LeaveGameCommandHandler(appState, logger, mainRenderer, webSocketClient);
+            }
+            case "moves" -> {
+                return new HighlightMovesCommandHandler(appState, mainRenderer);
+            }
+            case "move" -> {
+                return new MakeMoveCommandHandler(appState, logger, mainRenderer, webSocketClient);
+            }
+            case "resign" -> {
+                return new ResignCommandHandler(appState, logger, mainRenderer, webSocketClient);
+            }
+            case "help" -> {
+                return new GameplayHelpCommandHandler(appState, mainRenderer);
             }
             case "quit", "exit" -> {
                 return null;

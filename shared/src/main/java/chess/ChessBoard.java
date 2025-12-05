@@ -31,6 +31,10 @@ public class ChessBoard {
         pieces.put(position, piece);
     }
 
+    public ChessPiece getPiece(int row, int col) {
+        return getPiece(new ChessPosition(row, col));
+    }
+
     /**
      * Gets a chess piece on the chessboard
      *
@@ -69,6 +73,10 @@ public class ChessBoard {
                 })
                 .map(entry -> new ChessSquare(entry.getKey(), entry.getValue()))
                 .toList();
+    }
+
+    public boolean isInCheckmateOrStalemate(ChessGame.TeamColor color) {
+        return isInCheckmate(color) || isInStalemate(color);
     }
 
     public boolean isInCheck(ChessGame.TeamColor teamColor)

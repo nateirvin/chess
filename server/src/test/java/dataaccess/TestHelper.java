@@ -5,9 +5,9 @@ import java.util.UUID;
 
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
 
-class TestHelper
+public class TestHelper
 {
-    static void ensureDatabaseSetup() throws DataAccessException
+    public static void ensureDatabaseSetup() throws DataAccessException
     {
         DatabaseManager.createDatabase();
         UsersMySqlProvider.createTables();
@@ -19,7 +19,7 @@ class TestHelper
         DatabaseManager.execute("DELETE FROM users");
     }
 
-    static int insertTestUser(String userName) throws SQLException, DataAccessException {
+    public static int insertTestUser(String userName) throws SQLException, DataAccessException {
         return insertTestUser(userName, UUID.randomUUID().toString());
     }
 

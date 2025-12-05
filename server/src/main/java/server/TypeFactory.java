@@ -7,7 +7,7 @@ import service.SessionService;
 import service.UserService;
 import util.SerializerFactory;
 
-class EndpointHandlerFactory
+public class TypeFactory
 {
     private final Gson gson;
     private SessionDataAccess sessionDataAccess;
@@ -17,9 +17,9 @@ class EndpointHandlerFactory
     private SessionService sessionService;
     private GameService gameService;
 
-    public EndpointHandlerFactory(SerializerFactory serializerFactory)
+    public TypeFactory()
     {
-        this.gson = serializerFactory.getGson();
+        this.gson = new SerializerFactory().getGson();
     }
 
     public void useDatabase()
@@ -52,8 +52,24 @@ class EndpointHandlerFactory
         }
     }
 
+    public Gson getGson() {
+        return this.gson;
+    }
+
+    public GameDataAccess getGameDataAccess() {
+        return this.gameDataAccess;
+    }
+
+    public GameService getGameService() {
+        return this.gameService;
+    }
+
+    public SessionService getSessionService() {
+        return this.sessionService;
+    }
+
     @SuppressWarnings("unchecked")
-    public <T extends JsonEndpointHandler> T getHandler(Class<T> clazz)
+    public <T extends JsonEndpointHandler> T getEndpointHandler(Class<T> clazz)
     {
         if(clazz == ResetServerEndpointHandler.class)
         {

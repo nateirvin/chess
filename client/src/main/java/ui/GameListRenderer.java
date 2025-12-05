@@ -1,26 +1,23 @@
 package ui;
 
 import model.GameData;
-import ui.data.GameListAccessor;
 import java.util.ArrayList;
 
 public class GameListRenderer {
-    private final GameListAccessor accessor;
+    private final DisplaySink writer;
 
-    public GameListRenderer(GameListAccessor accessor) {
-        this.accessor = accessor;
+    public GameListRenderer(DisplaySink writer) {
+        this.writer = writer;
     }
 
-    public void showGamesList()
+    public void showGamesList(ArrayList<GameData> games)
     {
-        showGamesListWithAlternateText(null);
+        showGamesListWithAlternateText(games,null);
     }
 
-    public void showGamesListWithAlternateText(String altText) {
-        ArrayList<GameData> games = accessor.loadGames();
-
+    public void showGamesListWithAlternateText(ArrayList<GameData> games, String altText) {
         if(!games.isEmpty()) {
-            System.out.println("Games:");
+            writer.println("Games:");
 
             for (int i = 0; i < games.size(); i++)
             {
@@ -36,12 +33,12 @@ public class GameListRenderer {
                     blackUsername = "(none)";
                 }
 
-                System.out.printf("%d. %s (white: %s, black: %s)%n",
+                writer.printf("%d. %s (white: %s, black: %s)%n",
                                   gameNumber, game.gameName(), whiteUsername, blackUsername);
             }
         }
         else if(altText != null && !altText.isEmpty()) {
-            System.out.println(altText);
+            writer.println(altText);
         }
     }
 }

@@ -5,8 +5,18 @@ public class ColorScheme {
     private String borderText;
     private String lightSquareBackground;
     private String darkSquareBackground;
+    private String lightHighlightSquareBackground;
+    private String darkHighlightSquareBackground;
     private String player1Text;
+    private String player1TextColorName;
     private String player2Text;
+    private String player2TextColorName;
+    private String aggressorText;
+    private String aggressorBackground;
+    private boolean needsExplanation;
+
+    private ColorScheme() {
+    }
 
     public static ColorScheme example() {
         ColorScheme colorScheme = new ColorScheme();
@@ -15,7 +25,14 @@ public class ColorScheme {
         colorScheme.lightSquareBackground = EscapeSequences.SET_BG_COLOR_WHITE;
         colorScheme.darkSquareBackground = EscapeSequences.SET_BG_COLOR_DARK_GREY;
         colorScheme.player1Text = EscapeSequences.SET_TEXT_COLOR_RED;
+        colorScheme.player1TextColorName = "red";
         colorScheme.player2Text = EscapeSequences.SET_TEXT_COLOR_BLUE;
+        colorScheme.player2TextColorName = "blue";
+        colorScheme.aggressorText = EscapeSequences.SET_TEXT_COLOR_BLACK;
+        colorScheme.aggressorBackground = EscapeSequences.SET_BG_COLOR_YELLOW;
+        colorScheme.lightHighlightSquareBackground = EscapeSequences.SET_BG_COLOR_GREEN;
+        colorScheme.darkHighlightSquareBackground = EscapeSequences.SET_BG_COLOR_DARK_GREEN;
+        colorScheme.needsExplanation = true;
         return colorScheme;
     }
 
@@ -26,7 +43,32 @@ public class ColorScheme {
         colorScheme.lightSquareBackground = EscapeSequences.SET_BG_COLOR_WHITE;
         colorScheme.darkSquareBackground = EscapeSequences.SET_BG_COLOR_DARK_GREY;
         colorScheme.player1Text = EscapeSequences.SET_TEXT_COLOR_RED;
+        colorScheme.player1TextColorName = "red";
         colorScheme.player2Text = EscapeSequences.SET_TEXT_COLOR_BLUE;
+        colorScheme.player2TextColorName = "blue";
+        colorScheme.aggressorText = EscapeSequences.SET_TEXT_COLOR_BLACK;
+        colorScheme.aggressorBackground = EscapeSequences.SET_BG_COLOR_YELLOW;
+        colorScheme.lightHighlightSquareBackground = EscapeSequences.SET_BG_COLOR_GREEN;
+        colorScheme.darkHighlightSquareBackground = EscapeSequences.SET_BG_COLOR_DARK_GREEN;
+        colorScheme.needsExplanation = true;
+        return colorScheme;
+    }
+
+    public static ColorScheme trueColor() {
+        ColorScheme colorScheme = new ColorScheme();
+        colorScheme.borderBackground = EscapeSequences.SET_BG_COLOR_WHITE;
+        colorScheme.borderText = EscapeSequences.SET_TEXT_COLOR_GREEN;
+        colorScheme.player1Text = EscapeSequences.SET_TEXT_COLOR_WHITE;
+        colorScheme.player1TextColorName = "white";
+        colorScheme.player2Text = EscapeSequences.SET_TEXT_COLOR_BLACK;
+        colorScheme.player2TextColorName = "black";
+        colorScheme.lightSquareBackground = EscapeSequences.SET_BG_COLOR_LIGHT_GREY;
+        colorScheme.darkSquareBackground = EscapeSequences.SET_BG_COLOR_RED;
+        colorScheme.aggressorText = EscapeSequences.SET_TEXT_COLOR_DARK_GREY;
+        colorScheme.aggressorBackground = EscapeSequences.SET_BG_COLOR_YELLOW;
+        colorScheme.lightHighlightSquareBackground = EscapeSequences.SET_BG_COLOR_GREEN;
+        colorScheme.darkHighlightSquareBackground = EscapeSequences.SET_BG_COLOR_DARK_GREEN;
+        colorScheme.needsExplanation = false;
         return colorScheme;
     }
 
@@ -50,7 +92,35 @@ public class ColorScheme {
         return player1Text;
     }
 
+    public String player1TextColorName() {
+        return player1TextColorName;
+    }
+
     public String forPlayer2Text() {
         return player2Text;
+    }
+
+    public String player2TextColorName() {
+        return player2TextColorName;
+    }
+
+    public String forAggressorText() {
+        return aggressorText;
+    }
+
+    public String forAggressorBackground() {
+        return aggressorBackground;
+    }
+
+    public String forLightHighlightSquare() {
+        return lightHighlightSquareBackground;
+    }
+
+    public String forDarkHighlightSquare() {
+        return darkHighlightSquareBackground;
+    }
+
+    public boolean areSelfExplanatory() {
+        return !needsExplanation;
     }
 }

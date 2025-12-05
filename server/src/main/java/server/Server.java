@@ -1,8 +1,7 @@
 package server;
 
 import io.javalin.*;
-import util.SerializerFactory;
-
+import server.websocket.MessageRouter;
 import javax.security.auth.login.LoginException;
 
 public class Server {
@@ -10,7 +9,7 @@ public class Server {
     private final Javalin javalin;
 
     public Server() {
-        var factory = new EndpointHandlerFactory(new SerializerFactory());
+        var factory = new TypeFactory();
         if(true) {
             factory.useDatabase();
         } else {
@@ -20,7 +19,7 @@ public class Server {
 
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
-        JsonEndpointHandler errorHandler = factory.getHandler(JsonEndpointHandler.class);
+        JsonEndpointHandler errorHandler = factory.getEndpointHandler(JsonEndpointHandler.class);
         javalin.exception(IllegalArgumentException.class,
                         (exception, context) ->
                                 errorHandler.badRequest(context, exception.getMessage()))
@@ -31,13 +30,22 @@ public class Server {
                        (exception, context) ->
                                errorHandler.errorMessageResult(context, 500, exception.getMessage()));
 
-        javalin.delete("/db", factory.getHandler(ResetServerEndpointHandler.class));
-        javalin.post("/user", factory.getHandler(RegisterUserEndpointHandler.class));
-        javalin.post("/session", factory.getHandler(LoginEndpointHandler.class));
-        javalin.delete("/session", factory.getHandler(LogoutEndpointHandler.class));
-        javalin.post("/game", factory.getHandler(CreateGameEndpointHandler.class));
-        javalin.put("/game", factory.getHandler(JoinGameEndpointHandler.class));
-        javalin.get("/game", factory.getHandler(ListGamesEndpointHandler.class));
+        javalin.delete("/db", factory.getEndpointHandler(ResetServerEndpointHandler.class));
+        javalin.post("/user", factory.getEndpointHandler(RegisterUserEndpointHandler.class));
+        javalin.post("/session", factory.getEndpointHandler(LoginEndpointHandler.class));
+        javalin.delete("/session", factory.getEndpointHandler(LogoutEndpointHandler.class));
+        javalin.post("/game", factory.getEndpointHandler(CreateGameEndpointHandler.class));
+        javalin.put("/game", factory.getEndpointHandler(JoinGameEndpointHandler.class));
+        javalin.get("/game", factory.getEndpointHandler(ListGamesEndpointHandler.class));
+
+        javalin.ws("/ws", config -> {
+            config.onConnect(ctx -> {
+                ctx.enableAutomaticPings();
+                System.out.println("Websocket client connected");
+            });
+            config.onMessage(new MessageRouter(factory));
+            config.onClose(_ -> System.out.println("Websocket client disconnected"));
+        });
     }
 
     public int run(int desiredPort) {

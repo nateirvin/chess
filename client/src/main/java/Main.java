@@ -1,58 +1,43 @@
 import ui.*;
 import ui.data.AppState;
-import ui.data.GameListAccessor;
-import ui.data.ServerFacade;
 import ui.menu.MenuCommandHandler;
-import ui.menu.MenuCommandHandlerFactory;
-import util.SerializerFactory;
+import java.util.UUID;
 import java.util.logging.*;
 
 public class Main
 {
-    private static AppState appState;
-    private static MenuCommandHandlerFactory menuCommandFactory;
-    private static BufferedRenderer render;
-
     public static void main(String[] args)
     {
         System.out.println("Welcome to the Chess app!");
 
-        appState = new AppState();
-        render = new BufferedRenderer();
-
         LogManager.getLogManager().reset();
         Logger logger = Logger.getLogger("default");
 
-        try (ServerFacade serverFacade = new ServerFacade(new SerializerFactory().getGson());
-             ConsoleReader consoleReader = new ConsoleReader())
+        try (BufferedRenderer render = new BufferedRenderer(new ConsoleReader(), new ConsoleWriter());
+             Application app = new Application(logger, render))
         {
-            GameListAccessor gameListAccessor = new GameListAccessor(appState, serverFacade);
-            render.using(gameListAccessor);
-            menuCommandFactory = new MenuCommandHandlerFactory(appState, logger, serverFacade, gameListAccessor, render);
+            String pattern = "client%s.log".formatted(UUID.randomUUID().toString());
+            logger.addHandler(new FileHandler(pattern, true));
 
-            logger.addHandler(new FileHandler("chess-app.log", true));
-            serverFacade.bindTo("localhost", 8080);
+            app.bindToHost("localhost", 8080);
 
-            runUsing(consoleReader);
+            runUsing(app);
         }
         catch (Exception e)
         {
             logger.log(Level.SEVERE, "Critical failure", e);
-            render.error("A critical error has occurred; the app will have to stop.");
+            System.out.println("A critical error has occurred; the app will have to stop.");
         }
     }
 
-    private static void runUsing(ConsoleReader consoleReader) {
-        while (true) {
-            System.out.print("CHESS [" + appState.currentUsername() + "] $ ");
-            consoleReader.read();
+    private static void runUsing(Application app) {
+        BufferedRenderer screen = app.getRenderer();
 
-            MenuCommandHandler command;
-            if (!appState.userIsLoggedIn()) {
-                command = menuCommandFactory.getPreLoginCommand(consoleReader.firstToken());
-            } else {
-                command = menuCommandFactory.getPostLoginCommand(consoleReader.firstToken());
-            }
+        while (true) {
+            String prompt = getPromptFor(app);
+            screen.promptAndWait(prompt);
+
+            MenuCommandHandler command = app.getCommand(screen.firstWordEntered());
 
             if (command == null)   //user selected to quit
             {
@@ -61,11 +46,30 @@ public class Main
                 return;
             }
 
-            String errorMessage = command.execute(consoleReader.allButFirstToken());
+            String errorMessage = command.execute(screen.allButFirstEnteredWord());
 
             if (errorMessage != null) {
-                render.error(errorMessage);
+                screen.error(errorMessage);
             }
         }
+    }
+
+    private static String getPromptFor(Application app) {
+        AppState appState = app.getStateManager();
+
+        StringBuilder context = new StringBuilder();
+        context.append(appState.currentUsername());
+        if(appState.inGameplayMode()) {
+            context.append(" ");
+            if(appState.userIsObserver()) {
+                context.append("watching");
+            } else {
+                context.append("playing");
+            }
+            context.append(" ");
+            context.append(appState.gameName());
+        }
+
+        return "CHESS [%s] $".formatted(context);
     }
 }

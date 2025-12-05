@@ -1,19 +1,28 @@
 package ui.menu;
 
-import chess.ChessGame;
+import jakarta.websocket.DeploymentException;
 import model.GameData;
 import model.UserEntryResult;
 import ui.BufferedRenderer;
+import ui.data.AppState;
 import ui.data.GameListAccessor;
+import ui.data.WebSocketClient;
+import websocket.commands.UserGameCommand;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ObserveGameCommandHandler extends GameScopedCommandHandler implements MenuCommandHandler
 {
-    private final GameListAccessor gameListAccessor;
-    private final BufferedRenderer render;
+    private final Logger logger;
 
-    public ObserveGameCommandHandler(GameListAccessor gameListAccessor, BufferedRenderer render) {
-        this.gameListAccessor = gameListAccessor;
-        this.render = render;
+    private final WebSocketClient webSocket;
+
+    public ObserveGameCommandHandler(AppState appState, Logger logger, BufferedRenderer render,
+                                     GameListAccessor gameListAccessor, WebSocketClient webSocket)
+    {
+        super(appState, render, gameListAccessor);
+        this.logger = logger;
+        this.webSocket = webSocket;
     }
 
     @Override
@@ -28,12 +37,31 @@ public class ObserveGameCommandHandler extends GameScopedCommandHandler implemen
             return gameNumberResult.getErrorMessage();
         }
 
-        GameData game = gameListAccessor.getGameByNumber(gameNumberResult.getValue());
-        if(game == null) {
-            return "No such game.";
+        UserEntryResult<GameData> gameFetchResult = fetchGame(arguments[0]);
+        if(!gameFetchResult.success()) {
+            return gameFetchResult.getErrorMessage();
+        }
+        GameData game = gameFetchResult.getValue();
+
+        try {
+            //calls back with Game state
+            //notifies other users game has been joined
+            UserGameCommand userCommand =
+                    new UserGameCommand(UserGameCommand.CommandType.CONNECT, appState.getAuthToken(), game.gameID());
+            webSocket.send(userCommand);
+        } catch(DeploymentException e) {
+            logger.log(Level.INFO, "Cannot connect", e);
+            return "Game server cannot be reached.";
+        } catch (Exception exception) {
+            logger.log(Level.SEVERE, "Failed to start observation", exception);
+            return "Failed to connect to this game.";
         }
 
-        render.board(game.getGame().getBoard(), ChessGame.TeamColor.WHITE);
+        render.waitForBoard();
+
+        if(!displayGameOver()) {
+            displayTurnPlayer();
+        }
 
         return null;
     }
