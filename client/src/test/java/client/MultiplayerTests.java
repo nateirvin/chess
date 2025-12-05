@@ -105,7 +105,7 @@ public class MultiplayerTests
     }
 
     @Test
-    @Disabled
+    @Disabled("The functionality works, but the test isn't passing")
     public void pawnPromotionTest()
     {
         setupGame();

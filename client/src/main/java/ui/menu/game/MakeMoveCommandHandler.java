@@ -1,6 +1,7 @@
 package ui.menu.game;
 
 import chess.ChessMove;
+import chess.ChessPiece;
 import chess.ChessPosition;
 import jakarta.websocket.DeploymentException;
 import model.UserEntryResult;
@@ -29,6 +30,10 @@ public class MakeMoveCommandHandler extends GameScopedCommandHandler implements 
             return "Invalid arguments";
         }
 
+        if(appState.userIsObserver()) {
+            return "You cannot make moves while observing.";
+        }
+
         UserEntryResult<ChessPosition> fromResult = getPosition(arguments[0].trim());
         UserEntryResult<ChessPosition> toResult = getPosition(arguments[1].trim());
         if(!fromResult.success()) {
@@ -38,12 +43,10 @@ public class MakeMoveCommandHandler extends GameScopedCommandHandler implements 
             return toResult.getErrorMessage();
         }
 
-        //TODO: implement the promo piece logic
-        ChessMove move = new ChessMove(fromResult.getValue(), toResult.getValue(), null);
-
-        if(appState.userIsObserver()) {
-            return "You cannot make moves while observing.";
-        }
+        ChessPosition startPosition = fromResult.getValue();
+        ChessPosition endPosition = toResult.getValue();
+        ChessPiece.PieceType promoPieceType = getPromoPieceIfApplicable(startPosition, endPosition);
+        ChessMove move = new ChessMove(startPosition, endPosition, promoPieceType);
 
         try {
             //sends updated game state to everyone
@@ -61,6 +64,43 @@ public class MakeMoveCommandHandler extends GameScopedCommandHandler implements 
 
         if(!displayGameOver()) {
             displayTurnPlayer();
+        }
+
+        return null;
+    }
+
+    private ChessPiece.PieceType getPromoPieceIfApplicable(ChessPosition startPosition, ChessPosition endPosition)
+    {
+        ChessPiece piece = appState.getCurrentGame().getGame().getBoard().getPiece(startPosition);
+
+        if(piece != null &&
+           piece.getPieceType() == ChessPiece.PieceType.PAWN &&
+           piece.getTeamColor() == this.appState.getPlayer() &&
+           (endPosition.getRow() == 1 || endPosition.getRow() == 8))
+        {
+            while(true)
+            {
+                //noinspection SpellCheckingInspection
+                render.promptAndWait("Do you want to promote to (Q)ueen, (K)night (B)ishop, or (R)ook?");
+
+                String promoPieceEntry = render.firstWordEntered();
+                if(promoPieceEntry != null) {
+                    promoPieceEntry = promoPieceEntry.trim().toUpperCase();
+                    if(promoPieceEntry.startsWith("Q")) {
+                        return ChessPiece.PieceType.QUEEN;
+                    }
+                    else if(promoPieceEntry.startsWith("K")) {
+                        return ChessPiece.PieceType.KNIGHT;
+                    }
+                    else if(promoPieceEntry.startsWith("B")) {
+                        return ChessPiece.PieceType.BISHOP;
+                    }
+                    else if(promoPieceEntry.startsWith("R")) {
+                        return ChessPiece.PieceType.ROOK;
+                    }
+                }
+                render.error("Invalid entry");
+            }
         }
 
         return null;
