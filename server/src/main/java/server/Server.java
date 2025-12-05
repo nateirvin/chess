@@ -44,7 +44,7 @@ public class Server {
                 System.out.println("Websocket client connected");
             });
             config.onMessage(new MessageRouter(factory));
-            config.onClose(_ -> System.out.println("Websocket client disconnected"));
+            config.onClose(x -> System.out.println("Websocket client disconnected"));
         });
     }
 
