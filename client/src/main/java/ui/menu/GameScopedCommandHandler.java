@@ -86,7 +86,7 @@ public abstract class GameScopedCommandHandler {
 
     protected boolean displayGameOver() {
         if(appState.getCurrentGame().isOver()) {
-            render.notice("Game over: %s wins!".formatted(appState.getCurrentGame().getWinnerUsername()));
+            render.notice("Game over: %s wins!".formatted(appState.getCurrentGame().getWinner()));
             return true;
         }
         return false;

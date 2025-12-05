@@ -11,12 +11,14 @@ import java.util.Objects;
  */
 public class ChessGame {
 
+    private TeamColor quitTeam;
     private TeamColor currentTeam;
     private ChessBoard board;
 
     public ChessGame()
     {
         currentTeam = TeamColor.WHITE;
+        quitTeam = null;
 
         board = new ChessBoard();
         board.resetBoard();
@@ -36,6 +38,14 @@ public class ChessGame {
      */
     public void setTeamTurn(TeamColor team) {
         currentTeam = team;
+    }
+
+    public void concededBy(TeamColor color) {
+        quitTeam = color;
+    }
+
+    public TeamColor resignedBy() {
+        return quitTeam;
     }
 
     /**
@@ -114,7 +124,11 @@ public class ChessGame {
         }
 
         board.makeMove(move);
-        setTeamTurn(currentTeam == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE);
+        setTeamTurn(getOtherTeam(currentTeam));
+    }
+
+    public static TeamColor getOtherTeam(TeamColor team) {
+        return team == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE;
     }
 
     /**
@@ -180,11 +194,12 @@ public class ChessGame {
         }
         ChessGame chessGame = (ChessGame) o;
         return currentTeam == chessGame.currentTeam &&
-                Objects.equals(board, chessGame.board);
+               quitTeam == chessGame.quitTeam &&
+               Objects.equals(board, chessGame.board);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(currentTeam, board);
+        return Objects.hash(quitTeam, currentTeam, board);
     }
 }

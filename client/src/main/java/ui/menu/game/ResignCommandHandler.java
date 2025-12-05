@@ -47,7 +47,7 @@ public class ResignCommandHandler extends GameScopedCommandHandler implements Me
             return "Failure to communicate";
         }
 
-        appState.getCurrentGame().concededBy(appState.currentUsername());
+        appState.getCurrentGame().concededBy(appState.getPlayer());
 
         displayGameOver();
         return null;

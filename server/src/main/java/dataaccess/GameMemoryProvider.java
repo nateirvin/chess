@@ -72,11 +72,6 @@ public class GameMemoryProvider implements GameDataAccess
     }
 
     @Override
-    public void concedeGame(int gameID, int userId) {
-        throw new UnsupportedOperationException("No reason, just don't want to bother.");
-    }
-
-    @Override
     public void deleteAllGames()
     {
         GAMES.clear();

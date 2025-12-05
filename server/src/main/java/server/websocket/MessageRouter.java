@@ -101,7 +101,8 @@ public class MessageRouter implements WsMessageHandler {
                     }
                     else if (callerMessage.getCommandType() == UserGameCommand.CommandType.RESIGN)
                     {
-                        this.gameDataAccess.concedeGame(callerMessage.getGameID(), session.userId());
+                        game.concededBy(session.username());
+                        this.gameDataAccess.updateGame(game);
                         clientManager.sendToGameUsers(game.gameID(), new ResignMessage(session.username()));
                     }
                 }

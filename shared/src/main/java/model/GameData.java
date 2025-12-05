@@ -9,7 +9,6 @@ public class GameData
     private final String gameName;
     private String whiteUsername;
     private String blackUsername;
-    private String resignedUsername;
     private ChessGame game;
 
     public GameData(int gameID, String gameName)
@@ -52,8 +51,8 @@ public class GameData
     public ChessGame getGame() { return game; }
     public void setGame(ChessGame game) { this.game = game; }
 
-    public void concededBy(String resignedUsername) {
-        this.resignedUsername = resignedUsername;
+    public void concededBy(ChessGame.TeamColor color) {
+        this.game.concededBy(color);
     }
 
     public String usernameFor(ChessGame.TeamColor teamColor) {
@@ -109,35 +108,34 @@ public class GameData
         return false;
     }
 
+    public void concededBy(String username) {
+        ChessGame.TeamColor color = getColorForUser(username);
+        if(color == null) {
+            throw new IllegalStateException();
+        }
+        game.concededBy(color);
+    }
+
     public boolean isOver() {
-        if(resignedUsername != null) {
+        if(game.resignedBy() != null) {
             return true;
+        }
+
+        return getGame().getBoard().isInCheckmateOrStalemate(ChessGame.TeamColor.WHITE) ||
+               getGame().getBoard().isInCheckmateOrStalemate(ChessGame.TeamColor.BLACK);
+    }
+
+    public ChessGame.TeamColor getWinner() {
+        if(game.resignedBy() != null) {
+            return ChessGame.getOtherTeam(game.resignedBy());
         }
 
         ChessBoard board = getGame().getBoard();
-        if(board.isInCheckmateOrStalemate(ChessGame.TeamColor.WHITE) ||
-           board.isInCheckmateOrStalemate(ChessGame.TeamColor.BLACK))
-        {
-            return true;
+        if(board.isInCheckmateOrStalemate(ChessGame.TeamColor.WHITE)) {
+            return ChessGame.TeamColor.BLACK;
         }
-
-        return false;
-    }
-
-    public String getWinnerUsername() {
-        if(resignedUsername != null) {
-            if(resignedUsername.equals(whiteUsername)) {
-                return blackUsername;
-            } else if(resignedUsername.equals(blackUsername)) {
-                return whiteUsername;
-            }
-        } else {
-            ChessBoard board = getGame().getBoard();
-            if(board.isInCheckmateOrStalemate(ChessGame.TeamColor.WHITE)) {
-                return blackUsername;
-            } else if(board.isInCheckmateOrStalemate(ChessGame.TeamColor.BLACK)) {
-                return whiteUsername;
-            }
+        if(board.isInCheckmateOrStalemate(ChessGame.TeamColor.BLACK)) {
+            return ChessGame.TeamColor.WHITE;
         }
 
         return null;

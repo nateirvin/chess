@@ -7,7 +7,6 @@ import model.UpsertGameResult;
 import service.AlreadyTakenException;
 import java.sql.*;
 import java.util.ArrayList;
-
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
 
 public class GameMySqlProvider implements GameDataAccess
@@ -26,13 +25,11 @@ public class GameMySqlProvider implements GameDataAccess
                   `game_name` varchar(100) NOT NULL,
                   `white_user_id` int unsigned DEFAULT NULL,
                   `black_user_id` int unsigned DEFAULT NULL,
-                  `resign_user_id` int unsigned DEFAULT NULL,
                   `game_data` json NOT NULL,
                   PRIMARY KEY (`game_id`),
                   UNIQUE KEY `games_unique` (`game_name`),
                   CONSTRAINT `games_white_user_FK` FOREIGN KEY (`white_user_id`) REFERENCES `users` (`user_id`),
-                  CONSTRAINT `games_black_user_FK` FOREIGN KEY (`black_user_id`) REFERENCES `users` (`user_id`),
-                  CONSTRAINT `games_resign_user_FK` FOREIGN KEY (`resign_user_id`) REFERENCES `users` (`user_id`)
+                  CONSTRAINT `games_black_user_FK` FOREIGN KEY (`black_user_id`) REFERENCES `users` (`user_id`)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
                 """;
 
@@ -91,15 +88,12 @@ public class GameMySqlProvider implements GameDataAccess
                             game_name,
                             u1.username AS white_user_name,
                             u2.username AS black_user_name,
-                            game_data,
-                            u3.username as resign_user_name
+                            game_data
                         FROM games
                             LEFT JOIN users AS u1
                                 ON games.white_user_id = u1.user_id
                             LEFT JOIN users AS u2
                                 ON games.black_user_id = u2.user_id
-                            LEFT JOIN users AS u3
-                                ON games.resign_user_id = u3.user_id
                         """))
             {
                 try(var rs = ps.executeQuery()) {
@@ -124,7 +118,6 @@ public class GameMySqlProvider implements GameDataAccess
         String gameName = rs.getString(2);
         String whiteUsername = rs.getString(3);
         String blackUsername = rs.getString(4);
-        String resignedUsername = rs.getString(6);
         String gameJson = rs.getString(5);
         ChessGame game = gson.fromJson(gameJson, ChessGame.class);
 
@@ -134,7 +127,6 @@ public class GameMySqlProvider implements GameDataAccess
                 whiteUsername,
                 blackUsername);
         gameData.setGame(game);
-        gameData.concededBy(resignedUsername);
 
         return gameData;
     }
@@ -200,40 +192,6 @@ public class GameMySqlProvider implements GameDataAccess
         }
     }
 
-    @Override
-    public void concedeGame(int gameID, int userId)
-    {
-        try (Connection conn = DatabaseManager.getConnection())
-        {
-            String commandText =
-                    """
-                    UPDATE games
-                    SET resign_user_id = ?
-                    WHERE game_id = ?
-                        AND (white_user_id = ? OR black_user_id = ?)
-                        AND resign_user_id IS NULL
-                    """;
-
-            try (PreparedStatement ps = conn.prepareStatement(commandText))
-            {
-                ps.setInt(1, userId);
-                ps.setInt(2, gameID);
-                ps.setInt(3, userId);
-                ps.setInt(4, userId);
-
-                int rowsAffected = ps.executeUpdate();
-
-                if(rowsAffected == 0) {
-                    throw new IllegalStateException("The game state cannot be changed in this way.");
-                }
-            }
-        }
-        catch (SQLException | DataAccessException e)
-        {
-            throw new RuntimeException(e);
-        }
-    }
-
     private boolean setPlayer(int gamedID, String username, String commandText)
     {
         try (Connection conn = DatabaseManager.getConnection())
@@ -257,7 +215,7 @@ public class GameMySqlProvider implements GameDataAccess
             }
 
             UpsertGameResult updated = getGame(conn, gamedID, null);
-            if(updated != null && updated.getColorForUser(username) == null && !username.equals("")) {
+            if(updated != null && updated.getColorForUser(username) == null && !username.isEmpty()) {
                 throw new IllegalStateException("The user '%s' does not exist.".formatted(username));
             }
         }
@@ -278,15 +236,12 @@ public class GameMySqlProvider implements GameDataAccess
                         game_name,
                         u1.username AS white_user_name,
                         u2.username AS black_user_name,
-                        game_data,
-                        u3.username AS resign_user_name
+                        game_data
                     FROM games
                         LEFT JOIN users AS u1
                             ON games.white_user_id = u1.user_id
                         LEFT JOIN users AS u2
                             ON games.black_user_id = u2.user_id
-                        LEFT JOIN users AS u3
-                            ON games.resign_user_id = u3.user_id
                     WHERE game_name = ?
                         OR game_id = ?
                     """))
