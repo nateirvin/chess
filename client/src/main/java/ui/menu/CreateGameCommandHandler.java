@@ -41,7 +41,6 @@ public class CreateGameCommandHandler implements MenuCommandHandler
             }
 
             render.userActionComplete("This game has been created!");
-            render.gamesList();
 
             return null;
         } else {

@@ -69,7 +69,7 @@ public class MenuCommandHandlerFactory
                 return new CreateGameCommandHandler(appState, logger, serverFacade, mainRenderer);
             }
             case "list", "ls", "games" -> {
-                return new ListGameCommandHandler(logger, mainRenderer);
+                return new ListGameCommandHandler(logger, mainRenderer, gameListAccessor);
             }
             case "observe" -> {
                 return new ObserveGameCommandHandler(appState, logger, mainRenderer, gameListAccessor, webSocketClient);

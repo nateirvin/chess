@@ -3,7 +3,7 @@ package ui;
 import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessPosition;
-import ui.data.GameListAccessor;
+import model.GameData;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,7 +13,7 @@ import java.util.concurrent.SynchronousQueue;
 public class BufferedRenderer implements Closeable {
     private final ConsoleReader reader;
     private final ChessBoardRenderer boardRenderer;
-    private GameListRenderer gameListRenderer;
+    private final GameListRenderer gameListRenderer;
 
     private GameUpdate gameUpdate;
     private final Queue<String> asyncMessages;
@@ -21,11 +21,8 @@ public class BufferedRenderer implements Closeable {
     public BufferedRenderer() {
         reader = new ConsoleReader();
         asyncMessages = new SynchronousQueue<>();
+        gameListRenderer = new GameListRenderer();
         boardRenderer = new ChessBoardRenderer(ColorScheme.trueColor());
-    }
-
-    public void using(GameListAccessor gameListAccessor) {
-        this.gameListRenderer = new GameListRenderer(gameListAccessor);
     }
 
     public void promptAndWait(String prompt) {
@@ -161,12 +158,12 @@ public class BufferedRenderer implements Closeable {
         System.out.println();
     }
 
-    public void gamesList() {
-        gameListRenderer.showGamesList();
+    public void gamesList(ArrayList<GameData> games) {
+        gameListRenderer.showGamesList(games);
     }
 
-    public void gamesListWithAltText() {
-        gameListRenderer.showGamesListWithAlternateText("No games yet; use the 'create' command to start one!");
+    public void gamesListWithAltText(ArrayList<GameData> games) {
+        gameListRenderer.showGamesListWithAlternateText(games,"No games yet; use the 'create' command to start one!");
         System.out.println();
     }
 

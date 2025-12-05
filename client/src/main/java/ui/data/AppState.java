@@ -13,27 +13,27 @@ public class AppState
     private GameData game;
     private ChessGame.TeamColor player = null;
 
-    public void setSession(AuthData userSession) {
-        if(userSession == null) {
+    public void setSession(AuthData newSession) {
+        if(newSession == null) {
             throw new IllegalArgumentException();
         }
         if(userIsLoggedIn()) {
             throw new IllegalStateException("You must end the previous session before assigning a new one.");
         }
-        this.userSession = userSession;
+        this.userSession = newSession;
     }
 
-    public void updateGame(GameData game) {
-        if(game == null) {
+    public void updateGame(GameData gameUpdate) {
+        if(gameUpdate == null) {
             throw new IllegalArgumentException();
         }
 
         synchronized (gameLock) {
-            if(this.game != null && this.game.gameID() != game.gameID()) {
+            if(this.game != null && this.game.gameID() != gameUpdate.gameID()) {
                 throw new IllegalStateException();
             }
 
-            this.game = game;
+            this.game = gameUpdate;
         }
     }
 
@@ -49,7 +49,7 @@ public class AppState
 
     public GameData getCurrentGame() {
         synchronized (gameLock) {
-            return game;
+            return this.game;
         }
     }
 
