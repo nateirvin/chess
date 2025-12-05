@@ -42,45 +42,58 @@ public class WebSocketClient extends Endpoint implements Closeable
             return;
         }
 
-        URI uri;
-        try {
-            uri = new URI("ws://%s:%d/ws".formatted(host, port));
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
-        }
-
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-        this.session = container.connectToServer(this, uri);
+        this.session = container.connectToServer(this, getUri());
 
         this.session.addMessageHandler(new MessageHandler.Whole<String>() {
             public void onMessage(String message) {
-                ServerMessage serverMessage = gson.fromJson(message, ServerMessage.class);
-                if(serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
-                    GameLoadServerMessage specificMessage = gson.fromJson(message, GameLoadServerMessage.class);
-                    GameData game = specificMessage.getGame();
-
-                    appState.updateGame(game);
-                    render.updateBoard(game.getGame().getBoard(), appState.getPlayer());
-
-                    GameScopedCommandHandler.displayTurnPlayer(appState, render);
-                } else if(serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION) {
-                    NotificationMessage specificMessage = gson.fromJson(message, NotificationMessage.class);
-
-                    //if the resignation was initiated by this user, no need to update anything
-                    if(specificMessage.isResignation()) {
-                        ResignMessage moreSpecificMessage = gson.fromJson(message, ResignMessage.class);
-                        if(appState.currentUsername().equals(moreSpecificMessage.getUsername())) {
-                           return;
-                        }
-                    }
-
-                    render.asyncUpdate(specificMessage.getMessage());
-                } else if(serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.ERROR) {
-                    ServerErrorMessage specificMessage = gson.fromJson(message, ServerErrorMessage.class);
-                    render.callbackError(specificMessage.getErrorMessage());
-                }
+                handleCallbacks(message);
             }
         });
+    }
+
+    private URI getUri() {
+        try {
+            return new URI("ws://%s:%d/ws".formatted(host, port));
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void handleCallbacks(String rawMessage) {
+        ServerMessage serverMessage = gson.fromJson(rawMessage, ServerMessage.class);
+        if(serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
+            handleGameLoad(rawMessage);
+        } else if(serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION) {
+            handleGameActivity(rawMessage);
+        } else if(serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.ERROR) {
+            ServerErrorMessage errorMessage = gson.fromJson(rawMessage, ServerErrorMessage.class);
+            render.callbackError(errorMessage.getErrorMessage());
+        }
+    }
+
+    private void handleGameLoad(String rawMessage) {
+        GameLoadServerMessage serverMessage = gson.fromJson(rawMessage, GameLoadServerMessage.class);
+        GameData game = serverMessage.getGame();
+
+        appState.updateGame(game);
+        render.updateBoard(game.getGame().getBoard(), appState.getPlayer());
+
+        GameScopedCommandHandler.displayTurnPlayer(appState, render);
+    }
+
+    private void handleGameActivity(String rawMessage) {
+        NotificationMessage serverMessage = gson.fromJson(rawMessage, NotificationMessage.class);
+
+        //if the resignation was initiated by this user, no need to update anything
+        if(serverMessage.isResignation()) {
+            ResignMessage moreSpecificMessage = gson.fromJson(rawMessage, ResignMessage.class);
+            if(appState.currentUsername().equals(moreSpecificMessage.getUsername())) {
+                return;
+            }
+        }
+
+        render.asyncUpdate(serverMessage.getMessage());
     }
 
     public void send(UserGameCommand command) throws IOException, DeploymentException {
