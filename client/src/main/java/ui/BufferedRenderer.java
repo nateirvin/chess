@@ -27,6 +27,7 @@ public class BufferedRenderer implements Closeable {
 
     public void promptAndWait(String prompt) {
         asyncNotices();
+        boardUpdates();
 
         if(prompt != null && !prompt.isBlank()) {
             System.out.print(prompt.trim());
@@ -36,6 +37,7 @@ public class BufferedRenderer implements Closeable {
         reader.read();
 
         asyncNotices();
+        boardUpdates();
     }
 
     public String firstWordEntered() {
@@ -98,12 +100,15 @@ public class BufferedRenderer implements Closeable {
     }
 
     private void boardUpdates() {
-        if (gameUpdate.errorMessage == null) {
-            board(gameUpdate.board, gameUpdate.color);
-        } else {
-            error(gameUpdate.errorMessage);
+        if(gameUpdate != null)
+        {
+            if (gameUpdate.errorMessage == null) {
+                board(gameUpdate.board, gameUpdate.color);
+            } else {
+                error(gameUpdate.errorMessage);
+            }
+            gameUpdate = null;
         }
-        gameUpdate = null;
     }
 
     public void updateBoard(ChessBoard board, ChessGame.TeamColor viewerColor) {
