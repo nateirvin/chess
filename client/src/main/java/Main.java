@@ -1,4 +1,5 @@
 import ui.*;
+import ui.data.AppState;
 import ui.menu.MenuCommandHandler;
 import java.util.UUID;
 import java.util.logging.*;
@@ -30,20 +31,11 @@ public class Main
     }
 
     private static void runUsing(Application app) {
-        var appState = app.getStateManager();
-        var screen = app.getRenderer();
+        BufferedRenderer screen = app.getRenderer();
 
         while (true) {
-            String context = appState.currentUsername();
-            if(appState.inGameplayMode()) {
-                if(appState.userIsObserver()) {
-                    context += " watching ";
-                } else {
-                    context += " playing ";
-                }
-                context += appState.gameName();
-            }
-            screen.promptAndWait("CHESS [%s] $".formatted(context));
+            String prompt = getPromptFor(app);
+            screen.promptAndWait(prompt);
 
             MenuCommandHandler command = app.getCommand(screen.firstWordEntered());
 
@@ -60,5 +52,24 @@ public class Main
                 screen.error(errorMessage);
             }
         }
+    }
+
+    private static String getPromptFor(Application app) {
+        AppState appState = app.getStateManager();
+
+        StringBuilder context = new StringBuilder();
+        context.append(appState.currentUsername());
+        if(appState.inGameplayMode()) {
+            context.append(" ");
+            if(appState.userIsObserver()) {
+                context.append("watching");
+            } else {
+                context.append("playing");
+            }
+            context.append(" ");
+            context.append(appState.gameName());
+        }
+
+        return "CHESS [%s] $".formatted(context);
     }
 }
