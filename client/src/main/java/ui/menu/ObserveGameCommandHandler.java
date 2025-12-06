@@ -59,10 +59,6 @@ public class ObserveGameCommandHandler extends GameScopedCommandHandler implemen
 
         render.waitForBoard();
 
-        if(!displayGameOver()) {
-            displayTurnPlayer();
-        }
-
         return null;
     }
 }

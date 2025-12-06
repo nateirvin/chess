@@ -81,7 +81,6 @@ public class JoinGameCommandHandler extends GameScopedCommandHandler implements 
             }
 
             render.waitForBoard();
-            displayTurnPlayer();
 
             return null;
         } else {

@@ -76,19 +76,6 @@ public abstract class GameScopedCommandHandler {
         return new UserEntryResult<>(game);
     }
 
-    protected void displayTurnPlayer() {
-        displayTurnPlayer(appState, render);
-    }
-
-    public static void displayTurnPlayer(AppState appState1, BufferedRenderer render1) {
-        String activePlayerUsername = appState1.getCurrentGame().usernameForCurrentTurn();
-        if(appState1.currentUsername().equals(activePlayerUsername)) {
-            render1.myTurn();
-        } else {
-            render1.waitingOnPlayer(activePlayerUsername);
-        }
-    }
-
     protected boolean displayGameOver() {
         if(appState.getCurrentGame().isOver()) {
             render.userActionComplete("Game over: %s wins!".formatted(appState.getCurrentGame().getWinner()));

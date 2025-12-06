@@ -62,10 +62,6 @@ public class MakeMoveCommandHandler extends GameScopedCommandHandler implements 
 
         render.waitForBoard();
 
-        if(!displayGameOver()) {
-            displayTurnPlayer();
-        }
-
         return null;
     }
 

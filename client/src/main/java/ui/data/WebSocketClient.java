@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import jakarta.websocket.*;
 import model.GameData;
 import ui.BufferedRenderer;
-import ui.menu.GameScopedCommandHandler;
+import ui.GameProgressRenderer;
 import websocket.commands.UserGameCommand;
 import websocket.messages.*;
 import java.io.Closeable;
@@ -21,11 +21,13 @@ public class WebSocketClient extends Endpoint implements Closeable
     private final AppState appState;
     private final Gson gson;
     private final BufferedRenderer render;
+    private final GameProgressRenderer extendedRenderer;
 
     public WebSocketClient(AppState appState, Gson gson, BufferedRenderer renderer) {
         this.appState = appState;
         this.gson = gson;
         this.render = renderer;
+        this.extendedRenderer = new GameProgressRenderer(appState, renderer);
     }
 
     public void bindTo(String host, int port)  {
@@ -80,7 +82,7 @@ public class WebSocketClient extends Endpoint implements Closeable
         appState.updateGame(game);
         render.updateBoard(game.getGame().getBoard(), appState.getPlayer());
 
-        GameScopedCommandHandler.displayTurnPlayer(appState, render);
+        extendedRenderer.showPlayState();
     }
 
     private void handleGameActivity(String rawMessage) {
