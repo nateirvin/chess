@@ -16,10 +16,8 @@ import service.GameService;
 import service.SessionService;
 import websocket.commands.UserGameCommand;
 import websocket.commands.UserMoveCommand;
-import websocket.messages.GameLoadServerMessage;
-import websocket.messages.NotificationMessage;
-import websocket.messages.ResignMessage;
-import websocket.messages.ServerErrorMessage;
+import websocket.messages.*;
+
 import javax.security.auth.login.LoginException;
 
 public class MessageRouter implements WsMessageHandler {
@@ -70,6 +68,9 @@ public class MessageRouter implements WsMessageHandler {
         catch (LoginException ex)
         {
             clientManager.sendToClient(callerContext, new ServerErrorMessage("Invalid Auth Token"));
+        }
+        catch(InvalidMoveException invalidMoveException) {
+            clientManager.sendToClient(callerContext, new ServerErrorMessage(invalidMoveException.getMessage()));
         }
         catch (Exception ex)
         {
