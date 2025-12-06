@@ -83,16 +83,16 @@ public class WebSocketClient extends Endpoint implements Closeable
     }
 
     private void handleGameActivity(String rawMessage) {
-        NotificationMessage serverMessage = gson.fromJson(rawMessage, NotificationMessage.class);
+        ResignMessage moreSpecificMessage = gson.fromJson(rawMessage, ResignMessage.class);
 
         //if the resignation was initiated by this user, no need to update anything
-        if(serverMessage.isResignation()) {
-            ResignMessage moreSpecificMessage = gson.fromJson(rawMessage, ResignMessage.class);
+        if(!moreSpecificMessage.isEmpty()) {
             if(appState.currentUsername().equals(moreSpecificMessage.getUsername())) {
                 return;
             }
         }
 
+        NotificationMessage serverMessage = gson.fromJson(rawMessage, NotificationMessage.class);
         render.asyncUpdate(serverMessage.getMessage());
     }
 
