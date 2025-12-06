@@ -12,6 +12,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 public class ServerFacade implements Closeable
 {
@@ -128,7 +129,7 @@ public class ServerFacade implements Closeable
     }
 
     public void joinGame(int gameId, AuthData authData, ChessGame.TeamColor color)
-            throws HttpFailureException, IOException, InterruptedException
+                         throws HttpFailureException, IOException, InterruptedException
     {
         JoinGameRequest request = new JoinGameRequest(gameId, color.toString());
 
@@ -174,12 +175,29 @@ public class ServerFacade implements Closeable
                                         throws IOException, InterruptedException, HttpFailureException
     {
         HttpResponse<InputStream> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofInputStream());
+
         if(response.statusCode() != 200)
         {
-            throw new HttpFailureException(response.statusCode());
+            HttpErrorWrapper errorEnvelope;
+
+            try (InputStreamReader responseReader = new InputStreamReader(response.body());
+                 BufferedReader bufferedReader = new BufferedReader(responseReader))
+            {
+                String json = bufferedReader.lines().collect(Collectors.joining("\n"));
+                errorEnvelope = gson.fromJson(json, HttpErrorWrapper.class);
+            }
+            catch(Exception ex)
+            {
+                throw new HttpFailureException(response.statusCode(), ex);
+            }
+
+            throw new HttpFailureException(response.statusCode(), errorEnvelope.message);
         }
+
         return response;
     }
+
+    private record HttpErrorWrapper(String message) {}
 
     @Override
     public void close() throws IOException {

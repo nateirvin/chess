@@ -6,10 +6,7 @@ import model.AuthData;
 import model.GameData;
 import model.UserEntryResult;
 import ui.*;
-import ui.data.AppState;
-import ui.data.GameListAccessor;
-import ui.data.ServerFacade;
-import ui.data.WebSocketClient;
+import ui.data.*;
 import websocket.commands.UserGameCommand;
 import java.net.ConnectException;
 import java.util.logging.Level;
@@ -56,6 +53,10 @@ public class JoinGameCommandHandler extends GameScopedCommandHandler implements 
             } catch(ConnectException ex) {
                 logger.log(Level.INFO, "Cannot connect", ex);
                 return "Game server cannot be reached.";
+            } catch(HttpFailureException ex) {
+                logger.log(Level.WARNING, "HTTP %d: %s".formatted(ex.getStatusCode(), ex.getMessage()));
+                logger.log(Level.WARNING, "Failure in join game", ex);
+                return "Failed to join game.";
             } catch (Exception ex) {
                 logger.log(Level.SEVERE, "Failure in join game", ex);
                 return "Failed to join game.";
@@ -80,7 +81,6 @@ public class JoinGameCommandHandler extends GameScopedCommandHandler implements 
             }
 
             render.waitForBoard();
-            displayTurnPlayer();
 
             return null;
         } else {

@@ -98,12 +98,13 @@ public class GameData
         return false;
     }
 
-    public void concededBy(String username) {
+    public ChessGame.TeamColor concededBy(String username) {
         ChessGame.TeamColor color = getColorForUser(username);
         if(color == null) {
             throw new IllegalStateException();
         }
         game.concededBy(color);
+        return color;
     }
 
     public boolean isOver() {

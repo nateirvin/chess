@@ -72,6 +72,7 @@ class ClientManager
                         sendToClient(clientContext, message);
                     }
                 } catch (Exception exception) {
+                    //noinspection ThrowablePrintedToSystemOut
                     System.out.println(exception);
                 }
             }

@@ -3,6 +3,7 @@ package ui.menu.game;
 import chess.*;
 import model.UserEntryResult;
 import ui.BufferedRenderer;
+import ui.GameProgressRenderer;
 import ui.data.AppState;
 import ui.menu.GameScopedCommandHandler;
 import ui.menu.MenuCommandHandler;
@@ -11,8 +12,11 @@ import java.util.Collection;
 import java.util.List;
 
 public class HighlightMovesCommandHandler extends GameScopedCommandHandler implements MenuCommandHandler {
+    private final GameProgressRenderer extendedRenderer;
+
     public HighlightMovesCommandHandler(AppState appState, BufferedRenderer render) {
         super(appState, render, null);
+        this.extendedRenderer = new GameProgressRenderer(appState, render);
     }
 
     @Override
@@ -41,8 +45,7 @@ public class HighlightMovesCommandHandler extends GameScopedCommandHandler imple
         highlights.addAll(destinations);
 
         render.board(appState.getCurrentGame().getGame().getBoard(), appState.getPlayer(), highlights);
-
-        displayTurnPlayer();
+        extendedRenderer.showPlayState();
 
         return null;
     }

@@ -1,4 +1,4 @@
-package ui.data;
+package chess;
 
 public class BoardColumn {
     public static char numberToLetter(int columnNumber){

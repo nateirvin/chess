@@ -53,7 +53,11 @@ public class ChessMove {
 
     @Override
     public String toString() {
-        return startPosition + " to " + endPosition;
+        return "%s to %s".formatted(startPosition, endPosition);
+    }
+
+    public String inStandardNotation() {
+        return "%s to %s".formatted(startPosition.toStandardNotation(), endPosition.toStandardNotation());
     }
 
     @Override

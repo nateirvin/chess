@@ -3,6 +3,8 @@ import com.google.gson.Gson;
 import model.GameData;
 import org.junit.jupiter.api.*;
 import util.SerializerFactory;
+import websocket.messages.NotificationMessage;
+import websocket.messages.ResignMessage;
 
 public class SerializationTests
 {
@@ -159,6 +161,18 @@ public class SerializationTests
         ChessGame recycled = gson.fromJson(rep, ChessGame.class);
 
         Assertions.assertEquals(16,
-                recycled.getBoard().teamPieces(ChessGame.TeamColor.WHITE).stream().count());
+                recycled.getBoard().teamPieces(ChessGame.TeamColor.WHITE).size());
+    }
+
+    @Test
+    @DisplayName("Deserializing to inheritor makes empty object")
+    public void serializationDowncast()
+    {
+        String content = gson.toJson(new NotificationMessage("hi there"));
+
+        ResignMessage actual = gson.fromJson(content, ResignMessage.class);
+
+        Assertions.assertNotNull(actual);
+        Assertions.assertNull(actual.getUsername());
     }
 }

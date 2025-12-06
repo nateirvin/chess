@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import jakarta.websocket.*;
 import model.GameData;
 import ui.BufferedRenderer;
-import ui.menu.GameScopedCommandHandler;
+import ui.GameProgressRenderer;
 import websocket.commands.UserGameCommand;
 import websocket.messages.*;
 import java.io.Closeable;
@@ -21,11 +21,13 @@ public class WebSocketClient extends Endpoint implements Closeable
     private final AppState appState;
     private final Gson gson;
     private final BufferedRenderer render;
+    private final GameProgressRenderer extendedRenderer;
 
     public WebSocketClient(AppState appState, Gson gson, BufferedRenderer renderer) {
         this.appState = appState;
         this.gson = gson;
         this.render = renderer;
+        this.extendedRenderer = new GameProgressRenderer(appState, renderer);
     }
 
     public void bindTo(String host, int port)  {
@@ -45,6 +47,7 @@ public class WebSocketClient extends Endpoint implements Closeable
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
         this.session = container.connectToServer(this, getUri());
 
+        //noinspection Convert2Lambda,Anonymous2MethodRef
         this.session.addMessageHandler(new MessageHandler.Whole<String>() {
             public void onMessage(String message) {
                 handleCallbacks(message);
@@ -79,20 +82,21 @@ public class WebSocketClient extends Endpoint implements Closeable
         appState.updateGame(game);
         render.updateBoard(game.getGame().getBoard(), appState.getPlayer());
 
-        GameScopedCommandHandler.displayTurnPlayer(appState, render);
+        extendedRenderer.showPlayState();
     }
 
     private void handleGameActivity(String rawMessage) {
-        NotificationMessage serverMessage = gson.fromJson(rawMessage, NotificationMessage.class);
+        ResignMessage moreSpecificMessage = gson.fromJson(rawMessage, ResignMessage.class);
+        boolean isResignation = !moreSpecificMessage.isEmpty();
 
         //if the resignation was initiated by this user, no need to update anything
-        if(serverMessage.isResignation()) {
-            ResignMessage moreSpecificMessage = gson.fromJson(rawMessage, ResignMessage.class);
+        if(isResignation) {
             if(appState.currentUsername().equals(moreSpecificMessage.getUsername())) {
                 return;
             }
         }
 
+        NotificationMessage serverMessage = gson.fromJson(rawMessage, NotificationMessage.class);
         render.asyncUpdate(serverMessage.getMessage());
     }
 

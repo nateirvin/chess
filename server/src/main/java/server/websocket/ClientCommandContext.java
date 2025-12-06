@@ -34,4 +34,8 @@ class ClientCommandContext
     public UserGameCommand getCommand() {
         return command;
     }
+
+    public UserGameCommand.CommandType getCommandType() {
+        return command.getCommandType();
+    }
 }

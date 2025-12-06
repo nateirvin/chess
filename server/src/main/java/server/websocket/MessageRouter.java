@@ -1,5 +1,6 @@
 package server.websocket;
 
+import chess.ChessGame;
 import chess.ChessMove;
 import chess.ChessPiece;
 import chess.InvalidMoveException;
@@ -16,10 +17,7 @@ import service.GameService;
 import service.SessionService;
 import websocket.commands.UserGameCommand;
 import websocket.commands.UserMoveCommand;
-import websocket.messages.GameLoadServerMessage;
-import websocket.messages.NotificationMessage;
-import websocket.messages.ResignMessage;
-import websocket.messages.ServerErrorMessage;
+import websocket.messages.*;
 import javax.security.auth.login.LoginException;
 
 public class MessageRouter implements WsMessageHandler {
@@ -48,11 +46,11 @@ public class MessageRouter implements WsMessageHandler {
 
             if (context.getGame() != null)
             {
-                if (context.getCommand().getCommandType() == UserGameCommand.CommandType.CONNECT)
+                if (context.getCommandType() == UserGameCommand.CommandType.CONNECT)
                 {
                     handleNewClient(context);
                 }
-                else if (context.getCommand().getCommandType() == UserGameCommand.CommandType.LEAVE)
+                else if (context.getCommandType() == UserGameCommand.CommandType.LEAVE)
                 {
                     handleClientDeparture(context);
                 }
@@ -71,9 +69,14 @@ public class MessageRouter implements WsMessageHandler {
         {
             clientManager.sendToClient(callerContext, new ServerErrorMessage("Invalid Auth Token"));
         }
+        catch(InvalidMoveException invalidMoveException) {
+            clientManager.sendToClient(callerContext, new ServerErrorMessage(invalidMoveException.getMessage()));
+        }
         catch (Exception ex)
         {
+            //noinspection ThrowablePrintedToSystemOut
             System.out.println(ex);
+
             clientManager.sendToClient(callerContext,
                                        new ServerErrorMessage(
                                                "There was an unrecoverable error while processing this action."));
@@ -89,33 +92,38 @@ public class MessageRouter implements WsMessageHandler {
     }
 
     private void handleNewClient(ClientCommandContext context) {
-        GameData game = context.getGame();
         WsContext caller = context.getCaller();
+        AuthData session = context.getSession();
+        GameData game = context.getGame();
 
-        clientManager.register(game.gameID(), context.getSession(), caller);
+        clientManager.register(game.gameID(), session, caller);
 
         clientManager.sendToClient(caller, new GameLoadServerMessage(game));
 
+        ChessGame.TeamColor color = game.getColorForUser(session.username());
         NotificationMessage message = 
-                new NotificationMessage("%s has joined %s".formatted(context.getSession().username(), game.gameName()));
+                new NotificationMessage("%s has joined %s as %s"
+                                        .formatted(session.username(), game.gameName(), color));
         clientManager.sendToGameUsersExceptCaller(message, context.getCommand());
     }
 
     private void handleClientDeparture(ClientCommandContext context) {
         GameData game = context.getGame();
         AuthData session = context.getSession();
-        
-        gameService.leaveGame(game.gameID(), game.getColorForUser(session.username()));
+        ChessGame.TeamColor color = game.getColorForUser(session.username());
+
+        gameService.leaveGame(game.gameID(), color);
 
         clientManager.unregister(game.gameID(), session.authToken());
 
-        NotificationMessage message = new NotificationMessage(session.username() + " has left " + game.gameName());
+        NotificationMessage message =
+                new NotificationMessage("%s (%s) has left %s"
+                                        .formatted(session.username(), color, game.gameName()));
         clientManager.sendToGameUsersExceptCaller(message, context.getCommand());
     }
 
     private void handleGameplay(ClientCommandContext context) throws InvalidMoveException {
         WsMessageContext caller = context.getCaller();
-        UserGameCommand command = context.getCommand();
         GameData game = context.getGame();
         AuthData session = context.getSession();
 
@@ -129,7 +137,7 @@ public class MessageRouter implements WsMessageHandler {
             return;
         }
 
-        if (command.getCommandType() == UserGameCommand.CommandType.MAKE_MOVE)
+        if (context.getCommandType() == UserGameCommand.CommandType.MAKE_MOVE)
         {
             if(!game.isThisPlayersTurn(session.username())) {
                 clientManager.sendToClient(caller, new ServerErrorMessage("It is not your turn."));
@@ -138,7 +146,7 @@ public class MessageRouter implements WsMessageHandler {
 
             handleMove(context);
         }
-        else if (command.getCommandType() == UserGameCommand.CommandType.RESIGN)
+        else if (context.getCommandType() == UserGameCommand.CommandType.RESIGN)
         {
             handleResignation(context);
         }
@@ -154,9 +162,19 @@ public class MessageRouter implements WsMessageHandler {
         game.getGame().makeMove(move);
         this.gameDataAccess.updateGame(game);
 
-        String updateMessage = "%s moved %s from %s".formatted(context.getSession().username(), piece, move);
+        String updateMessage = "%s moved %s from %s".formatted(context.getSession().username(),
+                                                               piece,
+                                                               move.inStandardNotation());
         NotificationMessage message = new NotificationMessage(updateMessage);
         clientManager.sendToGameUsersExceptCaller(message, context.getCommand());
+
+        ChessGame.TeamColor color = game.getGame().getTeamTurn();    //by making the move, the active team has switched
+        if(game.getGame().isInCheck(color))
+        {
+            String user = game.usernameFor(color);
+            clientManager.sendToGameUsers(game.gameID(),
+                                          new NotificationMessage("%s (%s) is in check!".formatted(color, user)));
+        }
 
         clientManager.sendToGameUsers(game.gameID(), new GameLoadServerMessage(game));
     }
@@ -165,9 +183,9 @@ public class MessageRouter implements WsMessageHandler {
         GameData game = context.getGame();
         AuthData session = context.getSession();
 
-        game.concededBy(session.username());
+        ChessGame.TeamColor color = game.concededBy(session.username());
         this.gameDataAccess.updateGame(game);
 
-        clientManager.sendToGameUsers(game.gameID(), new ResignMessage(session.username()));
+        clientManager.sendToGameUsers(game.gameID(), new ResignMessage(color, session.username()));
     }
 }

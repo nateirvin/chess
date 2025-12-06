@@ -5,7 +5,7 @@ import model.GameData;
 import model.UserEntryResult;
 import ui.BufferedRenderer;
 import ui.data.AppState;
-import ui.data.BoardColumn;
+import chess.BoardColumn;
 import ui.data.GameListAccessor;
 
 public abstract class GameScopedCommandHandler {
@@ -65,7 +65,7 @@ public abstract class GameScopedCommandHandler {
 
         UserEntryResult<GameData> gameQuery = gameListAccessor.getGameByNumber(gameNumber);
         if (!gameQuery.success()) {
-            return new UserEntryResult<>("You must list the games before you can select one.");
+            return new UserEntryResult<>(gameQuery.getErrorMessage());
         }
 
         GameData game = gameQuery.getValue();
@@ -74,26 +74,5 @@ public abstract class GameScopedCommandHandler {
         }
 
         return new UserEntryResult<>(game);
-    }
-
-    protected void displayTurnPlayer() {
-        displayTurnPlayer(appState, render);
-    }
-
-    public static void displayTurnPlayer(AppState appState1, BufferedRenderer render1) {
-        String activePlayerUsername = appState1.getCurrentGame().usernameForCurrentTurn();
-        if(appState1.currentUsername().equals(activePlayerUsername)) {
-            render1.myTurn();
-        } else {
-            render1.waitingOnPlayer(activePlayerUsername);
-        }
-    }
-
-    protected boolean displayGameOver() {
-        if(appState.getCurrentGame().isOver()) {
-            render.userActionComplete("Game over: %s wins!".formatted(appState.getCurrentGame().getWinner()));
-            return true;
-        }
-        return false;
     }
 }
