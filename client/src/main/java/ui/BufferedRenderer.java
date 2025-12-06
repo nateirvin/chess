@@ -185,13 +185,24 @@ public class BufferedRenderer implements Closeable
 
     public void myTurn() {
         synchronized (writerLock) {
-            writer.print("It is ");
-            writer.print(EscapeSequences.SET_TEXT_BOLD);
-            writer.print("your");
-            writer.print(EscapeSequences.RESET_TEXT_BOLD_FAINT);
-            writer.println(" turn");
-            writer.println();
+            if(reader.isWaiting()) {
+                writer.println();
+                renderMyTurn();
+                writer.println();
+                showPrompt();
+            } else {
+                renderMyTurn();
+            }
         }
+    }
+
+    private void renderMyTurn() {
+        writer.print("It is ");
+        writer.print(EscapeSequences.SET_TEXT_BOLD);
+        writer.print("your");
+        writer.print(EscapeSequences.RESET_TEXT_BOLD_FAINT);
+        writer.println(" turn");
+        writer.println();
     }
 
     public void waitingOnPlayer(String username) {
