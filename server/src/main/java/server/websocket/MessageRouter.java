@@ -168,6 +168,14 @@ public class MessageRouter implements WsMessageHandler {
         NotificationMessage message = new NotificationMessage(updateMessage);
         clientManager.sendToGameUsersExceptCaller(message, context.getCommand());
 
+        ChessGame.TeamColor color = game.getGame().getTeamTurn();    //by making the move, the active team has switched
+        if(game.getGame().isInCheck(color))
+        {
+            String user = game.usernameFor(color);
+            clientManager.sendToGameUsers(game.gameID(),
+                                          new NotificationMessage("%s (%s) is in check!".formatted(color, user)));
+        }
+
         clientManager.sendToGameUsers(game.gameID(), new GameLoadServerMessage(game));
     }
 
