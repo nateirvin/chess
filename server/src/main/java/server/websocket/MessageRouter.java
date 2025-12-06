@@ -2,8 +2,10 @@ package server.websocket;
 
 import chess.ChessMove;
 import chess.ChessPiece;
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.GameDataAccess;
+import io.javalin.websocket.WsContext;
 import io.javalin.websocket.WsMessageContext;
 import io.javalin.websocket.WsMessageHandler;
 import model.AuthData;
@@ -42,75 +44,27 @@ public class MessageRouter implements WsMessageHandler {
     {
         try
         {
-            UserGameCommand callerMessage = gson.fromJson(callerContext.message(), UserGameCommand.class);
+            ClientCommandContext context = getEnrichedContext(callerContext);
 
-            AuthData session = sessionService.validateSession(callerMessage.getAuthToken());
-            GameData game = gameDataAccess.getGameById(callerMessage.getGameID());
-
-            if (game != null)
+            if (context.getGame() != null)
             {
-                if (callerMessage.getCommandType() == UserGameCommand.CommandType.CONNECT)
+                if (context.getCommand().getCommandType() == UserGameCommand.CommandType.CONNECT)
                 {
-                    clientManager.register(game.gameID(), session, callerContext);
-
-                    clientManager.sendToClient(callerContext, new GameLoadServerMessage(game));
-
-                    NotificationMessage message = new NotificationMessage(session.username() + " has joined " + game.gameName());
-                    clientManager.sendToGameUsersExceptCaller(message, callerMessage);
+                    handleNewClient(context);
                 }
-                else if (callerMessage.getCommandType() == UserGameCommand.CommandType.LEAVE)
+                else if (context.getCommand().getCommandType() == UserGameCommand.CommandType.LEAVE)
                 {
-                    gameService.leaveGame(game.gameID(), game.getColorForUser(session.username()));
-
-                    clientManager.unregister(game.gameID(), callerMessage.getAuthToken());
-
-                    NotificationMessage message = new NotificationMessage(session.username() + " has left " + game.gameName());
-                    clientManager.sendToGameUsersExceptCaller(message, callerMessage);
+                    handleClientDeparture(context);
                 }
                 else
                 {
-                    if(!game.hasPlayer(session.username())) {
-                        clientManager.sendToClient(callerContext, new ServerErrorMessage("Observers cannot make moves."));
-                        return;
-                    }
-
-                    if(game.isOver()) {
-                        clientManager.sendToClient(callerContext, new ServerErrorMessage("The game is over."));
-                        return;
-                    }
-
-                    if (callerMessage.getCommandType() == UserGameCommand.CommandType.MAKE_MOVE)
-                    {
-                        if(!game.isThisPlayersTurn(session.username())) {
-                            clientManager.sendToClient(callerContext, new ServerErrorMessage("It is not your turn."));
-                            return;
-                        }
-
-                        UserMoveCommand specificMessage = gson.fromJson(callerContext.message(), UserMoveCommand.class);
-                        ChessMove move = specificMessage.getMove();
-
-                        ChessPiece piece = game.getGame().getBoard().getPiece(move.getStartPosition());
-                        game.getGame().makeMove(move);
-                        this.gameDataAccess.updateGame(game);
-
-                        String updateMessage = "%s moved %s from %s".formatted(session.username(), piece, move);
-                        NotificationMessage message = new NotificationMessage(updateMessage);
-                        clientManager.sendToGameUsersExceptCaller(message, callerMessage);
-
-                        clientManager.sendToGameUsers(game.gameID(), new GameLoadServerMessage(game));
-                    }
-                    else if (callerMessage.getCommandType() == UserGameCommand.CommandType.RESIGN)
-                    {
-                        game.concededBy(session.username());
-                        this.gameDataAccess.updateGame(game);
-                        clientManager.sendToGameUsers(game.gameID(), new ResignMessage(session.username()));
-                    }
+                    handleGameplay(context) ;
                 }
             }
             else
             {
                 ServerErrorMessage message = new ServerErrorMessage("Invalid Game ID");
-                clientManager.sendToClient(callerContext, message);
+                clientManager.sendToClient(context.getCaller(), message);
             }
         }
         catch (LoginException ex)
@@ -124,5 +78,96 @@ public class MessageRouter implements WsMessageHandler {
                                        new ServerErrorMessage(
                                                "There was an unrecoverable error while processing this action."));
         }
+    }
+
+    @NotNull
+    private ClientCommandContext getEnrichedContext(@NotNull WsMessageContext callerContext) throws LoginException {
+        UserGameCommand callerMessage = gson.fromJson(callerContext.message(), UserGameCommand.class);
+        AuthData session = sessionService.validateSession(callerMessage.getAuthToken());
+        GameData game = gameDataAccess.getGameById(callerMessage.getGameID());
+        return new ClientCommandContext(callerContext, callerMessage, session, game);
+    }
+
+    private void handleNewClient(ClientCommandContext context) {
+        GameData game = context.getGame();
+        WsContext caller = context.getCaller();
+
+        clientManager.register(game.gameID(), context.getSession(), caller);
+
+        clientManager.sendToClient(caller, new GameLoadServerMessage(game));
+
+        NotificationMessage message = 
+                new NotificationMessage("%s has joined %s".formatted(context.getSession().username(), game.gameName()));
+        clientManager.sendToGameUsersExceptCaller(message, context.getCommand());
+    }
+
+    private void handleClientDeparture(ClientCommandContext context) {
+        GameData game = context.getGame();
+        AuthData session = context.getSession();
+        
+        gameService.leaveGame(game.gameID(), game.getColorForUser(session.username()));
+
+        clientManager.unregister(game.gameID(), session.authToken());
+
+        NotificationMessage message = new NotificationMessage(session.username() + " has left " + game.gameName());
+        clientManager.sendToGameUsersExceptCaller(message, context.getCommand());
+    }
+
+    private void handleGameplay(ClientCommandContext context) throws InvalidMoveException {
+        WsMessageContext caller = context.getCaller();
+        UserGameCommand command = context.getCommand();
+        GameData game = context.getGame();
+        AuthData session = context.getSession();
+
+        if(!game.hasPlayer(session.username())) {
+            clientManager.sendToClient(caller, new ServerErrorMessage("Observers cannot make moves."));
+            return;
+        }
+
+        if(game.isOver()) {
+            clientManager.sendToClient(caller, new ServerErrorMessage("The game is over."));
+            return;
+        }
+
+        if (command.getCommandType() == UserGameCommand.CommandType.MAKE_MOVE)
+        {
+            if(!game.isThisPlayersTurn(session.username())) {
+                clientManager.sendToClient(caller, new ServerErrorMessage("It is not your turn."));
+                return;
+            }
+
+            handleMove(context);
+        }
+        else if (command.getCommandType() == UserGameCommand.CommandType.RESIGN)
+        {
+            handleResignation(context);
+        }
+    }
+
+    private void handleMove(ClientCommandContext context) throws InvalidMoveException {
+        GameData game = context.getGame();
+
+        UserMoveCommand specificMessage = gson.fromJson(context.getCaller().message(), UserMoveCommand.class);
+        ChessMove move = specificMessage.getMove();
+
+        ChessPiece piece = game.getGame().getBoard().getPiece(move.getStartPosition());
+        game.getGame().makeMove(move);
+        this.gameDataAccess.updateGame(game);
+
+        String updateMessage = "%s moved %s from %s".formatted(context.getSession().username(), piece, move);
+        NotificationMessage message = new NotificationMessage(updateMessage);
+        clientManager.sendToGameUsersExceptCaller(message, context.getCommand());
+
+        clientManager.sendToGameUsers(game.gameID(), new GameLoadServerMessage(game));
+    }
+
+    private void handleResignation(ClientCommandContext context) {
+        GameData game = context.getGame();
+        AuthData session = context.getSession();
+
+        game.concededBy(session.username());
+        this.gameDataAccess.updateGame(game);
+
+        clientManager.sendToGameUsers(game.gameID(), new ResignMessage(session.username()));
     }
 }

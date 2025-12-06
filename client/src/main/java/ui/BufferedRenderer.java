@@ -214,12 +214,6 @@ public class BufferedRenderer implements Closeable
         }
     }
 
-    public void gamesList(ArrayList<GameData> games) {
-        synchronized (writerLock) {
-            gameListRenderer.showGamesList(games);
-        }
-    }
-
     public void gamesListWithAltText(ArrayList<GameData> games) {
         synchronized (writerLock) {
             gameListRenderer.showGamesListWithAlternateText(games,"No games yet; use the 'create' command to start one!");
