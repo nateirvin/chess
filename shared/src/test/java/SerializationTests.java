@@ -161,7 +161,7 @@ public class SerializationTests
         ChessGame recycled = gson.fromJson(rep, ChessGame.class);
 
         Assertions.assertEquals(16,
-                recycled.getBoard().teamPieces(ChessGame.TeamColor.WHITE).stream().count());
+                recycled.getBoard().teamPieces(ChessGame.TeamColor.WHITE).size());
     }
 
     @Test

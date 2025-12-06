@@ -45,6 +45,7 @@ public class WebSocketClient extends Endpoint implements Closeable
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
         this.session = container.connectToServer(this, getUri());
 
+        //noinspection Convert2Lambda,Anonymous2MethodRef
         this.session.addMessageHandler(new MessageHandler.Whole<String>() {
             public void onMessage(String message) {
                 handleCallbacks(message);
@@ -84,9 +85,10 @@ public class WebSocketClient extends Endpoint implements Closeable
 
     private void handleGameActivity(String rawMessage) {
         ResignMessage moreSpecificMessage = gson.fromJson(rawMessage, ResignMessage.class);
+        boolean isResignation = !moreSpecificMessage.isEmpty();
 
         //if the resignation was initiated by this user, no need to update anything
-        if(!moreSpecificMessage.isEmpty()) {
+        if(isResignation) {
             if(appState.currentUsername().equals(moreSpecificMessage.getUsername())) {
                 return;
             }
