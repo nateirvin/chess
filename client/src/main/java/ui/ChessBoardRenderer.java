@@ -4,7 +4,7 @@ import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
-import ui.data.BoardColumn;
+import chess.BoardColumn;
 
 import java.util.ArrayList;
 

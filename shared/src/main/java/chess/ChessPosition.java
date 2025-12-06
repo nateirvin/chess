@@ -147,6 +147,10 @@ public class ChessPosition {
         }
     }
 
+    public String toStandardNotation() {
+        return "%s%d".formatted(BoardColumn.numberToLetter(col), row);
+    }
+
     @SuppressWarnings("unused")
     public boolean equals(int row, int col) {
         return row == this.row && col == this.col;
@@ -168,6 +172,6 @@ public class ChessPosition {
 
     @Override
     public String toString() {
-        return "(" + row + "," + col + ")";
+        return "(%d,%d)".formatted(row, col);
     }
 }

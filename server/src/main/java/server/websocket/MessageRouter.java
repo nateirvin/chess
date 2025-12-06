@@ -154,7 +154,9 @@ public class MessageRouter implements WsMessageHandler {
         game.getGame().makeMove(move);
         this.gameDataAccess.updateGame(game);
 
-        String updateMessage = "%s moved %s from %s".formatted(context.getSession().username(), piece, move);
+        String updateMessage = "%s moved %s from %s".formatted(context.getSession().username(),
+                                                               piece,
+                                                               move.inStandardNotation());
         NotificationMessage message = new NotificationMessage(updateMessage);
         clientManager.sendToGameUsersExceptCaller(message, context.getCommand());
 

@@ -56,6 +56,10 @@ public class ChessMove {
         return startPosition + " to " + endPosition;
     }
 
+    public String inStandardNotation() {
+        return "%s to %s".formatted(startPosition.toStandardNotation(), endPosition.toStandardNotation());
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(startPosition.hashCode(),

@@ -5,7 +5,7 @@ import model.GameData;
 import model.UserEntryResult;
 import ui.BufferedRenderer;
 import ui.data.AppState;
-import ui.data.BoardColumn;
+import chess.BoardColumn;
 import ui.data.GameListAccessor;
 
 public abstract class GameScopedCommandHandler {
