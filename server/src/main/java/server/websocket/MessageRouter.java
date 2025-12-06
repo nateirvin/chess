@@ -1,5 +1,6 @@
 package server.websocket;
 
+import chess.ChessGame;
 import chess.ChessMove;
 import chess.ChessPiece;
 import chess.InvalidMoveException;
@@ -17,7 +18,6 @@ import service.SessionService;
 import websocket.commands.UserGameCommand;
 import websocket.commands.UserMoveCommand;
 import websocket.messages.*;
-
 import javax.security.auth.login.LoginException;
 
 public class MessageRouter implements WsMessageHandler {
@@ -92,15 +92,18 @@ public class MessageRouter implements WsMessageHandler {
     }
 
     private void handleNewClient(ClientCommandContext context) {
-        GameData game = context.getGame();
         WsContext caller = context.getCaller();
+        AuthData session = context.getSession();
+        GameData game = context.getGame();
 
-        clientManager.register(game.gameID(), context.getSession(), caller);
+        clientManager.register(game.gameID(), session, caller);
 
         clientManager.sendToClient(caller, new GameLoadServerMessage(game));
 
+        ChessGame.TeamColor color = game.getColorForUser(session.username());
         NotificationMessage message = 
-                new NotificationMessage("%s has joined %s".formatted(context.getSession().username(), game.gameName()));
+                new NotificationMessage("%s has joined %s as %s"
+                                        .formatted(session.username(), game.gameName(), color));
         clientManager.sendToGameUsersExceptCaller(message, context.getCommand());
     }
 
