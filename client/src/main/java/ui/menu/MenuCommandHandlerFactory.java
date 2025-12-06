@@ -18,7 +18,10 @@ public class MenuCommandHandlerFactory
     private final BufferedRenderer mainRenderer;
     private final WebSocketClient webSocketClient;
 
-    public MenuCommandHandlerFactory(AppState appState, Logger logger, BufferedRenderer mainRenderer, GameListAccessor gameListAccessor, ServerFacade serverFacade,
+    public MenuCommandHandlerFactory(AppState appState, Logger logger,
+                                     BufferedRenderer mainRenderer,
+                                     GameListAccessor gameListAccessor,
+                                     ServerFacade serverFacade,
                                      WebSocketClient webSocketClient)
     {
         this.appState = appState;
@@ -72,7 +75,8 @@ public class MenuCommandHandlerFactory
                 return new ListGameCommandHandler(logger, mainRenderer, gameListAccessor);
             }
             case "observe" -> {
-                return new ObserveGameCommandHandler(appState, logger, mainRenderer, gameListAccessor, webSocketClient);
+                return new ObserveGameCommandHandler(appState, logger, mainRenderer,
+                                                     gameListAccessor, webSocketClient);
             }
             case "join" -> {
                 return new JoinGameCommandHandler(appState, mainRenderer, logger,
