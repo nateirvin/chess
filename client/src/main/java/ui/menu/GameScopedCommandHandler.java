@@ -65,7 +65,7 @@ public abstract class GameScopedCommandHandler {
 
         UserEntryResult<GameData> gameQuery = gameListAccessor.getGameByNumber(gameNumber);
         if (!gameQuery.success()) {
-            return new UserEntryResult<>("You must list the games before you can select one.");
+            return new UserEntryResult<>(gameQuery.getErrorMessage());
         }
 
         GameData game = gameQuery.getValue();

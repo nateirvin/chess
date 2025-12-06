@@ -20,7 +20,7 @@ public final class GameListAccessor {
 
     public UserEntryResult<GameData> getGameByNumber(int number) {
         if(games == null) {
-            return new UserEntryResult<>("Games not loaded.");
+            return new UserEntryResult<>("You must list the games before you can select one.");
         }
         if(number >= 1 && number <= games.size()) {
             GameData gameData = games.get(number - 1);
