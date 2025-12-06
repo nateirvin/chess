@@ -14,7 +14,6 @@ import java.util.logging.Logger;
 
 public class Application implements Closeable
 {
-    private final Gson gson;
     private final AppState appState;
     private final MenuCommandHandlerFactory menuCommandFactory;
     private final BufferedRenderer render;
@@ -23,9 +22,10 @@ public class Application implements Closeable
 
     public Application(Logger logger, BufferedRenderer render)
     {
+        Gson gson = new SerializerFactory().getGson();
+
         this.render = render;
         this.appState = new AppState();
-        this.gson = new SerializerFactory().getGson();
         this.serverFacade = new ServerFacade(gson);
         this.webSocketClient = new WebSocketClient(appState, gson, render);
 
