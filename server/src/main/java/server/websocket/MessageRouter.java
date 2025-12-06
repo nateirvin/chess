@@ -46,11 +46,11 @@ public class MessageRouter implements WsMessageHandler {
 
             if (context.getGame() != null)
             {
-                if (context.getCommand().getCommandType() == UserGameCommand.CommandType.CONNECT)
+                if (context.getCommandType() == UserGameCommand.CommandType.CONNECT)
                 {
                     handleNewClient(context);
                 }
-                else if (context.getCommand().getCommandType() == UserGameCommand.CommandType.LEAVE)
+                else if (context.getCommandType() == UserGameCommand.CommandType.LEAVE)
                 {
                     handleClientDeparture(context);
                 }
@@ -116,7 +116,6 @@ public class MessageRouter implements WsMessageHandler {
 
     private void handleGameplay(ClientCommandContext context) throws InvalidMoveException {
         WsMessageContext caller = context.getCaller();
-        UserGameCommand command = context.getCommand();
         GameData game = context.getGame();
         AuthData session = context.getSession();
 
@@ -130,7 +129,7 @@ public class MessageRouter implements WsMessageHandler {
             return;
         }
 
-        if (command.getCommandType() == UserGameCommand.CommandType.MAKE_MOVE)
+        if (context.getCommandType() == UserGameCommand.CommandType.MAKE_MOVE)
         {
             if(!game.isThisPlayersTurn(session.username())) {
                 clientManager.sendToClient(caller, new ServerErrorMessage("It is not your turn."));
@@ -139,7 +138,7 @@ public class MessageRouter implements WsMessageHandler {
 
             handleMove(context);
         }
-        else if (command.getCommandType() == UserGameCommand.CommandType.RESIGN)
+        else if (context.getCommandType() == UserGameCommand.CommandType.RESIGN)
         {
             handleResignation(context);
         }
