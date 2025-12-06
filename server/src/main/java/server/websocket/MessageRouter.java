@@ -110,12 +110,15 @@ public class MessageRouter implements WsMessageHandler {
     private void handleClientDeparture(ClientCommandContext context) {
         GameData game = context.getGame();
         AuthData session = context.getSession();
-        
-        gameService.leaveGame(game.gameID(), game.getColorForUser(session.username()));
+        ChessGame.TeamColor color = game.getColorForUser(session.username());
+
+        gameService.leaveGame(game.gameID(), color);
 
         clientManager.unregister(game.gameID(), session.authToken());
 
-        NotificationMessage message = new NotificationMessage(session.username() + " has left " + game.gameName());
+        NotificationMessage message =
+                new NotificationMessage("%s (%s) has left %s"
+                                        .formatted(session.username(), color, game.gameName()));
         clientManager.sendToGameUsersExceptCaller(message, context.getCommand());
     }
 
@@ -172,9 +175,9 @@ public class MessageRouter implements WsMessageHandler {
         GameData game = context.getGame();
         AuthData session = context.getSession();
 
-        game.concededBy(session.username());
+        ChessGame.TeamColor color = game.concededBy(session.username());
         this.gameDataAccess.updateGame(game);
 
-        clientManager.sendToGameUsers(game.gameID(), new ResignMessage(session.username()));
+        clientManager.sendToGameUsers(game.gameID(), new ResignMessage(color, session.username()));
     }
 }
