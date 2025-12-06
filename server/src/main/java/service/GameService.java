@@ -57,10 +57,12 @@ public class GameService
         {
             return dataAccess.setWhiteTeam(gamedID, username);
         }
-        else
+        else if(color == ChessGame.TeamColor.BLACK)
         {
             return dataAccess.setBlackTeam(gamedID, username);
         }
+
+        throw new IllegalArgumentException();
     }
 
     public void reset()

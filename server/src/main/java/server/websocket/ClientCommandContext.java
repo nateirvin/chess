@@ -1,5 +1,6 @@
 package server.websocket;
 
+import chess.ChessGame;
 import io.javalin.websocket.WsMessageContext;
 import model.AuthData;
 import model.GameData;
@@ -37,5 +38,10 @@ class ClientCommandContext
 
     public UserGameCommand.CommandType getCommandType() {
         return command.getCommandType();
+    }
+
+    public String getPlayerRoleDescription() {
+        ChessGame.TeamColor color = game.getColorForUser(session.username());
+        return color == null ? "observer" : color.toString();
     }
 }

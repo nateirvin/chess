@@ -100,10 +100,11 @@ public class MessageRouter implements WsMessageHandler {
 
         clientManager.sendToClient(caller, new GameLoadServerMessage(game));
 
-        ChessGame.TeamColor color = game.getColorForUser(session.username());
-        NotificationMessage message = 
+        NotificationMessage message =
                 new NotificationMessage("%s has joined %s as %s"
-                                        .formatted(session.username(), game.gameName(), color));
+                                        .formatted(session.username(),
+                                                   game.gameName(),
+                                                   context.getPlayerRoleDescription()));
         clientManager.sendToGameUsersExceptCaller(message, context.getCommand());
     }
 
@@ -112,13 +113,17 @@ public class MessageRouter implements WsMessageHandler {
         AuthData session = context.getSession();
         ChessGame.TeamColor color = game.getColorForUser(session.username());
 
-        gameService.leaveGame(game.gameID(), color);
+        if(color != null) {
+            gameService.leaveGame(game.gameID(), color);
+        }
 
         clientManager.unregister(game.gameID(), session.authToken());
 
         NotificationMessage message =
                 new NotificationMessage("%s (%s) has left %s"
-                                        .formatted(session.username(), color, game.gameName()));
+                                        .formatted(session.username(),
+                                                   context.getPlayerRoleDescription(),
+                                                   game.gameName()));
         clientManager.sendToGameUsersExceptCaller(message, context.getCommand());
     }
 
