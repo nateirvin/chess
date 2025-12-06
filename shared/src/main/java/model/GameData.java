@@ -77,16 +77,6 @@ public class GameData
         return null;
     }
 
-    public void setPlayer(ChessGame.TeamColor teamColor, String username) {
-        if(teamColor == ChessGame.TeamColor.WHITE) {
-            this.whiteUsername = username;
-        } else if(teamColor == ChessGame.TeamColor.BLACK) {
-            this.blackUsername = username;
-        } else {
-            throw new UnsupportedOperationException();
-        }
-    }
-
     public boolean hasPlayer(String username) {
         return whiteUsername != null && whiteUsername.equals(username)
                ||

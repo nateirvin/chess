@@ -10,11 +10,6 @@ public class GameListRenderer {
         this.writer = writer;
     }
 
-    public void showGamesList(ArrayList<GameData> games)
-    {
-        showGamesListWithAlternateText(games,null);
-    }
-
     public void showGamesListWithAlternateText(ArrayList<GameData> games, String altText) {
         if(!games.isEmpty()) {
             writer.println("Games:");

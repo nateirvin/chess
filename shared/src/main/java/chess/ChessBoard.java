@@ -31,10 +31,6 @@ public class ChessBoard {
         pieces.put(position, piece);
     }
 
-    public ChessPiece getPiece(int row, int col) {
-        return getPiece(new ChessPosition(row, col));
-    }
-
     /**
      * Gets a chess piece on the chessboard
      *
