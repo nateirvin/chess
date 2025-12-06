@@ -11,7 +11,7 @@ import service.UserService;
 import javax.security.auth.login.LoginException;
 import java.util.Map;
 
-class JsonEndpointHandler
+public class JsonEndpointHandler
 {
     protected final Gson gson;
     protected final SessionService sessionService;
