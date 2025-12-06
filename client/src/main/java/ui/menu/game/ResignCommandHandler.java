@@ -2,6 +2,7 @@ package ui.menu.game;
 
 import jakarta.websocket.DeploymentException;
 import ui.BufferedRenderer;
+import ui.GameProgressRenderer;
 import ui.data.AppState;
 import ui.data.WebSocketClient;
 import ui.menu.GameScopedCommandHandler;
@@ -13,11 +14,13 @@ import java.util.logging.Logger;
 public class ResignCommandHandler extends GameScopedCommandHandler implements MenuCommandHandler {
     private final Logger logger;
     private final WebSocketClient webSocket;
+    private final GameProgressRenderer extendedRenderer;
 
     public ResignCommandHandler(AppState appState, Logger logger, BufferedRenderer render, WebSocketClient webSocket) {
         super(appState, render, null);
         this.logger = logger;
         this.webSocket = webSocket;
+        this.extendedRenderer = new GameProgressRenderer(appState, render);
     }
 
     @Override
@@ -48,8 +51,8 @@ public class ResignCommandHandler extends GameScopedCommandHandler implements Me
         }
 
         appState.getCurrentGame().concededBy(appState.getPlayer());
+        extendedRenderer.showPlayState();
 
-        displayGameOver();
         return null;
     }
 }
