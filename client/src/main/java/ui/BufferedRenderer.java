@@ -62,12 +62,23 @@ public class BufferedRenderer implements Closeable
 
     public void userActionComplete(String message) {
         synchronized (writerLock) {
-            writer.print(EscapeSequences.SET_TEXT_COLOR_GREEN);
-            writer.println(message);
-            writer.print(EscapeSequences.RESET_TEXT_COLOR);
-            writer.println();
-            renderPendingUpdates();
+            if(reader.isWaiting()) {
+                writer.println();
+                renderActionComplete(message);
+                renderPendingUpdates();
+                showPrompt();
+            } else {
+                renderActionComplete(message);
+                renderPendingUpdates();
+            }
         }
+    }
+
+    private void renderActionComplete(String message) {
+        writer.print(EscapeSequences.SET_TEXT_COLOR_GREEN);
+        writer.println(message);
+        writer.print(EscapeSequences.RESET_TEXT_COLOR);
+        writer.println();
     }
 
     private void renderPendingUpdates() {
